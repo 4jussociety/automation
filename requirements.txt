@@ -1,0 +1,17 @@
+# AI & LLM
+google-genai>=0.1.0
+
+# News Scraper & RSS
+feedparser>=6.0.10
+beautifulsoup4>=4.12.0
+requests>=2.31.0
+
+# Card News & Image Rendering
+playwright>=1.40.0
+Pillow>=10.0.0
+
+# Shorts Audio Synthesis (TTS)
+edge-tts>=6.1.9
+
+# Environment & Config
+python-dotenv>=1.0.0
