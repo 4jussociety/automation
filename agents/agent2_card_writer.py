@@ -1,12 +1,9 @@
 import json
 from config import GEMINI_API_KEY, DEFAULT_MODEL, CURRENT_WEEK
 
+from agents.llm_helper import generate_json_response
+
 def generate_card_news_with_gemini(batch_data):
-    from google import genai
-    from google.genai import types
-
-    client = genai.Client(api_key=GEMINI_API_KEY)
-
     prompt = f"""
 당신은 인스타그램 물리치료/헬스케어 매거진 수석 카피라이터 에이전트(Agent 2)입니다.
 아래 제공된 [주간 뉴스 브리핑 데이터]를 바탕으로, 인스타그램 캐러셀(6장 슬라이드) 카드뉴스 텍스트와 본문 캡션을 작성하세요.
@@ -14,18 +11,24 @@ def generate_card_news_with_gemini(batch_data):
 [입력 브리핑 데이터]
 {json.dumps(batch_data, ensure_ascii=False, indent=2)}
 
+[🎯 타겟 독자]
+- 오직 물리치료사(PT), 도수치료사, 재활전문가, 작업치료사(OT) 등 임상 실무자입니다.
+- 일반인을 위한 쉬운 건강 상식이 아니라, 전문가의 눈높이에 맞춘 전문 용어와 임상 실무적 가치(차팅 삭감 방지, 법적 리스크 대비, 최신 치료 프로토콜)를 깊이 있게 다루세요.
+
 [작성 규칙]
 1. 슬라이드 1 (표지):
-   - 시선을 강탈하는 짧고 강력한 메인 타이틀 (예: "도수치료 실손보험, 이번 달부터 바뀝니다")
-   - 부제목: 이번 주 핵심 쟁점 3가지 요약
+   - 임상 치료사의 시선을 사로잡는 강력한 전문 타이틀 (예: "도수치료 실손 심사 기준 개편, 치료사가 챙길 3가지")
+   - 부제목: "물리치료사 & 재활전문가를 위한 이번 주 핵심 실무 브리핑"
+   - bullet_points: 3개 기사의 핵심 헤드라인을 말줄임표(...) 없이 온전한 문장/구문으로 전체 작성 (절대 말줄임 금지)
 2. 슬라이드 2~4 (뉴스 1, 2, 3 상세):
    - 각 슬라이드마다 1개의 뉴스를 다룸.
-   - 구성: 넘버링(01, 02, 03), 뉴스 헤드라인, 출처 뱃지, 핵심 요약 2~3줄, "💡 핵심 포인트" 한 줄
+   - 구성: 넘버링(01, 02, 03), 뉴스 헤드라인, 출처 뱃지, 핵심 요약 2~3줄, "💡 임상 실무 포인트" 한 줄
 3. 슬라이드 5 (전문가 총평 및 실천 팁):
-   - 이번 주 뉴스들이 치료사와 환자에게 주는 시사점 종합 및 권장 행동 요령
+   - 슬라이드 제목: "임상 물리치료사를 위한 실무 종합 인사이트"
+   - 이번 주 이슈들이 병원/클리닉 치료사에게 주는 시사점 종합 및 동료 치료사를 위한 실무 체크리스트 2개
 4. 슬라이드 6 (아웃트로):
-   - 저장 & 팔로우 유도 문구 ("나중에 다시 보려면 [저장], 동료/지인에게 [공유]!")
-5. 본문 캡션(caption) 및 해시태그(hashtags) 15개 작성.
+   - "임상 스터디를 위해 [저장]하고, 함께 일하는 동료 치료사에게 [공유]해보세요!"
+5. 본문 캡션(caption) 및 해시태그(hashtags) 15개 작성 (일반인 태그 배제, 전문가 태그 위주).
 
 [반드시 아래 JSON 형식만 반환하세요]
 {{
@@ -38,18 +41,18 @@ def generate_card_news_with_gemini(batch_data):
       "type": "cover",
       "tag": "WEEKLY BRIEFING",
       "title": "표지 메인 타이틀",
-      "subtitle": "부제목 설명",
-      "bullet_points": ["핵심 이슈 1", "핵심 이슈 2", "핵심 이슈 3"]
+      "subtitle": "물리치료사 & 재활전문가를 위한 핵심 실무 브리핑",
+      "bullet_points": ["핵심 이슈 1 헤드라인 전문", "핵심 이슈 2", "핵심 이슈 3"]
     }},
     {{
       "slide_number": 2,
       "type": "news",
       "item_index": "01",
-      "category_badge": "분류 (예: 실손보험)",
+      "category_badge": "분류",
       "source_badge": "출처",
       "headline": "뉴스 1 헤드라인",
       "body_lines": ["요약 설명 1행", "요약 설명 2행"],
-      "key_point": "💡 기억할 점 1문장"
+      "key_point": "💡 임상 실무 포인트 1문장"
     }},
     {{
       "slide_number": 3,
@@ -59,7 +62,7 @@ def generate_card_news_with_gemini(batch_data):
       "source_badge": "출처",
       "headline": "뉴스 2 헤드라인",
       "body_lines": ["요약 설명 1행", "요약 설명 2행"],
-      "key_point": "💡 기억할 점 1문장"
+      "key_point": "💡 임상 실무 포인트 1문장"
     }},
     {{
       "slide_number": 4,
@@ -69,41 +72,33 @@ def generate_card_news_with_gemini(batch_data):
       "source_badge": "출처",
       "headline": "뉴스 3 헤드라인",
       "body_lines": ["요약 설명 1행", "요약 설명 2행"],
-      "key_point": "💡 기억할 점 1문장"
+      "key_point": "💡 임상 실무 포인트 1문장"
     }},
     {{
       "slide_number": 5,
       "type": "insight",
       "tag": "EXPERT INSIGHT",
-      "title": "물리치료 전문가의 주간 총평",
+      "title": "임상 물리치료사를 위한 실무 종합 인사이트",
       "summary": "이번 주 동향 종합 분석 2~3줄",
       "action_checklist": ["체크 포인트 1", "체크 포인트 2"]
     }},
     {{
       "slide_number": 6,
       "type": "outro",
-      "tag": "PHYSICAL THERAPY TODAY",
-      "title": "매주 업데이트되는\\n물리치료 최신 브리핑",
-      "cta_text": "도움이 되셨다면 [저장]하고\\n필요한 동료에게 [공유]해보세요!",
-      "footer_text": "@pt_weekly_brief"
+      "tag": "THEPT CLINICAL BRIEF",
+      "title": "매주 업데이트되는\\n물리치료사 전문 브리핑",
+      "cta_text": "임상 스터디를 위해 [저장]하고\\n동료 치료사에게 [공유]해보세요!",
+      "footer_text": "@thept_official"
     }}
   ],
-  "caption": "인스타그램 본문 글 전문",
-  "hashtags": ["#물리치료", "#도수치료", "..."]
+  "caption": "물리치료사 선생님들을 위한 인스타그램 본문 글 전문",
+  "hashtags": ["#물리치료사", "#도수치료", "#재활치료사", "#임상물리치료", "#대한물리치료사협회", "#물리치료학과", "#도수치료교육", "#실손보험도수치료", "#재활의학"]
 }}
 """
-    response = client.models.generate_content(
-        model=DEFAULT_MODEL,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            temperature=0.4
-        )
-    )
-    return json.loads(response.text)
+    return generate_json_response(prompt, temperature=0.4)
 
 def get_fallback_card_data(batch_data):
-    """API 키 미등록 시 기본 데이터 기반 카드뉴스 생성"""
+    """API 키 미등록 시 기본 데이터 기반 카드뉴스 생성 (물리치료사 및 재활전문가 타겟)"""
     news_items = batch_data.get("news_items", [])
     batch_title = batch_data.get("batch_title", "물리치료 주간 브리핑")
     
@@ -113,8 +108,8 @@ def get_fallback_card_data(batch_data):
             "type": "cover",
             "tag": f"WEEKLY BRIEFING • {CURRENT_WEEK}",
             "title": batch_title,
-            "subtitle": "이번 주 물리치료계 꼭 알아야 할 3대 이슈 총정리",
-            "bullet_points": [item["headline"][:28] + "..." for item in news_items[:3]]
+            "subtitle": "물리치료사 & 재활전문가를 위한 이번 주 핵심 실무 브리핑",
+            "bullet_points": [item["headline"] for item in news_items[:3]]
         }
     ]
 
@@ -130,40 +125,40 @@ def get_fallback_card_data(batch_data):
                 item.get("summary", ""),
                 item.get("why_it_matters", "")
             ],
-            "key_point": f"💡 {item.get('action_tip', '주목해야 할 핵심 포인트입니다.')}"
+            "key_point": f"💡 {item.get('action_tip', '치료사가 주목해야 할 핵심 포인트입니다.')}"
         })
 
     slides.append({
         "slide_number": 5,
         "type": "insight",
         "tag": "EXPERT INSIGHT",
-        "title": "치료사와 환자가 꼭 챙겨야 할 포인트",
-        "summary": "최신 제도 변화와 임상 근거를 바탕으로 보다 신뢰성 높은 재활 치료 환경이 구축되고 있습니다.",
+        "title": "임상 물리치료사를 위한 실무 종합 인사이트",
+        "summary": "최신 실손보험 심사 기준과 임상 근거 기반 치료 프로토콜을 차트에 정량적으로 반영하는 역량이 핵심입니다.",
         "action_checklist": [
-            "진단서 및 치료 계획서의 객관적 수치(ROM, 통증 척도) 꼼꼼히 관리",
-            "과도한 수동 치료보다 능동적 코어/신장성 수축 재활 병행 권장"
+            "치료 전후 ROM 각도 및 기능적 평가(VAS, 특수검사) 수치화 차팅 체계화",
+            "최신 가이드라인에 따른 단계별 중재 프로토콜(급성기 진동/만성기 편심성) 준수"
         ]
     })
 
     slides.append({
         "slide_number": 6,
         "type": "outro",
-        "tag": "PHYSICAL THERAPY TODAY",
-        "title": "매주 가장 빠른\\n물리치료 뉴스 브리핑",
-        "cta_text": "도움이 되셨다면 [저장]하고\\n동료 치료사 및 지인에게 [공유]하세요!",
-        "footer_text": "@pt_weekly_briefing"
+        "tag": "THEPT CLINICAL BRIEF",
+        "title": "매주 가장 빠른\\n물리치료사 전문 브리핑",
+        "cta_text": "임상 스터디를 위해 [저장]하고\\n동료 치료사에게 [공유]해보세요!",
+        "footer_text": "@thept_official"
     })
 
     caption = f"""📢 [{batch_title}] - {CURRENT_WEEK}
 
-이번 주 물리치료계에서 가장 뜨거웠던 주요 소식들을 모아 전해드립니다!
+선생님, 이번 주 물리치료 임상 현장에서 꼭 확인해야 할 주요 정책 및 학술 소식입니다.
 
-📌 이번 주 핵심 요약:
+📌 이번 주 핵심 브리핑:
 {chr(10).join([f"• {item['headline']}" for item in news_items[:3]])}
 
-자세한 내용은 슬라이드를 옆으로 넘겨 확인해보세요 👉
+💡 슬라이드를 넘겨 임상 차팅 팁과 세부 권고사항을 확인해보세요 👉
 
-#물리치료 #도수치료 #재활운동 #물리치료사 #체형교정 #건강정보 #재활의학 #주간브리핑
+#물리치료사 #도수치료 #재활치료사 #임상물리치료 #대한물리치료사협회 #물리치료학과 #도수치료교육 #실손보험도수치료 #심평원수가 #재활의학 #THEPT
 """
 
     return {
@@ -172,7 +167,7 @@ def get_fallback_card_data(batch_data):
         "cover_badge": batch_data.get("batch_title", "물리치료 주간 브리핑"),
         "slides": slides,
         "caption": caption,
-        "hashtags": ["#물리치료", "#도수치료", "#재활운동", "#체형교정", "#물리치료사", "#실손보험", "#건강상식"]
+        "hashtags": ["#물리치료사", "#도수치료", "#재활치료사", "#임상물리치료", "#대한물리치료사협회", "#물리치료학과", "#도수치료교육", "#실손보험도수치료", "#심평원수가"]
     }
 
 def run_agent2(batch_data):

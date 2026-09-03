@@ -19,6 +19,7 @@ from agents.agent3_shorts_writer import run_agent3
 from agents.agent4_reviewer import run_agent4
 from generators.card_renderer import render_cards
 from generators.shorts_renderer import save_shorts_assets
+from generators.video_renderer import render_shorts_video
 
 def main():
     print("=" * 65)
@@ -64,15 +65,23 @@ def main():
         final_card = review_result.get("final_card_data", raw_card_data)
         final_shorts = review_result.get("final_shorts_data", raw_shorts_data)
 
-        # 미디어 렌더링 1: 고화질 카드뉴스 PNG 이미지 6장 생성
+        # 미디어 렌더링 1: 고화질 카드뉴스 PNG 이미지 6장 생성 (일반 카드 + 쇼츠용 투명 전경 카드 동시 렌더링)
         cards_dir = batch_folder / "cards"
-        print(f"  🎨 카드뉴스 렌더러: 1080x1350 초고화질 이미지 6장 생성 중...")
-        render_cards(final_card, cards_dir)
+        print(f"  🎨 카드뉴스 렌더러: 1080x1350 및 1080x1920 초고화질 이미지 렌더링 중...")
+        render_res = render_cards(final_card, cards_dir)
 
         # 미디어 렌더링 2: 쇼츠 음성(TTS mp3) 및 스토리보드 생성
         shorts_dir = batch_folder / "shorts"
         print(f"  🎙️ 쇼츠 렌더러: 한국어 AI 보이스(MP3) 및 스토리보드 생성 중...")
-        save_shorts_assets(final_shorts, shorts_dir)
+        shorts_assets = save_shorts_assets(final_shorts, shorts_dir)
+
+        # 미디어 렌더링 3: 배경만 시네마틱 모션으로 움직이고 텍스트는 고정된 완성본 쇼츠 동영상(MP4) 생성
+        bg_files = render_res.get("bg_files", [])
+        fg_images = render_res.get("fg_images_9x16", [])
+        if bg_files and fg_images and shorts_assets["audio_path"].exists():
+            shorts_video_path = shorts_dir / "shorts_video.mp4"
+            print(f"  🎬 레이어드 비디오 렌더러: 배경 독립 모션 쇼츠 동영상(MP4) 생성 중...")
+            render_shorts_video(bg_files, fg_images, shorts_assets["audio_path"], shorts_video_path)
 
         # 인스타그램 캡션 텍스트 저장
         caption_path = batch_folder / "instagram_caption.txt"
@@ -88,8 +97,9 @@ def main():
     for b in batches:
         b_id = b.get("batch_id")
         print(f"  ▶ {week_output_dir / b_id}")
-        print(f"     ├── cards/ (card_01.png ~ card_06.png)")
-        print(f"     ├── shorts/ (narration.mp3, shorts_storyboard_guide.txt)")
+        print(f"     ├── cards/feed_4x5/ (인스타그램 피드용 6장)")
+        print(f"     ├── cards/reels_shorts_9x16/ (릴스/쇼츠 규격 6장)")
+        print(f"     ├── shorts/ (shorts_video.mp4, narration.mp3, 스토리보드)")
         print(f"     └── instagram_caption.txt")
 
 if __name__ == "__main__":

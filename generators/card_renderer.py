@@ -146,24 +146,14 @@ def generate_dots_html(current_idx: int, total_slides: int) -> str:
             dots.append('<div class="dot"></div>')
     return "".join(dots)
 
-def select_background_image_uri(batch_id: str) -> str:
-    """세트별 내용과 연관된 고화질 배경 이미지 선택"""
-    if "set2" in batch_id.lower() or "clinical" in batch_id.lower() or "해외" in batch_id or "논문" in batch_id:
-        bg_path = ASSETS_DIR / "bg_spine.jpg"
-    else:
-        bg_path = ASSETS_DIR / "bg_clinic.jpg"
-    
-    if bg_path.exists():
-        return get_image_base64_uri(bg_path)
-    return ""
+from generators.bg_generator import get_slide_background_uri, get_slide_background_file
 
 async def render_cards_to_images(card_data, output_dir: Path):
     slides = card_data.get("slides", [])
     total_slides = len(slides)
     batch_id = card_data.get("batch_id", "")
 
-    # 배경 이미지 및 THEPT 브랜드 로고 Data URI 로드
-    bg_uri = select_background_image_uri(batch_id)
+    # THEPT 브랜드 로고 Data URI 로드
     logo_uri = get_image_base64_uri(LOGO_PATH)
 
     with open(TEMPLATE_4X5_PATH, "r", encoding="utf-8") as f:
@@ -177,6 +167,9 @@ async def render_cards_to_images(card_data, output_dir: Path):
     dir_9x16 = output_dir / "reels_shorts_9x16"
     dir_4x5.mkdir(parents=True, exist_ok=True)
     dir_9x16.mkdir(parents=True, exist_ok=True)
+
+    bg_files = []
+    fg_images_9x16 = []
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
@@ -193,6 +186,11 @@ async def render_cards_to_images(card_data, output_dir: Path):
             header_tag = card_data.get("week_tag", "2026-W36")
             dots_html = generate_dots_html(idx, total_slides)
             
+            # 슬라이드별/기사별 맞춤형 배경 이미지 및 원본 파일 선택
+            slide_bg_uri = get_slide_background_uri(slide, idx, total_slides)
+            slide_bg_file = get_slide_background_file(slide, idx, total_slides)
+            bg_files.append(slide_bg_file)
+
             if idx == 1:
                 swipe_label = "옆으로 넘겨서 확인 👉"
             elif idx == total_slides:
@@ -203,7 +201,7 @@ async def render_cards_to_images(card_data, output_dir: Path):
             # 4:5 버전 렌더링
             body_html_4x5 = render_slide_body_html(slide, is_4x5=True)
             html_4x5 = template_4x5 \
-                .replace("{{BACKGROUND_IMAGE_DATA}}", bg_uri) \
+                .replace("{{BACKGROUND_IMAGE_DATA}}", slide_bg_uri) \
                 .replace("{{LOGO_DATA}}", logo_uri) \
                 .replace("{{HEADER_TAG}}", header_tag) \
                 .replace("{{BODY_CONTENT}}", body_html_4x5) \
@@ -214,10 +212,10 @@ async def render_cards_to_images(card_data, output_dir: Path):
             out_4x5 = dir_4x5 / f"card_{idx:02d}.png"
             await page_4x5.screenshot(path=str(out_4x5))
 
-            # 9:16 버전 렌더링
+            # 9:16 버전 렌더링 (일반 카드뉴스 이미지)
             body_html_9x16 = render_slide_body_html(slide, is_4x5=False)
             html_9x16 = template_9x16 \
-                .replace("{{BACKGROUND_IMAGE_DATA}}", bg_uri) \
+                .replace("{{BACKGROUND_IMAGE_DATA}}", slide_bg_uri) \
                 .replace("{{LOGO_DATA}}", logo_uri) \
                 .replace("{{HEADER_TAG}}", header_tag) \
                 .replace("{{BODY_CONTENT}}", body_html_9x16) \
@@ -228,11 +226,22 @@ async def render_cards_to_images(card_data, output_dir: Path):
             out_9x16 = dir_9x16 / f"card_{idx:02d}.png"
             await page_9x16.screenshot(path=str(out_9x16))
 
-            print(f"  [THEPT 카드 렌더링] card_{idx:02d}.png -> 4:5 피드용 & 9:16 릴스용 동시 완료")
+            # 9:16 쇼츠 동영상용 투명 전경 텍스트 카드 렌더링 (배경 제외하고 글씨/UI만 캡처)
+            await page_9x16.evaluate("document.body.classList.add('transparent-bg')")
+            out_fg_9x16 = dir_9x16 / f"fg_card_{idx:02d}.png"
+            await page_9x16.screenshot(path=str(out_fg_9x16), omit_background=True)
+            fg_images_9x16.append(out_fg_9x16)
+
+            print(f"  [THEPT 맞춤 렌더링] card_{idx:02d}.png + fg_card_{idx:02d}.png 완료")
 
         await browser.close()
 
-    return {"dir_4x5": dir_4x5, "dir_9x16": dir_9x16}
+    return {
+        "dir_4x5": dir_4x5,
+        "dir_9x16": dir_9x16,
+        "bg_files": bg_files,
+        "fg_images_9x16": fg_images_9x16
+    }
 
 def render_cards(card_data, output_dir: Path):
     return asyncio.run(render_cards_to_images(card_data, output_dir))
