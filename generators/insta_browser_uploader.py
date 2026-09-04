@@ -405,7 +405,7 @@ def main():
     elif args.test:
         from config import OUTPUT_DIR, CURRENT_WEEK
         sample_dir = OUTPUT_DIR / CURRENT_WEEK / "set1_국내정책_보험" / "cards" / "feed_4x5"
-        images = sorted(list(sample_dir.glob("card_slide_*.png")))
+        images = sorted(list(sample_dir.glob("card_[0-9]*.png"))) or sorted(list(sample_dir.glob("card_slide_*.png")))
         caption_file = OUTPUT_DIR / CURRENT_WEEK / "set1_국내정책_보험" / "instagram_caption.txt"
         
         caption = "물리치료 전문 뉴스 브리핑"

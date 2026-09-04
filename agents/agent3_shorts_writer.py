@@ -77,75 +77,9 @@ def generate_shorts_script_with_gemini(batch_data):
 """
     return generate_json_response(prompt, temperature=0.3)
 
-def get_fallback_shorts_data(batch_data):
-    """API 키 미등록 시 기본 데이터 기반 쇼츠 대본 생성 (물리치료사 타겟)"""
-    news_items = batch_data.get("news_items", [])
-    batch_title = batch_data.get("batch_title", "물리치료 주간 브리핑")
-
-    hook = "물리치료사 선생님들 주목! 이번 주 임상 현장에서 꼭 알아야 할 핵심 3대 이슈, 40초 만에 빠르게 브리핑합니다."
-    
-    body_parts = []
-    scenes = [
-        {
-            "time_range": "00:00 - 00:04",
-            "section": "오프닝 훅",
-            "narration_snippet": hook,
-            "screen_visual_cue": "[화면 연출] 사이렌 이모지와 함께 대형 텍스트 '물리치료사 필독 3대 이슈'",
-            "caption_highlight": "물리치료사 필독 TOP 3"
-        }
-    ]
-
-    time_ranges = ["00:05 - 00:16", "00:17 - 00:28", "00:29 - 00:38"]
-    for idx, item in enumerate(news_items[:3]):
-        snippet = f"첫 번째, {item['headline']}. {item.get('summary', '')}" if idx == 0 else \
-                  f"두 번째, {item['headline']}. {item.get('summary', '')}" if idx == 1 else \
-                  f"세 번째, {item['headline']}. {item.get('summary', '')}"
-        body_parts.append(snippet)
-        scenes.append({
-            "time_range": time_ranges[idx],
-            "section": f"뉴스 0{idx+1}",
-            "narration_snippet": snippet,
-            "screen_visual_cue": f"[화면 연출] {item.get('category', '물리치료')} 관련 임상 현장 영상 및 자막 강조",
-            "caption_highlight": item["headline"][:18]
-        })
-
-    outro = "전국의 물리치료사, 재활전문가를 위한 THEPT 주간 브리핑! 유익하셨다면 동료 치료사에게 공유하시고 팔로우해 주세요!"
-    scenes.append({
-        "time_range": "00:39 - 00:44",
-        "section": "아웃트로",
-        "narration_snippet": outro,
-        "screen_visual_cue": "[화면 연출] 동료 공유 및 팔로우 아이콘 애니메이션",
-        "caption_highlight": "동료 치료사에게 공유하기!"
-    })
-
-    full_narration = f"{hook} {' '.join(body_parts)} {outro}"
-
-    return {
-        "batch_id": batch_data.get("batch_id"),
-        "shorts_title": f"🚨 [물리치료사 필독] 이번 주 {batch_title} TOP 3 요약! #shorts",
-        "hook_headline": "물리치료사 필독 3대 이슈!",
-        "full_narration": full_narration,
-        "estimated_seconds": 43,
-        "scenes": scenes,
-        "youtube_description": f"""물리치료사 및 재활전문가를 위한 이번 주 핵심 실무 브리핑입니다.
-
-00:00 물리치료사 필독 인트로
-00:05 1. {news_items[0]['headline'] if len(news_items)>0 else ''}
-00:17 2. {news_items[1]['headline'] if len(news_items)>1 else ''}
-00:29 3. {news_items[2]['headline'] if len(news_items)>2 else ''}
-00:39 마무리
-
-#물리치료사 #도수치료 #재활치료사 #임상물리치료 #물리치료학과 #THEPT
-"""
-    }
-
 def run_agent3(batch_data):
     """Agent 3 실행: 배치 데이터 -> 40초 쇼츠 영상 대본 및 연출안 생성"""
-    if GEMINI_API_KEY:
-        try:
-            return generate_shorts_script_with_gemini(batch_data)
-        except Exception as e:
-            print(f"[Agent 3] Gemini 생성 실패 ({e}), 폴백 쇼츠 데이터 사용")
-            return get_fallback_shorts_data(batch_data)
-    else:
-        return get_fallback_shorts_data(batch_data)
+    if not GEMINI_API_KEY:
+        raise ValueError("[Agent 3] GEMINI_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+
+    return generate_shorts_script_with_gemini(batch_data)

@@ -11,7 +11,7 @@ if sys.platform == "win32":
 
 from pathlib import Path
 
-from config import OUTPUT_DIR, CURRENT_WEEK, GEMINI_API_KEY
+from config import OUTPUT_DIR, CURRENT_WEEK, GEMINI_API_KEY, DEFAULT_MODEL
 from agents.agent1_curator import run_agent1
 from agents.agent2_card_writer import run_agent2
 from agents.agent3_shorts_writer import run_agent3
@@ -24,14 +24,15 @@ from generators.insta_browser_uploader import InstagramBrowserUploader, generate
 from generators.youtube_uploader import YouTubeShortsUploader, generate_shorts_first_comment
 from generators.schedule_calculator import get_next_weekly_schedule, print_weekly_schedule
 
-def main():
+def main(args=None):
+    if args is None:
+        args = parse_args()
     print("=" * 65)
     print(f" 🏥 물리치료 전문 뉴스 4-에이전트 자동화 시스템 가동")
     print(f" 📅 대상 주차: {CURRENT_WEEK} | 생성 목표: 매주 3세트 (쇼츠 3개, 카드뉴스 3개)")
-    if GEMINI_API_KEY:
-        print(" 🔑 Gemini API 연동 모드: 활성화됨")
-    else:
-        print(" ℹ️ Gemini API 키 미등록: 표준 큐레이션 테스트 모드로 동작합니다.")
+    if not GEMINI_API_KEY:
+        raise ValueError("❌ GEMINI_API_KEY가 설정되지 않았습니다. .env 파일에 API 키를 등록해야 시스템을 실행할 수 있습니다.")
+    print(f" 🔑 Gemini API 연동 모드: 활성화됨 (모델: {DEFAULT_MODEL})")
     print("=" * 65)
 
     # 1. 에이전트 1 실행: 3개 세트 뉴스 리서치 및 큐레이션
@@ -195,7 +196,7 @@ def main():
             # 5-1. [화/목/토 08:00 AM] 인스타그램 피드 4:5 캐러셀 6장 예약 업로드
             if should_upload_insta:
                 cards_4x5_dir = batch_folder / "cards" / "feed_4x5"
-                card_images = sorted(list(cards_4x5_dir.glob("card_slide_*.png")))
+                card_images = sorted(list(cards_4x5_dir.glob("card_[0-9]*.png"))) or sorted(list(cards_4x5_dir.glob("card_slide_*.png")))
                 caption_file = batch_folder / "instagram_caption.txt"
                 caption = ""
                 if caption_file.exists():
@@ -282,4 +283,4 @@ if __name__ == "__main__":
         uploader = YouTubeShortsUploader()
         uploader.get_authenticated_service()
     else:
-        main()
+        main(args)

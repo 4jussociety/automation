@@ -97,90 +97,12 @@ def generate_card_news_with_gemini(batch_data):
 """
     return generate_json_response(prompt, temperature=0.4)
 
-def get_fallback_card_data(batch_data):
-    """API 키 미등록 시 기본 데이터 기반 카드뉴스 생성 (물리치료사 및 재활전문가 타겟)"""
-    news_items = batch_data.get("news_items", [])
-    batch_title = batch_data.get("batch_title", "물리치료 주간 브리핑")
-    
-    slides = [
-        {
-            "slide_number": 1,
-            "type": "cover",
-            "tag": f"WEEKLY BRIEFING • {CURRENT_WEEK}",
-            "title": batch_title,
-            "subtitle": "물리치료사 & 재활전문가를 위한 이번 주 핵심 실무 브리핑",
-            "bullet_points": [item["headline"] for item in news_items[:3]]
-        }
-    ]
-
-    for idx, item in enumerate(news_items[:3], start=1):
-        slides.append({
-            "slide_number": idx + 1,
-            "type": "news",
-            "item_index": f"0{idx}",
-            "category_badge": item.get("category", "업계 이슈"),
-            "source_badge": item.get("source", "보도자료"),
-            "headline": item["headline"],
-            "body_lines": [
-                item.get("summary", ""),
-                item.get("why_it_matters", "")
-            ],
-            "key_point": f"💡 {item.get('action_tip', '치료사가 주목해야 할 핵심 포인트입니다.')}"
-        })
-
-    slides.append({
-        "slide_number": 5,
-        "type": "insight",
-        "tag": "EXPERT INSIGHT",
-        "title": "임상 물리치료사를 위한 실무 종합 인사이트",
-        "summary": "최신 실손보험 심사 기준과 임상 근거 기반 치료 프로토콜을 차트에 정량적으로 반영하는 역량이 핵심입니다.",
-        "action_checklist": [
-            "치료 전후 ROM 각도 및 기능적 평가(VAS, 특수검사) 수치화 차팅 체계화",
-            "최신 가이드라인에 따른 단계별 중재 프로토콜(급성기 진동/만성기 편심성) 준수"
-        ]
-    })
-
-    slides.append({
-        "slide_number": 6,
-        "type": "outro",
-        "tag": "THEPT CLINICAL BRIEF",
-        "title": "매주 가장 빠른\\n물리치료사 전문 브리핑",
-        "cta_text": "임상 스터디를 위해 [저장]하고\\n동료 치료사에게 [공유]해보세요!",
-        "footer_text": "@thept_official"
-    })
-
-    caption = f"""📢 [{batch_title}] - {CURRENT_WEEK}
-
-선생님, 이번 주 물리치료 임상 현장에서 꼭 확인해야 할 주요 정책 및 학술 소식입니다.
-
-📌 이번 주 핵심 브리핑:
-{chr(10).join([f"• {item['headline']}" for item in news_items[:3]])}
-
-💡 슬라이드를 넘겨 임상 차팅 팁과 세부 권고사항을 확인해보세요 👉
-
-#물리치료사 #도수치료 #재활치료사 #임상물리치료 #대한물리치료사협회 #물리치료학과 #도수치료교육 #실손보험도수치료 #심평원수가 #재활의학 #THEPT
-"""
-
-    return {
-        "batch_id": batch_data.get("batch_id"),
-        "week_tag": CURRENT_WEEK,
-        "cover_badge": batch_data.get("batch_title", "물리치료 주간 브리핑"),
-        "slides": slides,
-        "caption": caption,
-        "hashtags": ["#물리치료사", "#도수치료", "#재활치료사", "#임상물리치료", "#대한물리치료사협회", "#물리치료학과", "#도수치료교육", "#실손보험도수치료", "#심평원수가"]
-    }
-
 def run_agent2(batch_data):
     """Agent 2 실행: 배치 데이터 -> 인스타 카드뉴스 6장 텍스트 구조로 변환"""
-    card_data = None
-    if GEMINI_API_KEY:
-        try:
-            card_data = generate_card_news_with_gemini(batch_data)
-        except Exception as e:
-            print(f"[Agent 2] Gemini 생성 실패 ({e}), 폴백 카드 데이터 사용")
-            card_data = get_fallback_card_data(batch_data)
-    else:
-        card_data = get_fallback_card_data(batch_data)
+    if not GEMINI_API_KEY:
+        raise ValueError("[Agent 2] GEMINI_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+
+    card_data = generate_card_news_with_gemini(batch_data)
 
     # 기사별 원문 링크 및 스크랩 기사 목록 보존
     card_data["news_items"] = batch_data.get("news_items", [])

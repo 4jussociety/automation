@@ -33,34 +33,12 @@ def review_content_with_gemini(card_data, shorts_data):
 """
     return generate_json_response(prompt, temperature=0.2)
 
-def fallback_review(card_data, shorts_data):
-    """기본 감수 로직 (전문가 안전 문구 자동 부착 및 승인)"""
-    # 캡션 하단에 안전 문구 추가
-    if "caption" in card_data and SAFETY_DISCLAIMER not in card_data["caption"]:
-        card_data["caption"] += f"\n\n{SAFETY_DISCLAIMER}"
-        
-    if "youtube_description" in shorts_data and SAFETY_DISCLAIMER not in shorts_data["youtube_description"]:
-        shorts_data["youtube_description"] += f"\n\n{SAFETY_DISCLAIMER}"
-
-    return {
-        "review_status": "APPROVED",
-        "review_notes": "기본 감수 완료: 물리치료사/재활전문가 임상 타겟 가이드라인 및 실무 주의 문구 부착 완료.",
-        "safety_disclaimer": SAFETY_DISCLAIMER,
-        "final_card_data": card_data,
-        "final_shorts_data": shorts_data
-    }
-
 def run_agent4(card_data, shorts_data):
     """Agent 4 실행: 최종 감수 및 승인"""
-    res = None
-    if GEMINI_API_KEY:
-        try:
-            res = review_content_with_gemini(card_data, shorts_data)
-        except Exception as e:
-            print(f"[Agent 4] Gemini 감수 중 오류 ({e}), 폴백 감수 적용")
-            res = fallback_review(card_data, shorts_data)
-    else:
-        res = fallback_review(card_data, shorts_data)
+    if not GEMINI_API_KEY:
+        raise ValueError("[Agent 4] GEMINI_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
+
+    res = review_content_with_gemini(card_data, shorts_data)
 
     # 원본 기사 링크 및 메타데이터 필드 보존 강제
     if "final_card_data" in res and isinstance(res["final_card_data"], dict):

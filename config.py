@@ -13,7 +13,7 @@ HISTORY_FILE = BASE_DIR / "history.json"
 
 # Gemini API 설정
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-DEFAULT_MODEL = "gemini-3.6-flash"
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
 ENABLE_AI_BG_GENERATION = True  # 기사 맞춤형 배경 동적 매칭 및 생성 활성화
 
 # Edge-TTS 설정 (한국어 뉴스용 음성)
