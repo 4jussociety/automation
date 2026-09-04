@@ -1,4 +1,3 @@
-import os
 import sys
 import base64
 
@@ -11,7 +10,7 @@ if sys.platform == "win32":
 import asyncio
 from pathlib import Path
 from playwright.async_api import async_playwright
-from config import TEMPLATES_DIR, BASE_DIR
+from config import TEMPLATES_DIR, BASE_DIR, CURRENT_WEEK
 
 TEMPLATE_4X5_PATH = TEMPLATES_DIR / "card_4x5.html"
 TEMPLATE_9X16_PATH = TEMPLATES_DIR / "card_9x16.html"
@@ -146,15 +145,20 @@ def generate_dots_html(current_idx: int, total_slides: int) -> str:
             dots.append('<div class="dot"></div>')
     return "".join(dots)
 
-from generators.bg_generator import get_slide_background_uri, get_slide_background_file
+from generators.bg_generator import prepare_set_backgrounds, file_to_base64_uri
 
-async def render_cards_to_images(card_data, output_dir: Path):
+async def render_cards_to_images(card_data, output_dir: Path, bg_files: list = None):
     slides = card_data.get("slides", [])
     total_slides = len(slides)
     batch_id = card_data.get("batch_id", "")
 
     # THEPT 브랜드 로고 Data URI 로드
     logo_uri = get_image_base64_uri(LOGO_PATH)
+
+    # 배경 에셋 목록이 명시적으로 주어지지 않았을 경우 세트 폴더 backgrounds/ 에서 자동 확보
+    if not bg_files:
+        bg_output_dir = output_dir.parent / "backgrounds"
+        bg_files = prepare_set_backgrounds(card_data, bg_output_dir)
 
     with open(TEMPLATE_4X5_PATH, "r", encoding="utf-8") as f:
         template_4x5 = f.read()
@@ -168,7 +172,6 @@ async def render_cards_to_images(card_data, output_dir: Path):
     dir_4x5.mkdir(parents=True, exist_ok=True)
     dir_9x16.mkdir(parents=True, exist_ok=True)
 
-    bg_files = []
     fg_images_9x16 = []
 
     async with async_playwright() as p:
@@ -183,13 +186,12 @@ async def render_cards_to_images(card_data, output_dir: Path):
         page_9x16 = await ctx_9x16.new_page()
 
         for idx, slide in enumerate(slides, start=1):
-            header_tag = card_data.get("week_tag", "2026-W36")
+            header_tag = card_data.get("week_tag", CURRENT_WEEK)
             dots_html = generate_dots_html(idx, total_slides)
             
-            # 슬라이드별/기사별 맞춤형 배경 이미지 및 원본 파일 선택
-            slide_bg_uri = get_slide_background_uri(slide, idx, total_slides)
-            slide_bg_file = get_slide_background_file(slide, idx, total_slides)
-            bg_files.append(slide_bg_file)
+            # 이번 세트 아웃풋 폴더에 배치된 해당 슬라이드 배경 파일 가져오기
+            bg_file = bg_files[idx - 1] if idx - 1 < len(bg_files) else bg_files[0]
+            slide_bg_uri = file_to_base64_uri(bg_file)
 
             if idx == 1:
                 swipe_label = "옆으로 넘겨서 확인 👉"
@@ -232,7 +234,7 @@ async def render_cards_to_images(card_data, output_dir: Path):
             await page_9x16.screenshot(path=str(out_fg_9x16), omit_background=True)
             fg_images_9x16.append(out_fg_9x16)
 
-            print(f"  [THEPT 맞춤 렌더링] card_{idx:02d}.png + fg_card_{idx:02d}.png 완료")
+            print(f"  [THEPT 맞춤 렌더링] card_{idx:02d}.png + fg_card_{idx:02d}.png 완료 (배경: {bg_file.name})")
 
         await browser.close()
 
@@ -243,5 +245,6 @@ async def render_cards_to_images(card_data, output_dir: Path):
         "fg_images_9x16": fg_images_9x16
     }
 
-def render_cards(card_data, output_dir: Path):
-    return asyncio.run(render_cards_to_images(card_data, output_dir))
+def render_cards(card_data, output_dir: Path, bg_files: list = None):
+    return asyncio.run(render_cards_to_images(card_data, output_dir, bg_files=bg_files))
+

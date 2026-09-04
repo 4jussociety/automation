@@ -28,7 +28,8 @@ def generate_json_response(prompt: str, temperature: float = 0.3, max_retries: i
         except Exception as e:
             last_error = e
             if attempt < max_retries:
-                print(f"[{DEFAULT_MODEL}] 서버 일시 과부하(503) 감지 (시도 {attempt}/{max_retries}), 2초 후 재시도...")
-                time.sleep(2)
+                wait_sec = 8 * attempt
+                print(f"[{DEFAULT_MODEL}] API 응답 대기 (시도 {attempt}/{max_retries}), {wait_sec}초 후 재시도...")
+                time.sleep(wait_sec)
 
     raise last_error

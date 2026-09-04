@@ -1,5 +1,5 @@
 import json
-from config import GEMINI_API_KEY, DEFAULT_MODEL
+from config import GEMINI_API_KEY
 
 SAFETY_DISCLAIMER = "※ 본 브리핑은 물리치료사 및 재활전문가를 위한 학술·정책 실무 정보이며, 임상 적용 시 개별 환자의 상태와 최신 법적 기준을 재확인하시기 바랍니다."
 
@@ -52,11 +52,21 @@ def fallback_review(card_data, shorts_data):
 
 def run_agent4(card_data, shorts_data):
     """Agent 4 실행: 최종 감수 및 승인"""
+    res = None
     if GEMINI_API_KEY:
         try:
-            return review_content_with_gemini(card_data, shorts_data)
+            res = review_content_with_gemini(card_data, shorts_data)
         except Exception as e:
             print(f"[Agent 4] Gemini 감수 중 오류 ({e}), 폴백 감수 적용")
-            return fallback_review(card_data, shorts_data)
+            res = fallback_review(card_data, shorts_data)
     else:
-        return fallback_review(card_data, shorts_data)
+        res = fallback_review(card_data, shorts_data)
+
+    # 원본 기사 링크 및 메타데이터 필드 보존 강제
+    if "final_card_data" in res and isinstance(res["final_card_data"], dict):
+        if "news_items" not in res["final_card_data"] or not res["final_card_data"]["news_items"]:
+            res["final_card_data"]["news_items"] = card_data.get("news_items", [])
+        if "source_articles" not in res["final_card_data"]:
+            res["final_card_data"]["source_articles"] = card_data.get("source_articles", [])
+
+    return res

@@ -13,5 +13,10 @@ Pillow>=10.0.0
 # Shorts Audio Synthesis (TTS)
 edge-tts>=6.1.9
 
+# YouTube Data API & OAuth
+google-api-python-client>=2.110.0
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+
 # Environment & Config
 python-dotenv>=1.0.0

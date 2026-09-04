@@ -14,6 +14,14 @@ venv/
 # Playwright
 test-results/
 
+# Media & Automation Output (로컬 생성 산출물)
+output/
+
+# SNS Session & OAuth Credentials (개인 계정 정보 보호)
+assets/*session*.json
+assets/*token*.json
+assets/client_secrets*.json
+
 # OS / IDE
 .DS_Store
 Thumbs.db

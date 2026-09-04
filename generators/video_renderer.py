@@ -3,25 +3,31 @@
 
 import os
 import sys
+import re
+import time
 import subprocess
 import shutil
 from pathlib import Path
 from typing import List
 
+try:
+    import imageio_ffmpeg
+    FFMPEG_BIN = imageio_ffmpeg.get_ffmpeg_exe()
+except Exception:
+    FFMPEG_BIN = "ffmpeg"
+
 def get_audio_duration(audio_path: Path) -> float:
-    """ffprobe를 사용하여 오디오 파일의 정확한 재생 시간(초)을 측정합니다."""
-    cmd = [
-        "ffprobe", "-v", "error",
-        "-show_entries", "format=duration",
-        "-of", "default=noprint_wrappers=1:nokey=1",
-        str(audio_path)
-    ]
+    """ffmpeg를 사용하여 오디오 파일의 정확한 재생 시간(초)을 측정합니다."""
+    cmd = [FFMPEG_BIN, "-i", str(audio_path)]
     try:
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True, encoding='utf-8', errors='replace')
-        return float(result.stdout.strip())
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
+        m = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", result.stderr)
+        if m:
+            hours, minutes, seconds = map(float, m.groups())
+            return hours * 3600 + minutes * 60 + seconds
     except Exception as e:
         print(f"  [경고] 오디오 길이 측정 실패 ({e}), 기본값 45.0초 사용")
-        return 45.0
+    return 45.0
 
 def calculate_slide_durations(total_duration: float, num_slides: int) -> List[float]:
     """오디오 전체 길이에 맞춰 6컷 슬라이드의 최적 재생 시간을 배분합니다."""
@@ -35,13 +41,6 @@ def calculate_slide_durations(total_duration: float, num_slides: int) -> List[fl
     durations[-1] = round(total_duration - sum(durations[:-1]), 2)
     return durations
 
-def safe_ffmpeg_path(p: Path) -> str:
-    """Windows 환경에서 FFmpeg 경로 인코딩 및 호환성을 보장하는 안전한 상대 경로 변환"""
-    try:
-        return os.path.relpath(p, start=Path.cwd())
-    except Exception:
-        return str(p.resolve()).replace("\\", "/")
-
 def get_bg_motion_filter(idx: int, duration_frames: int) -> str:
     """순수 배경 이미지에만 적용할 역동적인 줌/팬 모션 필터를 생성합니다.
     2배 슈퍼샘플링(2160x3840) 및 Lanczos 다운스케일링으로 미세 떨림(지터)을 완전히 박멸하고,
@@ -49,8 +48,8 @@ def get_bg_motion_filter(idx: int, duration_frames: int) -> str:
     df = max(duration_frames, 30)
     max_f = max(df - 1, 1)
     
-    # 텍스트 가독성을 높이기 위한 다크 톤(어두움 14%, 대비 1.1) 보정
-    darken = "eq=brightness=-0.14:contrast=1.1"
+    # 텍스트 가독성을 높이기 위한 블러 및 다크 톤 보정
+    darken = "gblur=sigma=12,eq=brightness=-0.14:contrast=1.1"
 
     # 슬라이드 인덱스 기반 6종 다채로운 모션 프리셋
     motion_type = (idx - 1) % 6
@@ -122,7 +121,7 @@ def render_shorts_video(bg_images: List[Path], fg_images: List[Path], audio_path
             filter_complex = f"[0:v]{bg_filter}[bg]; [1:v]scale=1080:1920[fg]; [bg][fg]overlay=0:0:format=auto[v]"
 
             cmd = [
-                "ffmpeg", "-y",
+                FFMPEG_BIN, "-y",
                 "-i", temp_bg.name,
                 "-loop", "1", "-i", temp_fg.name,
                 "-filter_complex", filter_complex,
@@ -151,7 +150,7 @@ def render_shorts_video(bg_images: List[Path], fg_images: List[Path], audio_path
         temp_final = temp_dir / "final_shorts.mp4"
 
         merge_cmd = [
-            "ffmpeg", "-y",
+            FFMPEG_BIN, "-y",
             "-f", "concat",
             "-safe", "0",
             "-i", "concat_list.txt",
@@ -164,16 +163,20 @@ def render_shorts_video(bg_images: List[Path], fg_images: List[Path], audio_path
         ]
         subprocess.run(merge_cmd, cwd=str(temp_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, encoding='utf-8', errors='replace')
 
-        # 생성된 최종 영상을 목표 위치로 이동
+        # 생성된 최종 영상을 목표 위치로 안전 복사 (윈도우 파일 핸들 잠금 해제 대기)
+        time.sleep(0.5)
         if temp_final.exists():
             if output_video_path.exists():
-                output_video_path.unlink()
-            shutil.move(str(temp_final), str(output_video_path))
-
-        print(f"  [완전 무결 쇼츠 완성] {output_video_path.name} ({total_duration:.1f}초, 1080x1920)")
+                try:
+                    output_video_path.unlink()
+                except Exception:
+                    pass
+            shutil.copy2(str(temp_final), str(output_video_path))
+            print(f"  [완전 무결 쇼츠 완성] {output_video_path.name} ({total_duration:.1f}초, 1080x1920)")
 
     finally:
-        # 임시 디렉터리 정리
+        # 임시 디렉터리 정리 (안전 지연 후 삭제)
+        time.sleep(0.5)
         if temp_dir.exists():
             shutil.rmtree(temp_dir, ignore_errors=True)
 

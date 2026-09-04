@@ -1,5 +1,5 @@
 import json
-from config import GEMINI_API_KEY, DEFAULT_MODEL, CURRENT_WEEK
+from config import GEMINI_API_KEY
 
 from agents.llm_helper import generate_json_response
 

@@ -1,5 +1,5 @@
 import json
-from config import GEMINI_API_KEY, DEFAULT_MODEL, CURRENT_WEEK
+from config import GEMINI_API_KEY, CURRENT_WEEK
 
 from agents.llm_helper import generate_json_response
 
@@ -172,11 +172,17 @@ def get_fallback_card_data(batch_data):
 
 def run_agent2(batch_data):
     """Agent 2 실행: 배치 데이터 -> 인스타 카드뉴스 6장 텍스트 구조로 변환"""
+    card_data = None
     if GEMINI_API_KEY:
         try:
-            return generate_card_news_with_gemini(batch_data)
+            card_data = generate_card_news_with_gemini(batch_data)
         except Exception as e:
             print(f"[Agent 2] Gemini 생성 실패 ({e}), 폴백 카드 데이터 사용")
-            return get_fallback_card_data(batch_data)
+            card_data = get_fallback_card_data(batch_data)
     else:
-        return get_fallback_card_data(batch_data)
+        card_data = get_fallback_card_data(batch_data)
+
+    # 기사별 원문 링크 및 스크랩 기사 목록 보존
+    card_data["news_items"] = batch_data.get("news_items", [])
+    card_data["source_articles"] = batch_data.get("source_articles", [])
+    return card_data

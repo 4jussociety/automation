@@ -1,4 +1,5 @@
 import os
+import calendar
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -12,14 +13,36 @@ HISTORY_FILE = BASE_DIR / "history.json"
 
 # Gemini API 설정
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-DEFAULT_MODEL = "gemini-flash-latest"  # Google 공식 최신 Flash 모델 자동 라우팅 별칭
+DEFAULT_MODEL = "gemini-3.6-flash"
 ENABLE_AI_BG_GENERATION = True  # 기사 맞춤형 배경 동적 매칭 및 생성 활성화
 
 # Edge-TTS 설정 (한국어 뉴스용 음성)
 TTS_VOICE = "ko-KR-InJoonNeural"  # 차분하고 신뢰감 있는 남성 아나운서 톤 (또는 ko-KR-SunHiNeural 여성 톤)
 
-# 현재 연도 및 주차 식별자 (예: 2026-W36)
-CURRENT_WEEK = f"{datetime.now().year}-W{datetime.now().isocalendar().week:02d}"
+# SNS 자동 업로드 및 예약 설정
+ASSETS_DIR = BASE_DIR / "assets"
+INSTAGRAM_SESSION_FILE = ASSETS_DIR / "instagram_session.json"
+INSTAGRAM_SCHEDULE_DEFAULT_HOUR = int(os.getenv("INSTAGRAM_SCHEDULE_DEFAULT_HOUR", "20"))  # 예약 시간 (기본 20시)
+INSTAGRAM_HEADLESS = os.getenv("INSTAGRAM_HEADLESS", "false").lower() == "true"
+
+YOUTUBE_CLIENT_SECRETS_FILE = ASSETS_DIR / "client_secrets.json"
+YOUTUBE_TOKEN_FILE = ASSETS_DIR / "youtube_token.json"
+YOUTUBE_DEFAULT_PRIVACY = os.getenv("YOUTUBE_DEFAULT_PRIVACY", "public")  # 'public', 'unlisted', or 'private'
+
+def get_korean_week_str(dt: datetime = None) -> str:
+    """현재 날짜를 기준으로 직관적인 'YYYY년 M월 N주차' 형식의 문자열을 반환합니다 (예: 2026년 9월 1주차)."""
+    if dt is None:
+        dt = datetime.now()
+    cal = calendar.monthcalendar(dt.year, dt.month)
+    week_num = 1
+    for idx, week in enumerate(cal, 1):
+        if dt.day in week:
+            week_num = idx
+            break
+    return f"{dt.year}년 {dt.month}월 {week_num}주차"
+
+# 현재 연도 및 몇월 몇주차 식별자 (예: 2026년 9월 1주차)
+CURRENT_WEEK = get_korean_week_str()
 
 # 3대 카테고리 정의 (타겟: 물리치료사 및 재활전문가)
 CATEGORIES = {
