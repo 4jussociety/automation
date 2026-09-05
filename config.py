@@ -93,5 +93,43 @@ CATEGORIES = {
             "physical therapy clinical trial",
             "physiotherapy guideline journal"
         ]
-    }
+    },
+    # 주간 이슈 렌더러 카테고리
+    "spine": {"name": "척추/체형교정", "bg": "bg_spine.jpg", "color": "#3b82f6"},
+    "joint": {"name": "관절/도수치료", "bg": "bg_joint.jpg", "color": "#10b981"},
+    "clinic": {"name": "병원/치료정보", "bg": "bg_clinic.jpg", "color": "#6366f1"},
+    "insurance": {"name": "실손/의료보험", "bg": "bg_insurance.jpg", "color": "#f59e0b"},
+    "robotics": {"name": "로봇재활/첨단치료", "bg": "bg_robotics.jpg", "color": "#ec4899"},
+    "insight": {"name": "피트니스/건강상식", "bg": "bg_insight.jpg", "color": "#8b5cf6"}
 }
+
+# 브랜드 및 카드뉴스/쇼츠 규격
+BRAND_NAME = "Team The PT"
+BRAND_HANDLE = "@teamthept"
+BRAND_TAGLINE = "물리치료사 기반 도수·재활 전문 헬스케어"
+
+CARD_WIDTH = 1080
+CARD_HEIGHT = 1350
+SHORTS_WIDTH = 1080
+SHORTS_HEIGHT = 1920
+
+DEFAULT_TTS_VOICE = "ko-KR-SunHiNeural"
+MALE_TTS_VOICE = "ko-KR-InJoonNeural"
+
+FONT_CANDIDATES = [
+    # Linux (Ubuntu GitHub Actions)
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+    "/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    # Windows
+    "C:/Windows/Fonts/malgunbd.ttf",
+    "C:/Windows/Fonts/malgun.ttf",
+    "C:/Windows/Fonts/gulim.ttc"
+]
+
+FONT_PATH = None
+for f in FONT_CANDIDATES:
+    if os.path.exists(f):
+        FONT_PATH = f
+        break

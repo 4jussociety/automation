@@ -390,6 +390,36 @@
       "headline": "난치성 복합부위통증증후군(CRPS II) 환자에 반복적 경두개자기자극(rTMS) 적용으로 통증 억제 경로 활성화 확인",
       "category": "임상연구",
       "date": "2026-09-04"
+    },
+    {
+      "timestamp": "20260904_145735",
+      "issue_title": "거북목·일자목 방치하면 목디스크 되는 진짜 이유",
+      "category": "spine",
+      "json_path": "C:\\Users\\home\\Desktop\\개발\\automation\\contents\\draft_20260904_145735_spine.json",
+      "card_files": [
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_01.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_02.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_03.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_04.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_05.png"
+      ],
+      "video_file": null,
+      "status": "READY_FOR_PUBLISH"
+    },
+    {
+      "timestamp": "20260904_145735",
+      "issue_title": "거북목·일자목 방치하면 목디스크 되는 진짜 이유",
+      "category": "spine",
+      "json_path": "C:\\Users\\home\\Desktop\\개발\\automation\\contents\\draft_20260904_145735_spine.json",
+      "card_files": [
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_01.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_02.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_03.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_04.png",
+        "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\cards\\card_slide_05.png"
+      ],
+      "video_file": "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\video\\shorts.mp4",
+      "status": "READY_FOR_PUBLISH"
     }
   ]
 }

@@ -1,60 +1,50 @@
-import asyncio
+import os
+import subprocess
+from PIL import Image, ImageDraw, ImageFont
+import sys
 from pathlib import Path
-import edge_tts
-from config import TTS_VOICE
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import config
 
-async def generate_narration_audio(text: str, output_path: Path):
-    communicate = edge_tts.Communicate(text, TTS_VOICE)
-    await communicate.save(str(output_path))
-    print(f"  [쇼츠 음성 합성 완료] {output_path.name}")
-
-def save_shorts_assets(shorts_data, output_dir: Path):
-    output_dir.mkdir(parents=True, exist_ok=True)
+def create_shorts_background_frame(title, category, frame_path):
+    img = Image.new('RGB', (config.SHORTS_WIDTH, config.SHORTS_HEIGHT), color=(15, 17, 23))
+    draw = ImageDraw.Draw(img)
     
-    # 1. Edge-TTS 오디오 파일 (.mp3) 생성
-    audio_path = output_dir / "narration.mp3"
-    narration_text = shorts_data.get("full_narration", "")
-    if narration_text:
-        try:
-            asyncio.run(generate_narration_audio(narration_text, audio_path))
-        except Exception as e:
-            print(f"  [경고] Edge-TTS 오디오 생성 실패 ({e})")
-
-    # 2. 영상 편집 및 업로드용 가이드 문서 (.txt) 저장
-    guide_path = output_dir / "shorts_storyboard_guide.txt"
-    scenes = shorts_data.get("scenes", [])
+    cat_info = config.CATEGORIES.get(category, {'color': '#3b82f6', 'name': '재활운동'})
+    font_path = config.FONT_PATH
+    badge_font = ImageFont.truetype(font_path, 34) if font_path else ImageFont.load_default()
+    title_font = ImageFont.truetype(font_path, 52) if font_path else ImageFont.load_default()
+    logo_font = ImageFont.truetype(font_path, 40) if font_path else ImageFont.load_default()
     
-    storyboard_lines = []
-    for s in scenes:
-        storyboard_lines.append(f"""
-[타임스탬프] {s.get('time_range')} | {s.get('section')}
-- 자막 강조: {s.get('caption_highlight')}
-- 시각 연출: {s.get('screen_visual_cue')}
-- 음성 대본: {s.get('narration_snippet')}
-------------------------------------------------------------""")
+    draw.text((100, 180), config.BRAND_NAME, fill=(255, 255, 255), font=logo_font)
+    draw.rounded_rectangle([(100, 260), (340, 325)], radius=14, fill=cat_info['color'])
+    draw.text((120, 274), cat_info['name'], fill=(255, 255, 255), font=badge_font)
+    
+    draw.rounded_rectangle([(80, 420), (config.SHORTS_WIDTH - 80, 800)], radius=24, fill=(28, 32, 42))
+    draw.text((120, 480), title, fill=(255, 255, 255), font=title_font, spacing=20)
+    
+    draw.text((120, config.SHORTS_HEIGHT - 260), "팔로우하고 더 많은 재활 정보를 받아보세요!", fill=(156, 163, 175), font=badge_font)
+    
+    img.save(frame_path, quality=95)
+    return frame_path
 
-    guide_content = f"""============================================================
-🎬 쇼츠 제목: {shorts_data.get('shorts_title')}
-⏱ 예상 재생시간: 약 {shorts_data.get('estimated_seconds', 42)}초
-🚨 3초 훅 카피: {shorts_data.get('hook_headline')}
-============================================================
-
-[스토리보드 및 화면 연출 가이드]
-{''.join(storyboard_lines)}
-
-============================================================
-[전체 나레이션 대본]
-{narration_text}
-
-============================================================
-[유튜브 쇼츠 설명란 & 해시태그 (복사해서 사용)]
-{shorts_data.get('youtube_description', '')}
-"""
-    with open(guide_path, "w", encoding="utf-8") as f:
-        f.write(guide_content)
-    print(f"  [쇼츠 가이드 문서 저장] {guide_path.name}")
-
-    return {
-        "audio_path": audio_path,
-        "guide_path": guide_path
-    }
+def render_shorts_video(shorts_data, audio_path, srt_path, output_video_path):
+    os.makedirs(os.path.dirname(output_video_path), exist_ok=True)
+    temp_frame = os.path.join(os.path.dirname(output_video_path), "temp_bg.png")
+    create_shorts_background_frame(shorts_data['title'], shorts_data.get('category', 'spine'), temp_frame)
+    
+    cmd = [
+        "ffmpeg", "-y",
+        "-loop", "1", "-i", temp_frame,
+        "-i", audio_path,
+        "-c:v", "libx264", "-tune", "stillimage",
+        "-c:a", "aac", "-b:a", "192k",
+        "-pix_fmt", "yuv420p",
+        "-shortest", output_video_path
+    ]
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if os.path.exists(temp_frame):
+        os.remove(temp_frame)
+        
+    print(f"[Shorts Renderer] Generated video: {output_video_path}")
+    return output_video_path
