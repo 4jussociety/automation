@@ -26,4 +26,5 @@ assets/client_secrets*.json
 .DS_Store
 Thumbs.db
 .vscode/
-.idea/
+# Temporary Reference Packages
+Team_The_PT_Automation_Package/

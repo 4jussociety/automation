@@ -9,6 +9,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent
 OUTPUT_DIR = BASE_DIR / "output"
 TEMPLATES_DIR = BASE_DIR / "templates"
+CONTENTS_DIR = BASE_DIR / "contents"
 HISTORY_FILE = BASE_DIR / "history.json"
 
 # Gemini API 설정

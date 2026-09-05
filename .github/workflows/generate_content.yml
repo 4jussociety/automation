@@ -1,0 +1,79 @@
+name: Generate PT Media Content
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_video:
+        description: '비디오 렌더링 건너뛰기 여부 (체크 시 카드뉴스 및 대본만 신속 생성)'
+        type: boolean
+        default: false
+      category:
+        description: '특정 카테고리 필터 (비워둘 시 전체 3세트 생성, 예: set1, set2, set3)'
+        required: false
+        default: ''
+  schedule:
+    # 매주 일요일 21:00 UTC (한국 시간 월요일 06:00 AM) 정기 자동 실행
+    - cron: '0 21 * * 0'
+
+permissions:
+  contents: write
+
+jobs:
+  generate-and-render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System Dependencies (FFmpeg & Korean Fonts)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-nanum fonts-noto-cjk
+
+      - name: Install Python Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright Chromium with System Deps
+        run: |
+          playwright install --with-deps chromium
+
+      - name: Run Content Automation Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: 'gemini-3.7-flash'
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.skip_video }}" = "true" ]; then
+            ARGS="$ARGS --skip-video"
+          fi
+          if [ -n "${{ github.event.inputs.category }}" ]; then
+            ARGS="$ARGS --category '${{ github.event.inputs.category }}'"
+          fi
+          echo "Executing: python main.py $ARGS"
+          eval python main.py $ARGS
+
+      - name: Upload Output Artifacts (Card News & Shorts)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pt-weekly-content-${{ github.run_id }}
+          path: output/
+          retention-days: 7
+
+      - name: Commit & Push Content Drafts and History
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add history.json contents/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: update weekly content history and drafts [skip ci]" && git push origin HEAD:main)

@@ -10,13 +10,9 @@ requests>=2.31.0
 playwright>=1.40.0
 Pillow>=10.0.0
 
-# Shorts Audio Synthesis (TTS)
+# Shorts Audio & Video Synthesis (TTS & FFmpeg)
 edge-tts>=6.1.9
-
-# YouTube Data API & OAuth
-google-api-python-client>=2.110.0
-google-auth-oauthlib>=1.2.0
-google-auth-httplib2>=0.2.0
+imageio-ffmpeg>=0.4.9
 
 # Environment & Config
 python-dotenv>=1.0.0

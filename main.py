@@ -1,5 +1,9 @@
 import sys
+import os
+import json
 import argparse
+from datetime import datetime
+from pathlib import Path
 
 # Windows cp949 콘솔 이모지 인코딩 지원
 if sys.platform == "win32":
@@ -9,9 +13,10 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-from pathlib import Path
-
-from config import OUTPUT_DIR, CURRENT_WEEK, GEMINI_API_KEY, DEFAULT_MODEL
+from config import (
+    OUTPUT_DIR, CURRENT_WEEK, GEMINI_API_KEY, DEFAULT_MODEL,
+    CONTENTS_DIR, HISTORY_FILE
+)
 from agents.agent1_curator import run_agent1
 from agents.agent2_card_writer import run_agent2
 from agents.agent3_shorts_writer import run_agent3
@@ -20,30 +25,47 @@ from generators.card_renderer import render_cards
 from generators.bg_generator import prepare_set_backgrounds
 from generators.shorts_renderer import save_shorts_assets
 from generators.video_renderer import render_shorts_video
-from generators.insta_browser_uploader import InstagramBrowserUploader, generate_first_comment_text
-from generators.youtube_uploader import YouTubeShortsUploader, generate_shorts_first_comment
-from generators.schedule_calculator import get_next_weekly_schedule, print_weekly_schedule
 
 def main(args=None):
     if args is None:
         args = parse_args()
     print("=" * 65)
-    print(f" 🏥 물리치료 전문 뉴스 4-에이전트 자동화 시스템 가동")
+    print(f" 🏥 물리치료 전문 뉴스 미디어 자동 렌더링 시스템 가동")
     print(f" 📅 대상 주차: {CURRENT_WEEK} | 생성 목표: 매주 3세트 (쇼츠 3개, 카드뉴스 3개)")
     if not GEMINI_API_KEY:
-        raise ValueError("❌ GEMINI_API_KEY가 설정되지 않았습니다. .env 파일에 API 키를 등록해야 시스템을 실행할 수 있습니다.")
+        raise ValueError("❌ GEMINI_API_KEY가 설정되지 않았습니다. .env 파일이나 GitHub Secrets에 API 키를 등록해야 합니다.")
     print(f" 🔑 Gemini API 연동 모드: 활성화됨 (모델: {DEFAULT_MODEL})")
+    if args.skip_video:
+        print(" ⚡ 옵션: 비디오 렌더링 건너뛰기 (--skip-video) 활성화")
     print("=" * 65)
 
     # 1. 에이전트 1 실행: 3개 세트 뉴스 리서치 및 큐레이션
     print("\n[Step 1/4] 🔍 Agent 1 (뉴스 큐레이터) 작업 시작...")
     batches = run_agent1()
     print(f"  -> {len(batches)}개 분야별 뉴스 세트 선별 완료!")
+
+    # 카테고리 필터 옵션 처리
+    if args.category:
+        cat_filter = args.category.lower().strip()
+        filtered = [
+            b for b in batches
+            if cat_filter in b.get("batch_id", "").lower()
+            or cat_filter in b.get("batch_title", "").lower()
+        ]
+        if filtered:
+            batches = filtered
+            print(f"  🎯 카테고리 필터 적용: {len(batches)}개 세트만 생성 진행 ({args.category})")
+        else:
+            print(f"  ⚠️ 입력된 카테고리('{args.category}')와 일치하는 세트가 없어 전체 세트를 생성합니다.")
+
     for b in batches:
         print(f"     • [{b.get('batch_id')}] {b.get('batch_title')} ({len(b.get('news_items', []))}건)")
 
     week_output_dir = OUTPUT_DIR / CURRENT_WEEK
     week_output_dir.mkdir(parents=True, exist_ok=True)
+    CONTENTS_DIR.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
     # 2~4. 각 세트별로 에이전트 2, 3, 4 및 렌더링 실행
     for idx, batch in enumerate(batches, start=1):
@@ -52,7 +74,7 @@ def main(args=None):
         batch_folder.mkdir(parents=True, exist_ok=True)
 
         print("\n" + "-" * 60)
-        print(f"📦 [{idx}/3] 세트 처리 중: {batch.get('batch_title')}")
+        print(f"📦 [{idx}/{len(batches)}] 세트 처리 중: {batch.get('batch_title')}")
         print("-" * 60)
 
         # 에이전트 2: 카드뉴스 카피라이팅
@@ -69,12 +91,29 @@ def main(args=None):
         final_card = review_result.get("final_card_data", raw_card_data)
         final_shorts = review_result.get("final_shorts_data", raw_shorts_data)
 
-        # 배경 에셋 준비: 이번 세트 맞춤 배경을 output/{CURRENT_WEEK}/{batch_id}/backgrounds/ 에 격리 배치 (수동 교체 가능)
+        # 콘텐츠 초안 JSON 저장 (Team_The_PT_Automation_Package 차용)
+        draft_filename = f"draft_{timestamp}_{batch_id}.json"
+        draft_path = CONTENTS_DIR / draft_filename
+        draft_payload = {
+            "timestamp": timestamp,
+            "week": CURRENT_WEEK,
+            "batch_id": batch_id,
+            "batch_title": batch.get("batch_title"),
+            "target_audience": batch.get("target_audience"),
+            "news_items": batch.get("news_items", []),
+            "card_news": final_card,
+            "shorts": final_shorts
+        }
+        with open(draft_path, "w", encoding="utf-8") as df:
+            json.dump(draft_payload, df, ensure_ascii=False, indent=2)
+        print(f"  💾 기획 및 대본 데이터 보관: contents/{draft_filename}")
+
+        # 배경 에셋 준비
         bg_dir = batch_folder / "backgrounds"
         bg_files = prepare_set_backgrounds(final_card, bg_dir)
         print(f"  🖼️ 배경 에셋: {bg_dir.name}/ 에 슬라이드 맞춤 배경 {len(bg_files)}장 배치 완료")
 
-        # 미디어 렌더링 1: 고화질 카드뉴스 PNG 이미지 6장 생성 (세트 배경 기반 렌더링)
+        # 미디어 렌더링 1: 고화질 카드뉴스 PNG 이미지 생성 (1080x1350 및 1080x1920)
         cards_dir = batch_folder / "cards"
         print(f"  🎨 카드뉴스 렌더러: 1080x1350 및 1080x1920 초고화질 이미지 렌더링 중...")
         render_res = render_cards(final_card, cards_dir, bg_files=bg_files)
@@ -84,12 +123,14 @@ def main(args=None):
         print(f"  🎙️ 쇼츠 렌더러: 한국어 AI 보이스(MP3) 및 스토리보드 생성 중...")
         shorts_assets = save_shorts_assets(final_shorts, shorts_dir)
 
-        # 미디어 렌더링 3: 배경만 시네마틱 모션으로 움직이고 텍스트는 고정된 완성본 쇼츠 동영상(MP4) 생성
+        # 미디어 렌더링 3: 배경만 시네마틱 모션으로 움직이고 텍스트는 고정된 쇼츠 동영상(MP4) 생성
         fg_images = render_res.get("fg_images_9x16", [])
-        if bg_files and fg_images and shorts_assets["audio_path"].exists():
+        if not args.skip_video and bg_files and fg_images and shorts_assets["audio_path"].exists():
             shorts_video_path = shorts_dir / "shorts_video.mp4"
             print(f"  🎬 레이어드 비디오 렌더러: 배경 독립 모션 쇼츠 동영상(MP4) 생성 중...")
             render_shorts_video(bg_files, fg_images, shorts_assets["audio_path"], shorts_video_path)
+        elif args.skip_video:
+            print("  ⏭️ 비디오 렌더링을 건너뜁니다 (--skip-video).")
 
         # 인스타그램 캡션 텍스트 저장
         caption_path = batch_folder / "instagram_caption.txt"
@@ -128,7 +169,7 @@ def main(args=None):
     with open(summary_sources_path, "w", encoding="utf-8") as f:
         f.write(f"# 🏥 [{CURRENT_WEEK}] 주간 물리치료 전문 뉴스 스크랩 출처 및 원문 링크 총정리\n\n")
         f.write(f"> **발행 주차**: {CURRENT_WEEK}  \n")
-        f.write(f"> **생성 세트**: 총 {len(batches)}개 세트 (쇼츠 3편, 카드뉴스 18장)  \n")
+        f.write(f"> **생성 세트**: 총 {len(batches)}개 세트  \n")
         f.write(f"> **타겟 독자**: 물리치료사, 도수치료사, 재활전문가, 작업치료사 등 임상 실무자\n\n")
         f.write("---\n\n")
         for b_idx, batch in enumerate(batches, start=1):
@@ -150,11 +191,26 @@ def main(args=None):
             f.write("---\n\n")
     print(f"\n📄 주간 통합 출처 및 링크 문서 생성: {summary_sources_path.name}")
 
+    # history.json에 processed_weeks 업데이트
+    if HISTORY_FILE.exists():
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                history_data = json.load(f)
+        except Exception:
+            history_data = {"processed_weeks": [], "history": []}
+    else:
+        history_data = {"processed_weeks": [], "history": []}
+
+    if CURRENT_WEEK not in history_data.get("processed_weeks", []):
+        history_data.setdefault("processed_weeks", []).append(CURRENT_WEEK)
+        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+            json.dump(history_data, f, ensure_ascii=False, indent=2)
+
     print("\n" + "=" * 65)
-    print(f"🎉 축하합니다! 이번 주 3세트 전체 미디어 생성 완료!")
+    print(f"🎉 축하합니다! {len(batches)}개 세트 미디어 생성이 완료되었습니다!")
     print(f"📁 결과물 저장 경로: {week_output_dir.resolve()}")
     print("=" * 65)
-    print("생성된 결과물:")
+    print("생성된 결과물 요약:")
     print(f"  📄 {summary_sources_path.name} (전체 출처 및 원문 링크 총정리)")
     for b in batches:
         b_id = b.get("batch_id")
@@ -166,121 +222,13 @@ def main(args=None):
         print(f"     ├── sources_and_links.md (세트별 스크랩 출처 및 링크)")
         print(f"     └── instagram_caption.txt")
 
-    # 5. SNS 자동 업로드 파이프라인 (월수금 쇼츠/릴스 & 화목토 카드뉴스 오전 8시 예약)
-    should_upload_insta = args.upload or args.upload_insta
-    should_upload_yt = args.upload or args.upload_yt
-
-    if should_upload_insta or should_upload_yt:
-        print("\n" + "=" * 65)
-        print(" 🚀 주간 SNS 자동 예약 업로드 & 첫댓글 파이프라인 가동")
-        print("=" * 65)
-
-        weekly_sch = get_next_weekly_schedule()
-        print_weekly_schedule(weekly_sch)
-
-        insta_uploader = InstagramBrowserUploader() if should_upload_insta else None
-        yt_uploader = YouTubeShortsUploader() if should_upload_yt else None
-
-        for idx, batch in enumerate(batches, start=1):
-            batch_id = batch.get("batch_id", f"set{idx}")
-            set_key = f"set{idx}"
-            batch_folder = week_output_dir / batch_id
-            batch_title = batch.get("batch_title", "")
-
-            sch_info = weekly_sch.get(set_key, {})
-            v_sch = sch_info.get("video", {})
-            c_sch = sch_info.get("carousel", {})
-
-            print(f"\n📦 [{idx}/{len(batches)}] {batch_title} SNS 예약 업로드 진행 중...")
-
-            # 5-1. [화/목/토 08:00 AM] 인스타그램 피드 4:5 캐러셀 6장 예약 업로드
-            if should_upload_insta:
-                cards_4x5_dir = batch_folder / "cards" / "feed_4x5"
-                card_images = sorted(list(cards_4x5_dir.glob("card_[0-9]*.png"))) or sorted(list(cards_4x5_dir.glob("card_slide_*.png")))
-                caption_file = batch_folder / "instagram_caption.txt"
-                caption = ""
-                if caption_file.exists():
-                    with open(caption_file, "r", encoding="utf-8") as cf:
-                        caption = cf.read()
-
-                if card_images:
-                    first_comm = generate_first_comment_text(batch)
-                    target_dt = c_sch.get("target_datetime")
-                    day_name = c_sch.get("day_name", "화요일")
-                    print(f"  📸 [{day_name} 08:00 AM] 인스타그램 카드뉴스 캐러셀 예약 중...")
-                    insta_uploader.upload_carousel_post(
-                        image_paths=card_images,
-                        caption=caption,
-                        first_comment=first_comm,
-                        schedule_datetime=target_dt,
-                        is_scheduled=True
-                    )
-                else:
-                    print(f"  ⚠️ 업로드할 4:5 카드 이미지가 없습니다: {cards_4x5_dir}")
-
-            # 5-2. [월/수/금 08:00 AM] 인스타그램 릴스(Reels) 예약 업로드
-            video_path = batch_folder / "shorts" / "shorts_video.mp4"
-            if should_upload_insta and video_path.exists():
-                v_target_dt = v_sch.get("target_datetime")
-                v_day_name = v_sch.get("day_name", "월요일")
-                print(f"  🎬 [{v_day_name} 08:00 AM] 인스타그램 릴스(Reels) 예약 중...")
-                reels_caption = f"[{batch_title}] 주간 핵심 요약 #물리치료 #릴스"
-                reels_first_comm = generate_shorts_first_comment(batch_title)
-                insta_uploader.upload_reels_video(
-                    video_path=video_path,
-                    caption=reels_caption,
-                    first_comment=reels_first_comm,
-                    schedule_datetime=v_target_dt,
-                    is_scheduled=True
-                )
-
-            # 5-3. [월/수/금 08:00 AM] 유튜브 쇼츠(Shorts) 예약 업로드 & 첫댓글 등록
-            if should_upload_yt:
-                if video_path.exists():
-                    v_day_name = v_sch.get("day_name", "월요일")
-                    v_rfc3339 = v_sch.get("rfc3339")
-                    lead_news = batch.get("news_items", [{}])[0]
-                    lead_headline = lead_news.get("headline", batch_title)
-                    yt_title = f"[물리치료사 필독] {lead_headline[:50]} #Shorts"
-                    yt_desc = f"{batch_title} 주간 브리핑입니다.\n\n출처 및 원문 링크는 채널 공지 및 첫댓글을 확인하세요."
-                    yt_first_comment = generate_shorts_first_comment(batch_title)
-
-                    print(f"  🎬 [{v_day_name} 08:00 AM] 유튜브 쇼츠 예약 업로드 및 첫댓글 등록 중...")
-                    yt_uploader.upload_shorts(
-                        video_path=video_path,
-                        title=yt_title,
-                        description=yt_desc,
-                        first_comment=yt_first_comment,
-                        publish_at=v_rfc3339
-                    )
-                else:
-                    print(f"  ⚠️ 업로드할 쇼츠 영상이 없습니다: {video_path}")
-    else:
-        print("\n" + "-" * 65)
-        print(" 💡 [안내] SNS 자동 예약 업로드 및 첫댓글 작성을 실행하려면:")
-        print("   • 인스타그램 1회 로그인: python main.py --login-insta")
-        print("   • 유튜브 1회 인증:       python main.py --auth-yt")
-        print("   • 전체 SNS 자동 예약:    python main.py --upload")
-        print("   • 인스타그램만 예약발행: python main.py --upload-insta")
-        print("   • 유튜브 쇼츠만 예약발행:python main.py --upload-yt")
-        print("-" * 65)
-
 def parse_args():
-    parser = argparse.ArgumentParser(description="물리치료 전문 뉴스 올인원 자동화 파이프라인")
-    parser.add_argument("--upload", action="store_true", help="월수금 릴스/쇼츠, 화목토 카드뉴스 오전 8시 일괄 예약 업로드")
-    parser.add_argument("--upload-insta", action="store_true", help="인스타그램 릴스/피드 오전 8시 예약 업로드만 실행")
-    parser.add_argument("--upload-yt", action="store_true", help="유튜브 쇼츠 월수금 오전 8시 예약 업로드 및 첫댓글만 실행")
-    parser.add_argument("--login-insta", action="store_true", help="인스타그램 브라우저 1회 로그인 세션을 저장합니다.")
-    parser.add_argument("--auth-yt", action="store_true", help="YouTube Data API v3 1회 구글 OAuth 인증을 수행합니다.")
+    parser = argparse.ArgumentParser(description="물리치료 전문 뉴스 미디어 자동 생성 파이프라인")
+    parser.add_argument("--skip-video", action="store_true", help="비디오 렌더링을 건너뛰고 카드뉴스 및 대본만 신속 생성")
+    parser.add_argument("--category", type=str, default="", help="특정 카테고리/세트만 필터링하여 생성 (예: set1, set2, set3)")
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
-    if args.login_insta:
-        uploader = InstagramBrowserUploader()
-        uploader.interactive_login()
-    elif args.auth_yt:
-        uploader = YouTubeShortsUploader()
-        uploader.get_authenticated_service()
-    else:
-        main(args)
+    main(args)
+
