@@ -420,6 +420,21 @@
       ],
       "video_file": "C:\\Users\\home\\Desktop\\개발\\automation\\output\\20260904_145735_spine\\video\\shorts.mp4",
       "status": "READY_FOR_PUBLISH"
+    },
+    {
+      "timestamp": "20260904_145735",
+      "issue_title": "거북목·일자목 방치하면 목디스크 되는 진짜 이유",
+      "category": "spine",
+      "json_path": "/home/runner/work/automation/automation/contents/draft_20260904_145735_spine.json",
+      "card_files": [
+        "/home/runner/work/automation/automation/output/20260904_145735_spine/cards/card_slide_01.png",
+        "/home/runner/work/automation/automation/output/20260904_145735_spine/cards/card_slide_02.png",
+        "/home/runner/work/automation/automation/output/20260904_145735_spine/cards/card_slide_03.png",
+        "/home/runner/work/automation/automation/output/20260904_145735_spine/cards/card_slide_04.png",
+        "/home/runner/work/automation/automation/output/20260904_145735_spine/cards/card_slide_05.png"
+      ],
+      "video_file": "/home/runner/work/automation/automation/output/20260904_145735_spine/video/shorts.mp4",
+      "status": "READY_FOR_PUBLISH"
     }
   ]
 }
