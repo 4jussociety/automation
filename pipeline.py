@@ -1,0 +1,297 @@
+# 이 모듈은 뉴스 수집부터 4:5 카드뉴스 및 9:16 쇼츠 영상 렌더링까지 전 과정을 일괄 실행합니다.
+# 일자별 폴더에 카드뉴스, 음성, 쇼츠 비디오 및 커뮤니티 포스팅용 자료를 체계적으로 아카이빙합니다.
+
+import sys
+from pathlib import Path
+import asyncio
+from datetime import datetime
+import json
+
+# 윈도우 콘솔 유니코드(이모지 등) 인코딩 처리
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+sys.path.append(str(Path(__file__).resolve().parent))
+
+from config import OUTPUT_DIR, DEFAULT_BG_PATH, AI_TECH_BG_PATH
+from modules.news_collector import collect_weekly_3batches
+from modules.content_builder import build_weekly_3batches_schedule
+from modules.card_renderer import render_cards_to_images
+from modules.tts_synthesizer import synthesize_all_narration
+from modules.video_renderer import render_shorts_video
+from modules.article_image_fetcher import fetch_article_images
+import shutil
+
+
+
+async def run_weekly_pipeline(
+    domestic_keywords_a: list[str] = None,
+    domestic_keywords_b: list[str] = None,
+    global_keywords: list[str] = None
+) -> dict:
+    """
+    주간 3대 브리핑 세트(총 9개 기사: 국내 정책 3 + 국내 임상 3 + 해외 글로벌 3)를 기반으로
+    월·수·금 1분 쇼츠 3편 및 화·목·토 4:5 카드뉴스 3편을 요일별 6개 폴더에 일괄 생성합니다.
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    weekly_dir = OUTPUT_DIR / f"{today_str}_weekly"
+    bg_dir = weekly_dir / "backgrounds"
+
+    weekly_dir.mkdir(parents=True, exist_ok=True)
+    bg_dir.mkdir(parents=True, exist_ok=True)
+
+    # 기본/생성 배경 복사
+    if DEFAULT_BG_PATH.exists():
+        shutil.copy(DEFAULT_BG_PATH, bg_dir / "pt_clinic_bg.jpg")
+    if AI_TECH_BG_PATH.exists():
+        shutil.copy(AI_TECH_BG_PATH, bg_dir / "ai_rehab_bg.jpg")
+
+    print("=" * 70)
+    print(f"🚀 [THEPT] 주간 3대 브리핑 세트 기반 6일 연계 콘텐츠 자동 생성 ({today_str})")
+    print("   📅 월·수·금: 3기사 1분 브리핑 쇼츠 | 화·목·토: 3기사 4:5 심층 카드뉴스")
+    print("   💡 배치 1: 국내 정책·제도 | 배치 2: 임상 연구·기술 | 배치 3: 해외 트렌드")
+    print("=" * 70)
+
+    # 1. 뉴스 대량 수집 및 3대 브리핑 배치(총 9건 기사) 편성
+    print("\n[단계 1/5] 주간 국내 정책/임상 및 글로벌 뉴스 수집 및 3대 배치 편성 중...")
+    batches = collect_weekly_3batches(
+        domestic_keywords_a=domestic_keywords_a,
+        domestic_keywords_b=domestic_keywords_b,
+        global_keywords=global_keywords
+    )
+    print(f"  -> 총 {batches['total_collected']}건 기사 수집 완료")
+    print(f"  -> [배치 1] 국내 정책·제도 A (월/화): {len(batches['batch_1'])}건")
+    for i, a in enumerate(batches["batch_1"], 1):
+        print(f"     {i}. {a['title']} ({a['source']})")
+    print(f"  -> [배치 2] 임상 연구·첨단 B (수/목): {len(batches['batch_2'])}건")
+    for i, a in enumerate(batches["batch_2"], 1):
+        print(f"     {i}. {a['title']} ({a['source']})")
+    print(f"  -> [배치 3] 해외 글로벌 C (금/토): {len(batches['batch_3'])}건")
+    for i, a in enumerate(batches["batch_3"], 1):
+        print(f"     {i}. {a['title']} ({a['source']})")
+
+    # 2. 9개 기사 실제 보도 사진 병렬 크롤링 (Playwright)
+    print("\n[단계 2/5] 9개 기사 실제 원문 보도 사진 크롤링 중 (Playwright)...")
+    print("  -> 배치 1 보도 사진 크롤링:")
+    b1_photos = await fetch_article_images(batches["batch_1"], bg_dir, prefix="b1")
+    print("  -> 배치 2 보도 사진 크롤링:")
+    b2_photos = await fetch_article_images(batches["batch_2"], bg_dir, prefix="b2")
+    print("  -> 배치 3 (글로벌) 보도 사진 크롤링:")
+    b3_photos = await fetch_article_images(batches["batch_3"], bg_dir, prefix="b3")
+
+    batch_photos = {
+        "batch_1": b1_photos,
+        "batch_2": b2_photos,
+        "batch_3": b3_photos
+    }
+    total_photos = len(b1_photos) + len(b2_photos) + len(b3_photos)
+    print(f"  -> 총 {total_photos}/9건 실제 보도 사진 획득 완료 (전체 보도 사진 풀에서 슬라이드 배경 자동 배분)")
+
+    # 3. 요일별 6개 콘텐츠 패키지 빌드
+    print("\n[단계 3/5] 요일별 6개 전용 패키지 및 1분 나레이션 대본 구조화 중...")
+    weekly_packages = build_weekly_3batches_schedule(
+        batches=batches,
+        bg_dir=bg_dir,
+        batch_photos=batch_photos
+    )
+    print(f"  -> 총 {len(weekly_packages)}개 패키지 준비 완료")
+
+    # 4. 콘텐츠 렌더링: 1단계 마스터 카드뉴스(화·목·토) -> 2단계 쇼츠 비디오(월·수·금)
+    print("\n[단계 4/5] 2단계 파이프라인 렌더링 시작...")
+    results_by_day = []
+
+    # 패키지 매핑 (월-화: b1, 수-목: b2, 금-토: b3)
+    # weekly_packages 순서: 0(월), 1(화), 2(수), 3(목), 4(금), 5(토)
+    pkg_mon = weekly_packages[0]
+    pkg_tue = weekly_packages[1]
+    pkg_wed = weekly_packages[2]
+    pkg_thu = weekly_packages[3]
+    pkg_fri = weekly_packages[4]
+    pkg_sat = weekly_packages[5]
+
+    card_master_pairs = [
+        ("화요일", pkg_tue, "02_Tue_CardNews", "batch_1"),
+        ("목요일", pkg_thu, "04_Thu_CardNews", "batch_2"),
+        ("토요일", pkg_sat, "06_Sat_CardNews_Global", "batch_3"),
+    ]
+
+    master_card_paths = {}
+
+    # [1단계] 화·목·토 4:5 마스터 카드뉴스 3세트 (총 18장) 우선 렌더링
+    print("\n  ▶ [1단계] 화·목·토 마스터 4:5 카드뉴스 3세트(총 18장) 렌더링...")
+    for day_name, pkg, folder_name, b_key in card_master_pairs:
+        day_dir = weekly_dir / folder_name
+        day_dir.mkdir(parents=True, exist_ok=True)
+        print(f"\n     🎨 [{day_name}] 카드뉴스 원본 제작 -> {folder_name}...")
+
+        # 패키지 메타데이터 저장
+        (day_dir / "package_data.json").write_text(
+            json.dumps(pkg, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+
+        cards_dir = day_dir / "card_images_4x5"
+        card_paths = await render_cards_to_images(pkg, cards_dir)
+        master_card_paths[b_key] = card_paths
+
+        # 인스타그램 피드 캡션 및 출처 저장
+        sources = pkg.get("sources", [])
+        insta_caption = (
+            f"📋 [THEPT 주간 브리핑 카드뉴스 - {day_name}]\n"
+            f"{pkg['title']}\n\n"
+            f"주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n"
+            f"슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📰 [기사 원문 출처 및 링크]\n"
+        )
+        for s in sources:
+            insta_caption += f"{s['index']}. {s['title']} ({s['source']})\n   🔗 {s['link']}\n\n"
+        insta_caption += (
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
+            f"#물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #카드뉴스 #피지컬테라피"
+        )
+        (day_dir / "instagram_caption.txt").write_text(insta_caption, encoding="utf-8")
+        (day_dir / "sources_and_links.txt").write_text(insta_caption, encoding="utf-8")
+
+        results_by_day.append({
+            "day": day_name,
+            "type": "cardnews",
+            "folder": day_dir,
+            "cards_count": len(card_paths)
+        })
+        print(f"     ✅ 4:5 마스터 카드뉴스 완성 ({len(card_paths)}장 PNG)")
+
+    # [2단계] 월·수·금 1분 쇼츠 비디오 3편 (마스터 카드 이미지 직접 참조하여 고속 제작)
+    print("\n  ▶ [2단계] 월·수·금 1분 쇼츠 3편 고속 영상화 (카드 재렌더링 없이 원본 이미지 직접 참조)...")
+    shorts_pairs = [
+        ("월요일", pkg_mon, "01_Mon_Shorts", "batch_1"),
+        ("수요일", pkg_wed, "03_Wed_Shorts", "batch_2"),
+        ("금요일", pkg_fri, "05_Fri_Shorts_Global", "batch_3"),
+    ]
+
+    for day_name, pkg, folder_name, b_key in shorts_pairs:
+        day_dir = weekly_dir / folder_name
+        day_dir.mkdir(parents=True, exist_ok=True)
+        print(f"\n     🎬 [{day_name}] 쇼츠 비디오 제작 -> {folder_name}...")
+
+        # 패키지 메타데이터 저장
+        (day_dir / "package_data.json").write_text(
+            json.dumps(pkg, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+
+        audio_dir = day_dir / "audio"
+        video_path = day_dir / "shorts_1080x1920.mp4"
+
+        # 마스터 카드뉴스 이미지를 그대로 소스로 활용 (중복 렌더링 0회)
+        card_paths = master_card_paths[b_key]
+
+        # 고속 나레이션 TTS 합성
+        audio_results = await synthesize_all_narration(pkg, audio_dir)
+        total_sec = sum(a["duration"] for a in audio_results)
+
+        # 9:16 세로형 쇼츠 비디오 렌더링
+        render_shorts_video(card_paths, audio_results, video_path)
+
+        # 유튜브 쇼츠 설명란 및 댓글 캡션
+        sources = pkg.get("sources", [])
+        shorts_caption = (
+            f"📢 [THEPT 주간 브리핑 쇼츠 - {day_name}]\n"
+            f"{pkg['title']}\n\n"
+            f"한 주간 가장 주목할 물리치료 최신 뉴스 3가지를 1분 만에 전해드립니다!\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📰 [기사 원문 출처]\n"
+        )
+        for s in sources:
+            shorts_caption += f"• {s['index']}. {s['title']} ({s['source']})\n  🔗 {s['link']}\n"
+        shorts_caption += (
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"💡 상세한 분석은 카드뉴스로 확인하세요!\n"
+            f"#물리치료 #도수치료 #재활치료 #물리치료사 #더피티 #THEPT #쇼츠"
+        )
+        (day_dir / "youtube_shorts_caption.txt").write_text(shorts_caption, encoding="utf-8")
+
+        results_by_day.append({
+            "day": day_name,
+            "type": "shorts",
+            "folder": day_dir,
+            "video_path": video_path,
+            "duration": total_sec
+        })
+        print(f"     ✅ 쇼츠 비디오 완성 ({total_sec:.2f}초, {video_path.stat().st_size / (1024*1024):.2f} MB)")
+
+    # 5. 주간 통합 출처 및 링크 문서 작성
+    print("\n[단계 5/5] 주간 전체 통합 출처 및 발행 가이드 저장 중...")
+    sources_summary = (
+        f"📌 [THEPT 주간 3대 브리핑 세트 통합 출처 및 스케줄 - {today_str}]\n"
+        f"월~토 콘텐츠 배포 시 댓글 및 설명란에 활용하세요.\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"📅 [주간 요일별 6대 폴더 구성]\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    )
+    for res in results_by_day:
+        d = res["day"]
+        t = res["type"].upper()
+        f = res["folder"].name
+        sources_summary += f"• [{d}] {t} -> {f}\n"
+
+    sources_summary += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    sources_summary += "📰 [배치 1: 국내 A 3기사 원문 출처 (월 쇼츠 / 화 카드뉴스)]\n"
+    sources_summary += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    for idx, art in enumerate(batches["batch_1"], 1):
+        sources_summary += f"{idx}. {art['title']} ({art['source']})\n   🔗 {art['link']}\n\n"
+
+    sources_summary += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    sources_summary += "📰 [배치 2: 국내 B 3기사 원문 출처 (수 쇼츠 / 목 카드뉴스)]\n"
+    sources_summary += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    for idx, art in enumerate(batches["batch_2"], 1):
+        sources_summary += f"{idx}. {art['title']} ({art['source']})\n   🔗 {art['link']}\n\n"
+
+    sources_summary += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    sources_summary += "📰 [배치 3: 해외 C 3기사 원문 출처 (금 쇼츠 / 토 카드뉴스)]\n"
+    sources_summary += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+    for idx, art in enumerate(batches["batch_3"], 1):
+        sources_summary += f"{idx}. {art['title']} ({art['source']})\n   🔗 {art['link']}\n\n"
+
+    weekly_sources_file = weekly_dir / "weekly_sources_and_links.txt"
+    weekly_sources_file.write_text(sources_summary, encoding="utf-8")
+
+    # 결과 출력
+    print("\n" + "=" * 70)
+    print("🎉 [THEPT] 주간 3대 브리핑 세트 기반 6일 연계 콘텐츠 자동 생성 완료!")
+    print(f"📁 주간 마스터 저장 위치: {weekly_dir}")
+    print(f"   ├─ 📂 01_Mon_Shorts/ (월요일 국내 A 브리핑 쇼츠 영상)")
+    print(f"   ├─ 📂 02_Tue_CardNews/ (화요일 국내 A 심층 카드뉴스 6장)")
+    print(f"   ├─ 📂 03_Wed_Shorts/ (수요일 국내 B 브리핑 쇼츠 영상)")
+    print(f"   ├─ 📂 04_Thu_CardNews/ (목요일 국내 B 심층 카드뉴스 6장)")
+    print(f"   ├─ 📂 05_Fri_Shorts_Global/ (금요일 해외 C 브리핑 쇼츠 영상)")
+    print(f"   ├─ 📂 06_Sat_CardNews_Global/ (토요일 해외 C 심층 카드뉴스 6장)")
+    print(f"   ├─ 🌄 backgrounds/ (수집된 실제 보도 사진 9건 풀)")
+    print(f"   └─ 🔗 weekly_sources_and_links.txt (주간 전체 출처 및 링크 모음)")
+    print("=" * 70)
+
+    return {
+        "weekly_dir": weekly_dir,
+        "results_by_day": results_by_day,
+        "batches": batches,
+        "sources_file": weekly_sources_file
+    }
+
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="THEPT 주간 파이프라인")
+    parser.add_argument("--weekly", action="store_true", default=True, help="주간 6일 일괄 생성 모드 (기본값)")
+    args = parser.parse_args()
+
+    if args.weekly:
+        asyncio.run(run_weekly_pipeline())
+    else:
+        asyncio.run(run_pipeline())
+

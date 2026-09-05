@@ -1,0 +1,9 @@
+# 이 파일은 Git 버전 관리에서 제외할 임시 파일 및 캐시, 가상환경 목록을 정의합니다.
+# output 디렉토리의 대용량 미디어 파일 및 파이썬 캐시를 무시합니다.
+__pycache__/
+*.pyc
+.env
+output/
+venv/
+.venv/
+.pytest_cache/

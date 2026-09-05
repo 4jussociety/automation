@@ -1,0 +1,7 @@
+# 이 파일은 주간 물리치료 콘텐츠 자동화 파이프라인 구동에 필요한 패키지 목록을 정의합니다.
+# Playwright, Edge-TTS, Requests 등 핵심 라이브러리를 명시합니다.
+playwright>=1.50.0
+edge-tts>=7.0.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+python-dotenv>=1.0.0
