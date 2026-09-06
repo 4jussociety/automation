@@ -19,7 +19,7 @@ def build_slide_html(slide_type: str, data: dict) -> str:
             for i, item in enumerate(data.get("items", []), 1)
         ])
         return f"""
-        <div class="cover-tag-box">{data.get('tag', '물리치료 LAB 주간 브리핑')}</div>
+        <div class="cover-tag-box">{data.get('tag', '물리치료 NEWS 주간 브리핑')}</div>
         <div class="cover-huge-title">{data.get('title', '한눈에 보는 이번 주<br><span class="hl-yellow">물리치료 핵심 뉴스</span>')}</div>
         <div class="cover-desc-card">
             <div class="cover-desc-text">{data.get('desc', '한 주간의 주요 물리치료 및 재활 의료 소식을 빠르게 전해드립니다.')}</div>
@@ -54,17 +54,19 @@ def build_slide_html(slide_type: str, data: dict) -> str:
             f'<div class="ad-check-item">✨ {b}</div>'
             for b in data.get("bullets", [])
         ])
+        cta_btn = data.get('cta_button', '').strip()
+        cta_btn_html = f'<div class="ad-cta-btn">{cta_btn}</div>' if cta_btn else ''
         cta_html = f"""
         <div class="ad-cta-container">
-            <div class="ad-cta-btn">{data.get('cta_button', '4thept.com 바로가기 👆')}</div>
-            <div class="ad-inquiry-text">{data.get('inquiry_text', '📢 광고 및 비즈니스 제휴 문의: thept.official@gmail.com')}</div>
+            {cta_btn_html}
+            <div class="ad-inquiry-text">{data.get('inquiry_text', '📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com')}</div>
         </div>
         """
         return f"""
-        <div class="ad-top-tag">{data.get('badge', '4THEPT CLINICAL')}</div>
-        <div class="ad-huge-title">{data.get('title', '물리치료사 맞춤 임상 차팅 솔루션<br><span class="hl-yellow">4THEPT</span>')}</div>
+        <div class="ad-top-tag">{data.get('badge', 'THEPT SPONSOR')}</div>
+        <div class="ad-huge-title">{data.get('title', '방문재활 물리치료사 맞춤<br><span class="hl-yellow">AI음성 차팅</span>')}</div>
         <div class="ad-summary-card">
-            {data.get('subtitle', '수작업 차팅 부담은 줄이고, 환자와 치료에 더 집중하세요.')}
+            {data.get('subtitle', '수작업 차팅 부담은 줄이고, 고객과의 소통에 더 집중하세요.')}
         </div>
         <div class="ad-checklist">
             {bullets_html}
@@ -130,6 +132,7 @@ def build_slide_html(slide_type: str, data: dict) -> str:
 
 
 from modules.article_compressor import compress_article_content
+from modules.text_verifier import refine_text_for_tts
 
 
 def clean_sentence(text: str, max_len: int = 70) -> str:
@@ -150,14 +153,16 @@ def clean_sentence(text: str, max_len: int = 70) -> str:
 
 
 def clean_title_for_narration(title: str, max_len: int = 45) -> str:
-    """나레이션에서 부드럽게 발음할 수 있도록 대괄호/특수문자를 정제합니다."""
+    """나레이션에서 또박또박 발음할 수 있도록 대괄호/특수문자 및 띄어쓰기, 쉼표를 정제합니다."""
     t = re.sub(r'\[.*?\]|\(.*?\)|<.*?>', '', title)
     t = t.replace('...', '').replace('…', '').replace('..', '').strip()
     if len(t) > max_len:
         words = t[:max_len].split()
         if len(words) > 1:
             t = " ".join(words[:-1])
-    return t
+    # TTS 발음용 띄어쓰기/문장부호 정제 후 끝의 마침표만 제거(문맥에 맞게 결합하기 위함)
+    refined = refine_text_for_tts(t).rstrip('.!?').strip()
+    return refined
 
 
 def build_content_package(
@@ -210,7 +215,7 @@ def build_content_package(
         n3 = top3[2]
 
         main_title = title_theme or ("글로벌 물리치료 & APTA 해외 트렌드 TOP 3" if is_global else "국내 물리치료 핵심 정책 & 제도 이슈 TOP 3")
-        tag_text = tag_theme or ("물리치료 LAB | 글로벌 트렌드 C" if is_global else "물리치료 LAB | 정책·제도 현안")
+        tag_text = tag_theme or ("물리치료 NEWS | 글로벌 트렌드 C" if is_global else "물리치료 NEWS | 정책·제도 현안")
 
         t1 = c1["headline"]
         t2 = c2["headline"]
@@ -253,7 +258,7 @@ def build_content_package(
                         "desc": "물리치료 및 재활 의료계의 주요 최신 소식을 빠르게 전달해드립니다.",
                         "items": [t1, t2, t3]
                     },
-                    "narration": f"물리치료사 필독! 이번 주 가장 뜨거운 { '글로벌 재활 트렌드' if is_global else '물리치료 핵심 정책과 임상 소식' } 3가지, 지금 바로 상세히 브리핑해 드립니다!"
+                    "narration": f"물리치료사 필독! 이번 주 가장 뜨거운, { '글로벌 재활 트렌드' if is_global else '물리치료 핵심 정책과 임상 소식' } 3가지. 지금 바로 상세히 브리핑해 드립니다!"
                 },
                 # 슬라이드 2: 뉴스 1 (약 18~22초)
                 {
@@ -306,7 +311,7 @@ def build_content_package(
                 # 슬라이드 5: 광고/프로모션 페이지 (4THEPT 임상차팅 서비스 & 광고문의)
                 {
                     "type": "ad",
-                    "header_tag": "4THEPT SPONSOR",
+                    "header_tag": "THEPT SPONSOR",
                     "swipe_label": "마무리 👉",
                     "background": bg_insight,
                     "data": DEFAULT_AD_CONFIG,
@@ -323,9 +328,9 @@ def build_content_package(
                         "sub": "지금 바로 저장하고 동료 물리치료사와 함께 보세요!"
                     },
                     "narration": (
-                        "더 자세한 분석과 상세 자료는 내일 업로드되는 4:5 카드뉴스에서 확인하실 수 있습니다. 게시물 저장과 공유 부탁드리며, 구독과 좋아요로 매주 최신 소식을 받아보세요!"
+                        "더 자세한 분석과 상세 자료는, 내일 업로드되는 4:5 카드뉴스에서 확인하실 수 있습니다. 게시물 저장과 동료 공유 부탁드리며, 구독과 좋아요로 매주 최신 소식을 받아보세요!"
                         if content_type == "shorts" else
-                        "도움이 되셨다면 게시물 저장과 동료 공유 부탁드립니다! 다음 주에도 더욱 알차고 깊이 있는 물리치료 소식으로 찾아오겠습니다."
+                        "도움이 되셨다면, 게시물 저장과 동료 공유 부탁드립니다! 다음 주에도 더욱 알차고 깊이 있는 물리치료 소식으로 찾아오겠습니다."
                     )
                 }
             ]
@@ -419,32 +424,32 @@ def build_weekly_3batches_schedule(
         (
             "월요일", "01_Mon_Shorts", "shorts",
             batches["batch_1"], b1_bg_map,
-            "국내 물리치료 핵심 정책 & 제도 이슈 TOP 3", "물리치료 LAB | 정책·제도 현안", False
+            "국내 물리치료 핵심 정책 & 제도 이슈 TOP 3", "물리치료 NEWS | 정책·제도 현안", False
         ),
         (
             "화요일", "02_Tue_CardNews", "cardnews",
             batches["batch_1"], b1_bg_map,
-            "국내 물리치료 핵심 정책 & 제도 이슈 TOP 3", "물리치료 LAB | 정책·제도 현안", False
+            "국내 물리치료 핵심 정책 & 제도 이슈 TOP 3", "물리치료 NEWS | 정책·제도 현안", False
         ),
         (
             "수요일", "03_Wed_Shorts", "shorts",
             batches["batch_2"], b2_bg_map,
-            "최신 재활 임상 연구 & 첨단 치료 기술 TOP 3", "물리치료 LAB | 임상·학술 연구", False
+            "최신 재활 임상 연구 & 첨단 치료 기술 TOP 3", "물리치료 NEWS | 임상·학술 연구", False
         ),
         (
             "목요일", "04_Thu_CardNews", "cardnews",
             batches["batch_2"], b2_bg_map,
-            "최신 재활 임상 연구 & 첨단 치료 기술 TOP 3", "물리치료 LAB | 임상·학술 연구", False
+            "최신 재활 임상 연구 & 첨단 치료 기술 TOP 3", "물리치료 NEWS | 임상·학술 연구", False
         ),
         (
             "금요일", "05_Fri_Shorts_Global", "shorts",
             batches["batch_3"], b3_bg_map,
-            "글로벌 물리치료 & APTA 해외 트렌드 TOP 3", "물리치료 LAB | 글로벌 트렌드 C", True
+            "글로벌 물리치료 & APTA 해외 트렌드 TOP 3", "물리치료 NEWS | 글로벌 트렌드 C", True
         ),
         (
             "토요일", "06_Sat_CardNews_Global", "cardnews",
             batches["batch_3"], b3_bg_map,
-            "글로벌 물리치료 & APTA 해외 트렌드 TOP 3", "물리치료 LAB | 글로벌 트렌드 C", True
+            "글로벌 물리치료 & APTA 해외 트렌드 TOP 3", "물리치료 NEWS | 글로벌 트렌드 C", True
         ),
     ]
 
@@ -531,7 +536,7 @@ def build_daily_curated_package(
                 "desc": f"오늘 꼭 살펴봐야 할 {category_title} 주요 뉴스 {num_arts}가지를 전해드립니다.",
                 "items": cover_items
             },
-            "narration": f"안녕하세요! 물리치료 종합 연구소 THEPT입니다. {day_name}에 전해드리는 {category_title} 핵심 뉴스 {num_arts}가지, 지금 바로 시작합니다!"
+            "narration": f"오직 물리치료사를 위한 커뮤니티, THEPT입니다. {day_name}에 전해드리는 {category_title} 핵심 뉴스 {num_arts}가지, 지금 바로 시작합니다!"
         }
     ]
 
@@ -565,7 +570,7 @@ def build_daily_curated_package(
     ad_bg = str(photo_map.get(2, cover_bg))
     slides.append({
         "type": "ad",
-        "header_tag": "4THEPT SPONSOR",
+        "header_tag": "THEPT SPONSOR",
         "swipe_label": "마무리 👉",
         "background": ad_bg,
         "data": ad_cfg,
@@ -576,7 +581,7 @@ def build_daily_curated_package(
     outro_bg = str(photo_map.get(num_arts, cover_bg))
     slides.append({
         "type": "outro",
-        "header_tag": "THEPT LAB",
+        "header_tag": "THEPT NEWS",
         "swipe_label": "저장 & 공유 📌",
         "background": outro_bg,
         "data": {
@@ -593,10 +598,11 @@ def build_daily_curated_package(
 
 {items_summary}
 
-💡 [4THEPT] 물리치료사를 위한 맞춤 임상 차팅 솔루션:
-- AI 기반 신속하고 정확한 SOAP 물리치료 차팅 지원 (4thept.com)
-- 수작업 차팅 부담은 줄이고, 환자와 치료에 더 집중하세요!
-📢 광고 및 비즈니스 제휴 문의: thept.official@gmail.com
+💡 [4THEPT] 방문재활 물리치료사 맞춤 AI음성 차팅:
+- AI음성분석 기반 SOAP차팅, 라포데이터 차팅 지원 (4thept.com)
+- THEPT회원은 매월 무료 5시간 사용 가능!
+- 수작업 차팅 부담은 줄이고, 고객과의 소통에 더 집중하세요!
+📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com
 
 👉 유익하셨다면 동료 선생님들과 공유하고 저장해두세요!
 

@@ -3,6 +3,9 @@
 __pycache__/
 *.pyc
 .env
+client_secret*.json
+*.pickle
+token.json
 output/
 venv/
 .venv/

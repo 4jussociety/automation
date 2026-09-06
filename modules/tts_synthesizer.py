@@ -7,9 +7,17 @@ import asyncio
 import subprocess
 import edge_tts
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from config import TTS_VOICE, TTS_RATE, TTS_VOLUME
+from modules.text_verifier import refine_text_for_tts
 
 
 def get_audio_duration(audio_path: Path) -> float:
@@ -41,8 +49,11 @@ async def synthesize_slide_audio(text: str, output_file: Path, voice: str = TTS_
     if not text.strip():
         raise ValueError("합성할 음성 텍스트가 비어 있습니다.")
 
+    # 띄어쓰기, 쉼표, 온점 및 약어 정밀 정제 (TTS 호흡/발음 최적화)
+    refined_text = refine_text_for_tts(text)
+
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    communicate = edge_tts.Communicate(text=text, voice=voice, rate=rate, volume=TTS_VOLUME)
+    communicate = edge_tts.Communicate(text=refined_text, voice=voice, rate=rate, volume=TTS_VOLUME)
     await communicate.save(str(output_file))
 
     if not output_file.exists() or output_file.stat().st_size == 0:
@@ -73,7 +84,8 @@ async def synthesize_all_narration(package: dict, output_dir: Path) -> list[dict
             raise ValueError(f"슬라이드 {idx+1} ({slide_type})에 나레이션 텍스트가 없습니다.")
 
         audio_path = output_dir / f"audio_{idx+1:02d}_{slide_type}.mp3"
-        duration = await synthesize_slide_audio(narration_text, audio_path)
+        refined_narration = refine_text_for_tts(narration_text)
+        duration = await synthesize_slide_audio(refined_narration, audio_path)
         total_duration += duration
 
         audio_results.append({
@@ -81,9 +93,10 @@ async def synthesize_all_narration(package: dict, output_dir: Path) -> list[dict
             "slide_type": slide_type,
             "audio_path": audio_path,
             "duration": duration,
-            "narration": narration_text
+            "narration": narration_text,
+            "refined_narration": refined_narration
         })
-        print(f"[TTS 완료] 슬라이드 {idx+1}: {duration:.2f}초 - {audio_path.name}")
+        print(f"[TTS 완료] 슬라이드 {idx+1}: {duration:.2f}초 - {audio_path.name} (대본 검수/정제 완료: '{refined_narration[:35]}...')")
 
     print(f"[TTS 전체 완료] 총 나레이션 길이: {total_duration:.2f}초 (쇼츠 1분 규격 만족: {'YES' if total_duration <= 60 else 'NO - 길이 초과 주의'})")
 

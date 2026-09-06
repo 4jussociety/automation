@@ -47,16 +47,32 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 # 5번째 슬라이드: 광고/프로모션 페이지 기본 설정 (언제든 수정 가능)
 DEFAULT_AD_CONFIG = {
-    "badge": "4THEPT CLINICAL",
-    "title": "물리치료사 맞춤 임상 차팅 솔루션<br><span class=\"hl-yellow\">4THEPT</span>",
-    "subtitle": "수작업 차팅 부담은 줄이고, 환자와 치료에 더 집중하세요.",
+    "badge": "THEPT SPONSOR",
+    "title": "방문재활 물리치료사 맞춤<br><span class=\"hl-yellow\">AI음성 차팅</span>",
+    "subtitle": "수작업 차팅 부담은 줄이고, 고객과의 소통에 더 집중하세요.",
     "bullets": [
-        "AI 기반 신속하고 정확한 물리치료 SOAP 차팅 지원",
-        "표준화된 정밀 임상 평가 템플릿 및 환자 경과 관리",
-        "지금 4thept.com 에서 무료로 체험해보세요"
+        "AI음성분석 기반 SOAP차팅, 라포데이터 차팅 지원",
+        "THEPT회원은 매월 무료5시간 사용가능!",
+        "4thept.com 에서 무료로 체험해보세요!"
     ],
-    "cta_button": "4thept.com 바로가기 👆",
-    "inquiry_text": "📢 광고 및 비즈니스 제휴 문의: thept.official@gmail.com",
-    "narration": "물리치료사를 위한 가장 스마트한 임상 차팅 솔루션, 4THEPT! 복잡한 차팅은 줄이고 환자 치료에만 집중하세요. 지금 포더피티 닷컴에서 무료로 시작할 수 있습니다. 광고 및 제휴 문의도 언제든 환영합니다!",
+    "cta_button": "",
+    "inquiry_text": "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com",
+    "narration": "방문재활 물리치료사를 위한 가장 스마트한 AI음성 차팅 솔루션, 수기차팅은 줄이고 환자 관리에만 집중하세요. 지금 4THEPT.com에서 무료로 시작할 수 있습니다. 광고 및 제휴 문의도 언제든 환영합니다!",
     "link": "https://4thept.com"
 }
+
+# SNS 자동 예약 업로드 설정
+INSTAGRAM_ACCOUNT_ID = os.getenv("INSTAGRAM_ACCOUNT_ID", "")
+INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN", "")
+
+# YouTube Data API v3 OAuth 설정
+YOUTUBE_CLIENT_SECRET_FILE = os.getenv("YOUTUBE_CLIENT_SECRET_FILE", str(BASE_DIR / "client_secret.json"))
+YOUTUBE_TOKEN_FILE = BASE_DIR / "token.pickle"
+
+# GitHub 원격 저장소 정보 (인스타그램 Graph API용 공개 Raw URL 생성에 활용)
+GITHUB_REPO = os.getenv("GITHUB_REPO", "4jussociety/automation")
+GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
+
+# SNS 발행 기본 시각 (오전 8시 KST)
+PUBLISH_HOUR_KST = int(os.getenv("PUBLISH_HOUR_KST", "8"))
+

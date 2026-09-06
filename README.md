@@ -79,16 +79,47 @@ NAVER_CLIENT_ID=your_client_id
 NAVER_CLIENT_SECRET=your_client_secret
 ```
 
-### 2. 주간 콘텐츠 일괄 자동 생성 실행
+### 2. 주간 마크다운 큐레이션 워크플로 (`curate.py`)
 ```bash
-# 기본 세분화 키워드(정책·제도 / 임상·연구 / 해외)로 주간 6일 연계 콘텐츠 전체 생성
-py main.py
+# 1단계: 6대 카테고리 기사 대량 수집 및 제목 스크리닝 파일 생성
+python curate.py fetch
 
-# 특정 키워드를 직접 지정하여 실행할 때
-py main.py --policy-keywords "물리치료 수가" "실손보험" --clinical-keywords "로봇재활" "도수치료 임상"
+# [중간 작업] candidates_titles.md를 에디터로 열어 관심 기사에 [x] 표시
+
+# 2단계: 1차 선택 기사 상세 본문 및 보도 사진 크롤링
+python curate.py review
+
+# [중간 작업] candidates_detail.md를 에디터로 열어 최종 기사 확정 [x] 표시
+
+# 3단계: 주 6일 콘텐츠 일괄 제작 및 미디어 렌더링 (원스톱 업로드 가능)
+python curate.py build --render
+# (빌드와 동시에 업로드 예약까지 원스톱 실행: python curate.py build --render --upload)
 ```
 
-### 3. 결과물 확인
-실행이 완료되면 `output/YYYY-MM-DD_weekly/` 폴더에서 요일별 폴더를 열고 즉시 유튜브 및 인스타그램에 업로드할 수 있습니다.
-- `weekly_sources_and_schedule.txt` 파일에는 댓글 및 본문에 고지할 9개 기사의 출처와 원문 링크가 일목요연하게 정리되어 있습니다.
+---
+
+## 📡 유튜브 & 인스타그램 자동 예약 업로드 파이프라인
+
+본 시스템은 **YouTube Data API v3** 및 **Meta Instagram Graph API v20.0**을 통해 제작된 콘텐츠를 월~토 지정 시간(오전 8시 KST)에 자동 예약 발행합니다.
+
+- **상세 API 발급 가이드**: [docs/api_setup_guide.md](file:///c:/Users/myrea/OneDrive/바탕%20화면/개발/automatic/docs/api_setup_guide.md)
+
+### 주요 CLI 명령어
+```bash
+# 1. YouTube 1회 브라우저 OAuth 인증
+python curate.py auth-yt
+
+# 2. Instagram Graph API 연결 상태 진단
+python curate.py test-insta
+
+# 3. 예약 발행 시뮬레이션 (API 호출 없는 검증)
+python curate.py upload --dry-run
+
+# 4. 주간 콘텐츠 실제 예약 업로드 실행 (YouTube 쇼츠 + Instagram 캐러셀 + 릴스)
+python curate.py upload
+
+# 5. 특정 플랫폼 또는 콘텐츠 유형만 업로드
+python curate.py upload --platform youtube
+python curate.py upload --platform instagram --type carousel
+```
 

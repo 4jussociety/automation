@@ -4,6 +4,7 @@
 import re
 from modules.translator import translate_to_korean, is_english_text
 from modules.llm_summarizer import summarize_article_with_llm
+from modules.text_verifier import refine_text_for_tts
 
 
 def clean_text_segment(text: str) -> str:
@@ -218,16 +219,29 @@ def to_spoken_polite(sentence: str) -> str:
 def clean_truncated_tail(text: str) -> str:
     """문장 끝에 어색하게 남은 조사나 연결어미, 영문 약어를 걷어냅니다."""
     t = text.strip().rstrip('.')
-    # 어색한 말단 단어 반복 제거 (예: "동시에", "위한", "대한", "필요한", "제공하는", "st", "및", "과", "와" 등)
-    for _ in range(2):
-        t = re.sub(r'\s+(더|및|과|와|의|에|을|를|이|가|위한|대한|통한|필요한|제공하는|하는|되는|있는|동시에|위해|통해|대해|st|st\.)$', '', t, flags=re.IGNORECASE)
-        t = re.sub(r'(더|및|과|와|의|에|을|를|이|가|st)$', '', t, flags=re.IGNORECASE)
-        t = t.strip()
+    pattern = r'\s+(더|및|과|와|의|에|을|를|이|가|은|는|위한|대한|통한|필요한|제공하는|하는|되는|있는|받는|동시에|위해|통해|대해|st|st\.)$'
+    for _ in range(5):
+        prev = t
+        t = re.sub(pattern, '', t, flags=re.IGNORECASE).strip()
+        t = re.sub(r'(더|및|과|와|의|에|을|를|이|가|은|는|st)$', '', t, flags=re.IGNORECASE).strip()
+        if t == prev:
+            break
     return t
 
 
 def complete_korean_sentence(phrase: str) -> str:
     """명사형이나 불완전한 구절을 자연스러운 서술형 완결 문장으로 변환합니다."""
+    # 관형어형 어미로 끝나는 경우 자연스러운 종결형 서술어로 변환
+    p_raw = phrase.strip().rstrip('.')
+    if re.search(r'제공하는$', p_raw):
+        return re.sub(r'제공하는$', '제공하고 있습니다.', p_raw)
+    if re.search(r'운영하는$', p_raw):
+        return re.sub(r'운영하는$', '운영하고 있습니다.', p_raw)
+    if re.search(r'도입하는$', p_raw):
+        return re.sub(r'도입하는$', '도입하고 있습니다.', p_raw)
+    if re.search(r'지원하는$', p_raw):
+        return re.sub(r'지원하는$', '지원하고 있습니다.', p_raw)
+
     p = clean_truncated_tail(phrase)
     
     noun_rules = [
@@ -460,12 +474,15 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
         parts = re.split(r'[,;]\s*', spoken_fact)
         if len(parts) >= 2 and len(parts[0]) >= 20:
             spoken_fact = to_spoken_polite(parts[0].strip())
-            
-    theme_impact = to_spoken_polite(theme_bullet_3_map.get(theme, "현장 치료사들의 관심과 실천이 필요합니다."))
-    narration_body = f"{spoken_fact} {theme_impact}"
 
-    if not narration_body.endswith(('.', '!', '?')):
-        narration_body += '.'
+    if not spoken_fact.endswith(('.', '!', '?')):
+        spoken_fact += '.'
+
+    theme_impact = to_spoken_polite(theme_bullet_3_map.get(theme, "현장 치료사들의 관심과 실천이 필요합니다."))
+    if not theme_impact.endswith(('.', '!', '?')):
+        theme_impact += '.'
+
+    narration_body = refine_text_for_tts(f"{spoken_fact} {theme_impact}")
 
     return {
         "headline": headline,

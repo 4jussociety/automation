@@ -287,13 +287,14 @@ async def run_weekly_pipeline(
 # 주 6일 큐레이션 통합 파이프라인 (월~토 매일 쇼츠 + 카드뉴스 동시 생성)
 # ==============================================================================
 
-async def run_curated_6days_pipeline(daily_articles_map: dict) -> dict:
+async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: bool = True, target_dir: Path = None) -> dict:
     """
     큐레이션된 6대 카테고리(월~토) 기사(각 2~3건)를 바탕으로,
     매일 [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션]을 동시 생성하여 요일별 6개 폴더에 저장합니다.
+    (render_media=False 시 이미지/비디오 인코딩을 건너뛰고 대본, 요약, 패키지 메타데이터만 고속 생성합니다.)
     """
     today_str = datetime.now().strftime("%Y-%m-%d")
-    weekly_dir = OUTPUT_DIR / f"{today_str}_curated_weekly"
+    weekly_dir = Path(target_dir) if target_dir else (OUTPUT_DIR / f"{today_str}_curated_weekly")
     bg_dir = weekly_dir / "backgrounds"
 
     weekly_dir.mkdir(parents=True, exist_ok=True)
@@ -307,7 +308,7 @@ async def run_curated_6days_pipeline(daily_articles_map: dict) -> dict:
 
     print("=" * 70)
     print(f"🚀 [THEPT] 주 6일 큐레이션 기반 통합 콘텐츠 자동 생성 ({today_str})")
-    print("   📅 월~토 매일: [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션] 동시 생성")
+    print(f"   📅 월~토 매일: [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션] 동시 조립 (미디어 렌더링: {'ON' if render_media else '대기 (패키지만 생성)'})")
     print("=" * 70)
 
     # 요일별 폴더 및 카테고리 정의
@@ -340,7 +341,7 @@ async def run_curated_6days_pipeline(daily_articles_map: dict) -> dict:
         prefix = cat_key[:3]
         day_photos = await fetch_article_images(articles, bg_dir, prefix=prefix)
 
-        # 2. 일별 통합 패키지 조립
+        # 2. 일별 통합 패키지 조립 (LLM 요약 및 TTS 정밀 정제 반영)
         pkg = build_daily_curated_package(
             day_name=day_name,
             category_title=cat_title,
@@ -355,20 +356,27 @@ async def run_curated_6days_pipeline(daily_articles_map: dict) -> dict:
             encoding="utf-8"
         )
 
-        # 3. 4:5 카드뉴스 렌더링
-        print(f"  🎨 4:5 고화질 카드뉴스 렌더링 중...")
-        card_paths = await render_cards_to_images(pkg, cards_dir)
-        print(f"  ✅ 카드뉴스 완성 ({len(card_paths)}장 PNG)")
+        card_paths = []
+        audio_results = []
+        total_sec = 0.0
 
-        # 4. 고품질 TTS 나레이션 합성 (최대 2분 분량 호흡)
-        print(f"  🎙️ TTS 음성 나레이션 합성 중...")
-        audio_results = await synthesize_all_narration(pkg, audio_dir)
-        total_sec = sum(a["duration"] for a in audio_results)
+        if render_media:
+            # 3. 4:5 카드뉴스 렌더링
+            print(f"  🎨 4:5 고화질 카드뉴스 렌더링 중...")
+            card_paths = await render_cards_to_images(pkg, cards_dir)
+            print(f"  ✅ 카드뉴스 완성 ({len(card_paths)}장 PNG)")
 
-        # 5. 9:16 쇼츠 비디오 렌더링
-        print(f"  🎬 9:16 쇼츠 비디오 합성 중...")
-        render_shorts_video(card_paths, audio_results, video_path)
-        print(f"  ✅ 쇼츠 완성 ({total_sec:.2f}초, {video_path.stat().st_size / (1024*1024):.2f} MB)")
+            # 4. 고품질 TTS 나레이션 합성 (최대 2분 분량 호흡)
+            print(f"  🎙️ TTS 음성 나레이션 합성 중...")
+            audio_results = await synthesize_all_narration(pkg, audio_dir)
+            total_sec = sum(a["duration"] for a in audio_results)
+
+            # 5. 9:16 쇼츠 비디오 렌더링
+            print(f"  🎬 9:16 쇼츠 비디오 합성 중...")
+            render_shorts_video(card_paths, audio_results, video_path)
+            print(f"  ✅ 쇼츠 완성 ({total_sec:.2f}초, {video_path.stat().st_size / (1024*1024):.2f} MB)")
+        else:
+            print(f"  ℹ️ [렌더링 가드레일] 카드뉴스/비디오 미디어 파일 렌더링은 대기합니다. (대본 및 패키지 데이터 생성 완료)")
 
         # 6. 인스타그램 및 유튜브 캡션 저장
         (day_dir / "instagram_caption.txt").write_text(pkg["caption"], encoding="utf-8")
