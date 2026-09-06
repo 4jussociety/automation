@@ -65,10 +65,11 @@ async def fetch_article_images(articles: list[dict], bg_dir: Path, prefix: str =
         )
         page = await context.new_page()
 
-        for idx, art in enumerate(articles[:3], start=1):
+        total_arts = len(articles)
+        for idx, art in enumerate(articles, start=1):
             target_path = bg_dir / f"{prefix}_{idx:02d}_article_photo.jpg"
             title_brief = art.get("title", "")[:30]
-            print(f"  [{idx}/3] 기사 사진/본문 및 원문 제목 검수 중: {title_brief}...")
+            print(f"  [{idx}/{total_arts}] 기사 사진/본문 및 원문 제목 검수 중: {title_brief}...")
 
             try:
                 # 1. 언론사 원문 링크로 리다이렉트 대기
@@ -168,6 +169,7 @@ async def fetch_article_images(articles: list[dict], bg_dir: Path, prefix: str =
                     if resp.status_code == 200 and len(resp.content) > 3000:
                         target_path.write_bytes(resp.content)
                         results[idx] = target_path
+                        art["image_path"] = str(target_path)
                         print(f"     ✅ 보도 사진 획득 완료: {target_path.name} ({len(resp.content)/1024:.1f} KB)")
                         continue
 

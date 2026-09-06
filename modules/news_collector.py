@@ -3,7 +3,8 @@
 
 import urllib.parse
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+from email.utils import parsedate_to_datetime
 import re
 import requests
 
@@ -31,18 +32,101 @@ def clean_html(text: str) -> str:
     return cleaned.strip()
 
 
-# 연예인 단순 부상, 예능, 가십성 기사 제외 키워드
-GOSSIP_KEYWORDS = [
-    "방송", "예능", "안혜경", "골때녀", "부상 투혼", "결혼", "인스타", "근황",
-    "결별", "열애", "포토", "화보", "드라마", "시청률", "출연", "타박상",
-    "이게 젤 아픈", "응급실", "셀카", "피팅"
+KST = timezone(timedelta(hours=9))
+
+
+def parse_and_validate_pub_date(pub_date_str: str, max_days: int = 7) -> tuple[bool, str]:
+    """
+    발행일 문자열(RFC 822, ISO 등)을 파싱하여, 한국기준시(KST, UTC+9)로 변환하고
+    최근 max_days일(기본 7일) 이내인지 엄격히 검증한 뒤
+    'YYYY년 MM월 DD일 HH:MM' 형식의 깔끔한 한글 날짜 문자열로 반환합니다.
+    """
+    if not pub_date_str:
+        return False, ""
+    try:
+        dt = parsedate_to_datetime(pub_date_str)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        dt_kst = dt.astimezone(KST)
+        now_kst = datetime.now(KST)
+        diff = now_kst - dt_kst
+        # 미래 시간 약간의 오차(-1일) 허용 및 최근 max_days 이내 (약 12시간 완충)
+        is_recent = timedelta(days=-1) <= diff <= timedelta(days=max_days, hours=12)
+        formatted = f"{dt_kst.year}년 {dt_kst.month:02d}월 {dt_kst.day:02d}일 {dt_kst.hour:02d}:{dt_kst.minute:02d}"
+        return is_recent, formatted
+    except Exception:
+        try:
+            dt = datetime.strptime(pub_date_str[:10], "%Y-%m-%d").replace(tzinfo=KST)
+            now_kst = datetime.now(KST)
+            diff = now_kst - dt
+            is_recent = timedelta(days=-1) <= diff <= timedelta(days=max_days, hours=12)
+            formatted = f"{dt.year}년 {dt.month:02d}월 {dt.day:02d}일"
+            return is_recent, formatted
+        except Exception:
+            return False, pub_date_str
+
+
+
+# 1. 절대 광고 및 악성 스팸 차단 키워드
+HARD_SPAM_KEYWORDS = [
+    "카지노", "바둑이", "토토", "성인용품", "조건만남", "불법대출", "주식리딩", "코인리딩"
+]
+
+# 2. 대학 입시/수시/정시 홍보 차단 키워드 (물리치료/학과 단어가 있더라도 전면 배제)
+ADMISSION_SPAM_KEYWORDS = [
+    "수시", "정시", "대입", "모집요강", "신입생 모집", "수시특집", "수시모집", "합격자",
+    "전형", "취업률 1위", "경쟁률", "학부모", "수험생 선발", "등록금", "장학금 혜택", "입학처",
+    "전문대수시", "카데바", "해부실습"
+]
+
+# 3. 물리치료 및 재활 필수 앵커 키워드 (Tier 1 + 2 + 3)
+# 기사 제목 또는 요약에 아래 단어가 최소 1개 이상 반드시 포함되어야 통과
+MANDATORY_PT_KEYWORDS = [
+    # Tier 1: 직접 물리치료 및 치료사
+    "물리치료", "물리치료사", "도수치료", "운동치료", "작업치료",
+    # Tier 2: 임상 재활 및 기능회복
+    "재활", "재활치료", "재활의학", "재활운동", "기능회복", "보행훈련", "신경계 재활", "근골격계 재활", "재활병원",
+    # Tier 3: 치료적 교정 및 전문 재활 장비
+    "체형교정", "자세교정", "도수교정", "재활로봇", "보행로봇", "보행재활", "체외충격파", "슬링치료", "전기치료"
+]
+
+# 4. 글로벌 영문 기사용 필수 앵커 키워드
+MANDATORY_GLOBAL_PT_KEYWORDS = [
+    "physical therapy", "physiotherapy", "physical therapist", "physiotherapist",
+    "rehabilitation", "rehab", "occupational therapy", "physio"
 ]
 
 
-def is_gossip_or_spam(title: str, description: str = "") -> bool:
-    """단순 연예 가십이나 비전문적 기사인지 판별합니다."""
+def is_valid_pt_article(title: str, description: str = "", is_global: bool = False) -> bool:
+    """
+    물리치료/재활 연관성 및 노이즈(입시/불법스팸) 여부를 엄격히 검증합니다.
+    1. 불법/광고 스팸 무조건 제외
+    2. 대학 수시/정시/입시 홍보 무조건 제외 (국내 기사)
+    3. 제목 또는 요약에 물리치료/재활 관련 단어(Tier 1+2+3)가 최소 1개 이상 반드시 포함되어야 통과
+    """
     combined = (title + " " + description).lower()
-    return any(k.lower() in combined for k in GOSSIP_KEYWORDS)
+
+    # 1. 절대적 불법/광고 스팸 차단
+    if any(k in combined for k in HARD_SPAM_KEYWORDS):
+        return False
+
+    # 2. 대학 입시/수시 홍보 차단 (국내)
+    if not is_global and any(k in combined for k in ADMISSION_SPAM_KEYWORDS):
+        return False
+
+    # 3. 필수 물리치료/재활 키워드 검증 (제목 또는 요약)
+    if is_global:
+        # 영문 원문 키워드 또는 한국어 번역 키워드 검증
+        has_pt = any(k in combined for k in MANDATORY_GLOBAL_PT_KEYWORDS) or any(k in combined for k in MANDATORY_PT_KEYWORDS)
+    else:
+        has_pt = any(k in combined for k in MANDATORY_PT_KEYWORDS)
+
+    return has_pt
+
+
+def is_gossip_or_spam(title: str, description: str = "") -> bool:
+    """기존 코드 호환용: 물리치료 유효 기사가 아니면 True(배제) 반환"""
+    return not is_valid_pt_article(title, description, is_global=False)
 
 
 def extract_keywords(text: str) -> set[str]:
@@ -73,13 +157,13 @@ def is_similar_issue(title: str, existing_titles: list[str], threshold: float = 
     return False
 
 
-def fetch_from_naver(keyword: str, display: int = 10) -> list[dict]:
-    """네이버 클라우드 플랫폼(NAVER API HUB) 검색 API를 통해 최신 뉴스를 수집합니다."""
+def fetch_from_naver(keyword: str, display: int = 20) -> list[dict]:
+    """네이버 클라우드 플랫폼(NAVER API HUB) 검색 API를 통해 최근 7일 이내 최신순 뉴스를 수집합니다."""
     if not NAVER_CLIENT_ID or not NAVER_CLIENT_SECRET:
         return []
 
-    # 1. 네이버 클라우드 플랫폼 (NAVER API HUB) 공식 엔드포인트
-    url = f"https://naverapihub.apigw.ntruss.com/search/v1/news?query={urllib.parse.quote(keyword)}&display={display}&sort=sim"
+    # 1. 네이버 클라우드 플랫폼 (NAVER API HUB) 공식 엔드포인트 (최신순 sort=date)
+    url = f"https://naverapihub.apigw.ntruss.com/search/v1/news?query={urllib.parse.quote(keyword)}&display={display}&sort=date"
     headers = {
         "X-NCP-APIGW-API-KEY-ID": NAVER_CLIENT_ID,
         "X-NCP-APIGW-API-KEY": NAVER_CLIENT_SECRET
@@ -87,9 +171,9 @@ def fetch_from_naver(keyword: str, display: int = 10) -> list[dict]:
 
     resp = requests.get(url, headers=headers, timeout=10)
 
-    # 2. 구형 개발자센터 API fallback 호환성 지원
+    # 2. 구형 개발자센터 API fallback 호환성 지원 (최신순 sort=date)
     if resp.status_code == 401 or resp.status_code == 403:
-        legacy_url = f"https://openapi.naver.com/v1/search/news.json?query={urllib.parse.quote(keyword)}&display={display}&sort=sim"
+        legacy_url = f"https://openapi.naver.com/v1/search/news.json?query={urllib.parse.quote(keyword)}&display={display}&sort=date"
         legacy_headers = {
             "X-Naver-Client-Id": NAVER_CLIENT_ID,
             "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
@@ -103,6 +187,11 @@ def fetch_from_naver(keyword: str, display: int = 10) -> list[dict]:
     items = data.get("items", [])
     results = []
     for item in items:
+        # 최근 7일 이내 기사만 엄격 검증
+        is_recent, pub_formatted = parse_and_validate_pub_date(item.get("pubDate", ""), max_days=7)
+        if not is_recent:
+            continue
+
         link = item.get("originallink", "") or item.get("link", "")
         # 출처 추정 (도메인 또는 네이버 뉴스)
         source_name = "네이버 뉴스"
@@ -123,15 +212,16 @@ def fetch_from_naver(keyword: str, display: int = 10) -> list[dict]:
             "title": clean_html(item.get("title", "")),
             "description": clean_html(item.get("description", "")),
             "link": link,
-            "pub_date": item.get("pubDate", ""),
+            "pub_date": pub_formatted,
             "source": source_name
         })
     return results
 
 
-def fetch_from_google_rss(keyword: str, max_items: int = 10) -> list[dict]:
-    """구글 뉴스 RSS를 통해 최신 뉴스를 수집합니다."""
-    encoded_query = urllib.parse.quote(keyword)
+def fetch_from_google_rss(keyword: str, max_items: int = 15) -> list[dict]:
+    """구글 뉴스 RSS를 통해 최근 7일 이내 최신 뉴스를 수집합니다."""
+    query_with_time = f"{keyword} when:7d"
+    encoded_query = urllib.parse.quote(query_with_time)
     url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ko&gl=KR&ceid=KR:ko"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -147,7 +237,7 @@ def fetch_from_google_rss(keyword: str, max_items: int = 10) -> list[dict]:
         raise RuntimeError(f"구글 뉴스 RSS 파싱 실패: channel 요소를 찾을 수 없습니다. (URL: {url})")
 
     results = []
-    for item in channel.findall("item")[:max_items]:
+    for item in channel.findall("item"):
         title_elem = item.find("title")
         desc_elem = item.find("description")
         link_elem = item.find("link")
@@ -160,22 +250,29 @@ def fetch_from_google_rss(keyword: str, max_items: int = 10) -> list[dict]:
         pub_date = pub_elem.text if pub_elem is not None and pub_elem.text else ""
         source = source_elem.text if source_elem is not None and source_elem.text else "뉴스"
 
+        is_recent, pub_formatted = parse_and_validate_pub_date(pub_date, max_days=7)
+        if not is_recent:
+            continue
+
         results.append({
             "title": clean_html(title),
             "description": clean_html(desc),
             "link": link,
-            "pub_date": pub_date,
+            "pub_date": pub_formatted,
             "source": source
         })
+        if len(results) >= max_items:
+            break
 
     return results
 
 
-def fetch_from_google_rss_global(keyword: str, max_items: int = 10) -> list[dict]:
-    """구글 글로벌 뉴스 RSS에서 영문 물리치료 기사를 수집하고 한국어로 번역합니다."""
+def fetch_from_google_rss_global(keyword: str, max_items: int = 15) -> list[dict]:
+    """구글 글로벌 뉴스 RSS에서 최근 7일 이내 영문 물리치료 기사를 수집하고 한국어로 번역합니다."""
     from modules.translator import translate_to_korean
 
-    encoded_query = urllib.parse.quote(keyword)
+    query_with_time = f"{keyword} when:7d"
+    encoded_query = urllib.parse.quote(query_with_time)
     url = f"https://news.google.com/rss/search?q={encoded_query}&hl=en-US&gl=US&ceid=US:en"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -191,7 +288,7 @@ def fetch_from_google_rss_global(keyword: str, max_items: int = 10) -> list[dict
         raise RuntimeError(f"구글 글로벌 RSS 파싱 실패: {url}")
 
     results = []
-    for item in channel.findall("item")[:max_items]:
+    for item in channel.findall("item"):
         title_elem = item.find("title")
         desc_elem = item.find("description")
         link_elem = item.find("link")
@@ -203,6 +300,11 @@ def fetch_from_google_rss_global(keyword: str, max_items: int = 10) -> list[dict
         link = link_elem.text if link_elem is not None and link_elem.text else ""
         pub_date = pub_elem.text if pub_elem is not None and pub_elem.text else ""
         source_name = source_elem.text if source_elem is not None and source_elem.text else "Global Media"
+
+        # 최근 7일 이내 검증
+        is_recent, pub_formatted = parse_and_validate_pub_date(pub_date, max_days=7)
+        if not is_recent:
+            continue
 
         # 불량 기사(에러 페이지, 404, 500 등) 필터링
         lower_t = title_en.lower()
@@ -230,11 +332,13 @@ def fetch_from_google_rss_global(keyword: str, max_items: int = 10) -> list[dict
             "description": desc_ko,
             "description_en": desc_en,
             "link": link,
-            "pub_date": pub_date,
+            "pub_date": pub_formatted,
             "source": f"{source_name} (글로벌)",
             "category": "해외 연구/트렌드",
             "is_global": True
         })
+        if len(results) >= max_items:
+            break
 
     return results
 
@@ -391,6 +495,267 @@ def collect_weekly_3batches(
         "all_domestic": batch_1 + batch_2,
         "all_global": batch_3
     }
+
+
+# ==============================================================================
+# 주 6일 6대 카테고리 체계 정의 및 100건 대량 수집 함수
+# ==============================================================================
+
+SIX_CATEGORIES = {
+    "mon_policy": {
+        "day": "월요일",
+        "title": "국내 정책·제도·수가·협회",
+        "description": "보건복지부 정책, 실손보험 도수치료, 물리치료 수가, 협회 및 법안 이슈",
+        "keywords": [
+            "도수치료 실손보험",
+            "물리치료 수가",
+            "물리치료 정책",
+            "도수치료 비급여",
+            "물리치료사 협회",
+            "재활의료기관 물리치료",
+            "실손보험 비급여 도수치료",
+            "방문 물리치료",
+            "물리치료 법안"
+        ],
+        "is_global": False
+    },
+    "tue_creator": {
+        "day": "화요일",
+        "title": "유튜버·인플루언서·운동이슈",
+        "description": "운동/재활 전문 유튜버, 크리에이터 콘텐츠, 체형교정 및 치료 이슈",
+        "keywords": [
+            "물리치료사 유튜브",
+            "물리치료 체형교정",
+            "도수치료 재활운동",
+            "물리치료 운동법",
+            "자세교정 물리치료",
+            "체형교정 도수치료",
+            "재활운동 크리에이터",
+            "체형교정 스트레칭 물리치료"
+        ],
+        "is_global": False
+    },
+    "wed_sports": {
+        "day": "수요일",
+        "title": "운동·스포츠 재활",
+        "description": "선수 부상 및 재활 복귀, 종목별 기능회복, 스포츠 물리치료 현장",
+        "keywords": [
+            "스포츠 물리치료",
+            "선수 부상 재활",
+            "선수 재활치료",
+            "스포츠 재활훈련",
+            "스포츠 도수치료",
+            "선수 복귀 재활",
+            "프로선수 물리치료",
+            "기능회복 재활운동"
+        ],
+        "is_global": False
+    },
+    "thu_tech": {
+        "day": "목요일",
+        "title": "첨단 재활 기술·AI·로봇",
+        "description": "보행 보조 로봇, 스마트 헬스케어 기기, AI 진단/재활 시스템",
+        "keywords": [
+            "보행 재활 로봇",
+            "재활로봇 치료",
+            "AI 물리치료",
+            "스마트 재활치료",
+            "웨어러블 재활로봇",
+            "디지털 재활 치료 기기",
+            "신경계 재활 로봇",
+            "보행훈련 로봇 물리치료"
+        ],
+        "is_global": False
+    },
+    "fri_celeb": {
+        "day": "금요일",
+        "title": "셀럽 스타 치료 & 건강 가십",
+        "description": "연예인/스타/유명인의 물리치료·도수치료·부상 후기 및 체형 가십",
+        "keywords": [
+            "연예인 물리치료",
+            "스타 재활치료",
+            "도수치료 연예인",
+            "스타 체형교정",
+            "물리치료 투혼",
+            "선수 물리치료 부상",
+            "스타 재활운동",
+            "도수치료 스타"
+        ],
+        "is_global": False
+    },
+    "sat_global": {
+        "day": "토요일",
+        "title": "해외 글로벌 트렌드",
+        "description": "글로벌 물리치료 연구, APTA/해외 제도, 해외 피지컬 테라피 동향",
+        "keywords": [
+            "physical therapy",
+            "physiotherapy clinical",
+            "sports physical therapy",
+            "physical therapy rehabilitation",
+            "physical therapist practice",
+            "rehabilitation exercise physical therapy"
+        ],
+        "is_global": True
+    }
+}
+
+
+def parse_custom_url(url: str, category_key: str = "mon_policy") -> dict:
+    """사용자가 직접 입력한 기사 URL에서 제목, 본문, 요약, 이미지를 추출합니다."""
+    from bs4 import BeautifulSoup
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        )
+    }
+    resp = requests.get(url, headers=headers, timeout=10)
+    resp.encoding = resp.apparent_encoding or "utf-8"
+    soup = BeautifulSoup(resp.text, "html.parser")
+
+    # 제목 추출: og:title -> title -> h1
+    og_title = soup.find("meta", property="og:title")
+    title = og_title["content"] if og_title and og_title.get("content") else ""
+    if not title:
+        title_tag = soup.find("title")
+        title = title_tag.text if title_tag else ""
+    if not title:
+        h1 = soup.find("h1")
+        title = h1.text if h1 else "사용자 추가 기사"
+    title = clean_html(title)
+
+    # 설명/요약 추출
+    og_desc = soup.find("meta", property="og:description")
+    desc = og_desc["content"] if og_desc and og_desc.get("content") else ""
+    if not desc:
+        meta_desc = soup.find("meta", attrs={"name": "description"})
+        desc = meta_desc["content"] if meta_desc and meta_desc.get("content") else ""
+    desc = clean_html(desc)
+
+    # 대표 이미지 추출
+    og_image = soup.find("meta", property="og:image")
+    image_url = og_image["content"] if og_image and og_image.get("content") else ""
+
+    # 본문 텍스트 추출 (p 태그 결합)
+    paragraphs = [clean_html(p.text) for p in soup.find_all("p") if len(clean_html(p.text)) > 25]
+    body_text = " ".join(paragraphs[:8])
+    if not desc and body_text:
+        desc = body_text[:200]
+
+    cat_meta = SIX_CATEGORIES.get(category_key, SIX_CATEGORIES["mon_policy"])
+    source_domain = urllib.parse.urlparse(url).netloc
+
+    return {
+        "title": title,
+        "description": desc or title,
+        "link": url,
+        "pub_date": datetime.now().strftime("%Y-%m-%d"),
+        "source": source_domain or "직접 추가",
+        "category": cat_meta["title"],
+        "category_key": category_key,
+        "is_global": cat_meta.get("is_global", False),
+        "image_url": image_url,
+        "body_text": body_text,
+        "is_manual": True
+    }
+
+
+def collect_6categories_candidates(target_per_category: int = 17) -> dict:
+    """
+    주 6일 6대 카테고리별로 각 15~18건 내외, 총 최대 약 100건의 후보 뉴스를 수집합니다.
+    물리치료/재활 필수 키워드가 포함되고 입시/스팸이 배제된 기사만 엄격히 수집합니다.
+    """
+    results_by_cat = {}
+    global_seen_titles = []
+    total_count = 0
+
+    print("=" * 70)
+    print("🌐 [뉴스 수집기] 물리치료/재활 특화 6대 카테고리 후보 뉴스 수집 시작")
+    print("=" * 70)
+
+    for cat_key, meta in SIX_CATEGORIES.items():
+        day_name = meta["day"]
+        cat_title = meta["title"]
+        keywords = meta["keywords"]
+        is_global = meta.get("is_global", False)
+        prefix = cat_key[:3]  # mon, tue, wed, thu, fri, sat
+
+        print(f"\n🔍 [{day_name}] {cat_title} 후보 수집 중...")
+        cat_articles = []
+        seen_in_cat = list(global_seen_titles)
+
+        if is_global:
+            # 글로벌 영문 RSS 수집 및 한국어 번역
+            for kw in keywords:
+                if len(cat_articles) >= target_per_category:
+                    break
+                try:
+                    g_arts = fetch_from_google_rss_global(kw, max_items=10)
+                    for ga in g_arts:
+                        t = ga.get("title", "")
+                        d = ga.get("description", "")
+                        t_en = ga.get("title_en", "")
+                        d_en = ga.get("description_en", "")
+                        combined_all = f"{t} {d} {t_en} {d_en}"
+                        if len(t) < 10 or not is_valid_pt_article(t, combined_all, is_global=True) or is_similar_issue(t, seen_in_cat):
+                            continue
+                        seen_in_cat.append(t)
+                        global_seen_titles.append(t)
+                        ga["category_key"] = cat_key
+                        ga["category"] = cat_title
+                        ga["day"] = day_name
+                        cat_articles.append(ga)
+                        if len(cat_articles) >= target_per_category:
+                            break
+                except Exception as e:
+                    print(f"  - 글로벌 검색 실패 ({kw}): {e}")
+        else:
+            # 국내 네이버 및 구글 RSS 수집
+            for kw in keywords:
+                if len(cat_articles) >= target_per_category:
+                    break
+                arts = []
+                if NAVER_CLIENT_ID and NAVER_CLIENT_SECRET:
+                    try:
+                        arts = fetch_from_naver(kw, display=20)
+                    except Exception as e:
+                        print(f"  - 네이버 API 경고 ({kw}): {e}")
+
+                # 네이버 수집 건수가 부족할 경우 구글 RSS 보완 수집
+                if len(arts) < 10:
+                    try:
+                        g_arts = fetch_from_google_rss(kw, max_items=15)
+                        arts.extend(g_arts)
+                    except Exception as e:
+                        print(f"  - 구글 RSS 경고 ({kw}): {e}")
+
+                for a in arts:
+                    t = a.get("title", "")
+                    d = a.get("description", "")
+                    if len(t) < 8 or not is_valid_pt_article(t, d, is_global=False) or is_similar_issue(t, seen_in_cat):
+                        continue
+                    seen_in_cat.append(t)
+                    global_seen_titles.append(t)
+                    a["category_key"] = cat_key
+                    a["category"] = cat_title
+                    a["day"] = day_name
+                    a["is_global"] = False
+                    cat_articles.append(a)
+                    if len(cat_articles) >= target_per_category:
+                        break
+
+        # 고유 ID 부여 (예: mon_01, mon_02 ...)
+        for idx, art in enumerate(cat_articles, start=1):
+            art["id"] = f"{prefix}_{idx:02d}"
+
+        results_by_cat[cat_key] = cat_articles
+        total_count += len(cat_articles)
+        print(f"  -> {len(cat_articles)}건 엄선 수집 완료")
+
+    results_by_cat["total_count"] = total_count
+    print(f"\n🎉 총 {total_count}건의 6대 카테고리 후보 기사 수집 완료!")
+    return results_by_cat
 
 
 if __name__ == "__main__":

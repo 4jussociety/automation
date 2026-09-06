@@ -2,7 +2,8 @@
 # 글로벌 물리치료 트렌드 기사를 100% 한국어 카드뉴스 및 쇼츠 콘텐츠로 변환합니다.
 
 import re
-from deep_translator import MyMemoryTranslator
+import time
+from deep_translator import GoogleTranslator, MyMemoryTranslator
 
 
 def is_english_text(text: str) -> bool:
@@ -22,11 +23,27 @@ def translate_to_korean(text: str) -> str:
         return ""
     if not is_english_text(text):
         return text
-    
+
     clean_input = text.strip()
+    if len(clean_input) > 4000:
+        clean_input = clean_input[:4000]
+
+    # 1차 시도: GoogleTranslator (최대 3회 재시도 및 지연 완충)
+    for attempt in range(3):
+        try:
+            gt = GoogleTranslator(source='auto', target='ko')
+            res = gt.translate(clean_input)
+            if res and not res.startswith("Error") and not any(err in res.lower() for err in ["error 500", "too many requests"]):
+                return res.strip()
+        except Exception as e:
+            if attempt < 2:
+                time.sleep(0.5 * (attempt + 1))
+            else:
+                print(f"  [번역 1차 Google 재시도 소진]: {e}")
+
+    # 2차 시도: MyMemoryTranslator fallback
     try:
         translator = MyMemoryTranslator(source='en-US', target='ko-KR')
-        # 너무 긴 텍스트(300자 초과)는 문장 단위로 분할 번역 후 결합
         if len(clean_input) > 250:
             sentences = re.split(r'(?<=[\.\?\!])\s+', clean_input)
             translated_parts = []
@@ -44,12 +61,12 @@ def translate_to_korean(text: str) -> str:
                     translated_parts.append(s_strip)
             if translated_parts:
                 return " ".join(translated_parts)
-        
+
         translated = translator.translate(clean_input[:300])
         if translated and "MYMEMORY WARNING" not in translated and not translated.startswith("Error"):
             return translated.strip()
     except Exception as e:
-        print(f"  [번역 경고] 번역 요청 실패: {e}")
-    
+        print(f"  [번역 2차 MyMemory 경고]: {e}")
+
     return clean_input
 

@@ -8,7 +8,7 @@ import re
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from config import DEFAULT_BG_PATH, AI_TECH_BG_PATH
+from config import DEFAULT_BG_PATH, AI_TECH_BG_PATH, DEFAULT_AD_CONFIG
 
 
 def build_slide_html(slide_type: str, data: dict) -> str:
@@ -47,6 +47,29 @@ def build_slide_html(slide_type: str, data: dict) -> str:
         <div class="news-action-highlight">
             {data.get('highlight', '')}
         </div>
+        """
+
+    elif slide_type == "ad":
+        bullets_html = "".join([
+            f'<div class="ad-check-item">✨ {b}</div>'
+            for b in data.get("bullets", [])
+        ])
+        cta_html = f"""
+        <div class="ad-cta-container">
+            <div class="ad-cta-btn">{data.get('cta_button', '4thept.com 바로가기 👆')}</div>
+            <div class="ad-inquiry-text">{data.get('inquiry_text', '📢 광고 및 비즈니스 제휴 문의: thept.official@gmail.com')}</div>
+        </div>
+        """
+        return f"""
+        <div class="ad-top-tag">{data.get('badge', '4THEPT CLINICAL')}</div>
+        <div class="ad-huge-title">{data.get('title', '물리치료사 맞춤 임상 차팅 솔루션<br><span class="hl-yellow">4THEPT</span>')}</div>
+        <div class="ad-summary-card">
+            {data.get('subtitle', '수작업 차팅 부담은 줄이고, 환자와 치료에 더 집중하세요.')}
+        </div>
+        <div class="ad-checklist">
+            {bullets_html}
+        </div>
+        {cta_html}
         """
 
     elif slide_type == "insight":
@@ -280,23 +303,14 @@ def build_content_package(
                     },
                     "narration": f"세 번째 소식입니다. {clean_title_for_narration(t3)}. {c3['narration_body']}"
                 },
-                # 슬라이드 5: 인사이트 (약 12~14초)
+                # 슬라이드 5: 광고/프로모션 페이지 (4THEPT 임상차팅 서비스 & 광고문의)
                 {
-                    "type": "insight",
-                    "header_tag": "INSIGHT",
+                    "type": "ad",
+                    "header_tag": "4THEPT SPONSOR",
                     "swipe_label": "마무리 👉",
                     "background": bg_insight,
-                    "data": {
-                        "tag": "주간 임상 인사이트",
-                        "title": "이번 주 치료사가 기억할<br><span class=\"hl-yellow\">핵심 실천 3가지</span>",
-                        "summary": "빠르게 변화하는 의료 환경 속에서 환자 회복을 극대화하기 위한 임상 체크리스트입니다.",
-                        "checklist": [
-                            "최신 논문 및 가이드라인 기반의 근거중심 치료(EBP) 실천",
-                            "환자 상태 평가의 정량화 및 정기적 피드백 기록",
-                            "동료 치료사들과 최신 임상 케이스 공유 및 스터디"
-                        ]
-                    },
-                    "narration": "이번 주 핵심 정리! 빠르게 변화하는 정책과 제도 속에서, 최신 가이드라인에 기반한 근거 중심 치료와 정량화된 환자 평가, 그리고 동료와의 적극적인 케이스 공유를 꼭 기억하세요."
+                    "data": DEFAULT_AD_CONFIG,
+                    "narration": DEFAULT_AD_CONFIG["narration"]
                 },
                 # 슬라이드 6: 아웃트로 (약 8~10초)
                 {
@@ -451,6 +465,154 @@ def build_weekly_3batches_schedule(
         packages.append(pkg)
 
     return packages
+
+
+# ==============================================================================
+# 주 6일 큐레이션 전용 패키지 빌더 (일별 2~3개 기사 기반 쇼츠 + 카드뉴스 통합 패키지)
+# ==============================================================================
+
+def build_daily_curated_package(
+    day_name: str,
+    category_title: str,
+    articles: list[dict],
+    bg_dir: Path = None,
+    article_photos: dict = None,
+    is_global: bool = False
+) -> dict:
+    """
+    큐레이션된 일별 2~3개 기사를 바탕으로,
+    1편의 통합 쇼츠 비디오(최대 2분 분량) 대본 및 4:5 고화질 카드뉴스(5~6장) 패키지를 조립합니다.
+    """
+    if not articles or len(articles) < 1:
+        raise RuntimeError(f"{day_name} 콘텐츠 생성을 위한 기사가 없습니다.")
+
+    # 1. 기사 수 (2건 또는 3건)
+    curated_articles = articles[:3]
+    num_arts = len(curated_articles)
+
+    # 2. 각 기사 압축
+    compressed_items = [
+        compress_article_content(art, is_global=is_global or art.get("is_global", False))
+        for art in curated_articles
+    ]
+
+    # 3. 배경 이미지 배분
+    photo_map = article_photos or {}
+    default_bg = str(DEFAULT_BG_PATH)
+
+    # 4. 소스 목록 및 표지 미리보기 목록 구성
+    sources = []
+    cover_items = []
+    for idx, (art, comp) in enumerate(zip(curated_articles, compressed_items), start=1):
+        h = comp["headline"]
+        sources.append({
+            "index": f"{idx:02d}",
+            "title": h,
+            "source": art.get("source", "뉴스"),
+            "link": art.get("link", "#")
+        })
+        cover_items.append(h)
+
+    main_title = f"{day_name} 물리치료 브리핑 | <span class=\"hl-yellow\">{category_title}</span>"
+    tag_text = f"THEPT WEEKLY | {day_name} 브리핑"
+
+    # 5. 슬라이드 목록 조립
+    # 슬라이드 1: 표지
+    cover_bg = str(photo_map.get(1, default_bg))
+    slides = [
+        {
+            "type": "cover",
+            "header_tag": "THEPT GLOBAL" if is_global else "THEPT WEEKLY",
+            "swipe_label": "밀어서 보기 👉",
+            "background": cover_bg,
+            "data": {
+                "tag": tag_text,
+                "title": f"<span class=\"hl-yellow\">{day_name} {category_title}</span>",
+                "desc": f"오늘 꼭 살펴봐야 할 {category_title} 주요 뉴스 {num_arts}가지를 전해드립니다.",
+                "items": cover_items
+            },
+            "narration": f"안녕하세요! 물리치료 종합 연구소 THEPT입니다. {day_name}에 전해드리는 {category_title} 핵심 뉴스 {num_arts}가지, 지금 바로 시작합니다!"
+        }
+    ]
+
+    # 슬라이드 2..N: 기사 슬라이드
+    ordinal_korean = ["첫 번째", "두 번째", "세 번째"]
+    for idx, (art, comp) in enumerate(zip(curated_articles, compressed_items), start=1):
+        bg_art = str(photo_map.get(idx, photo_map.get(1, default_bg)))
+        art_headline = comp["headline"]
+        narration_headline = clean_title_for_narration(art_headline)
+        ord_word = ordinal_korean[idx - 1]
+
+        slides.append({
+            "type": "news",
+            "header_tag": f"NEWS {idx:02d}",
+            "swipe_label": "다음 소식 👉" if idx < num_arts else "핵심 정리 👉",
+            "background": bg_art,
+            "data": {
+                "index": f"{idx:02d}",
+                "category": category_title,
+                "source": f"{art.get('source', '뉴스')} ({art.get('pub_date', '')})",
+                "headline": art_headline,
+                "bullets": comp["bullets"],
+                "highlight": comp["highlight"]
+            },
+            "narration": f"{ord_word} 소식입니다. {narration_headline}. {comp['narration_body']}"
+        })
+
+    # 슬라이드 5: 광고/프로모션 페이지 (4THEPT 임상차팅 서비스 & 광고문의)
+    from config import DEFAULT_AD_CONFIG
+    ad_cfg = DEFAULT_AD_CONFIG.copy()
+    ad_bg = str(photo_map.get(2, cover_bg))
+    slides.append({
+        "type": "ad",
+        "header_tag": "4THEPT SPONSOR",
+        "swipe_label": "마무리 👉",
+        "background": ad_bg,
+        "data": ad_cfg,
+        "narration": ad_cfg["narration"]
+    })
+
+    # 슬라이드 6: 아웃트로 슬라이드
+    outro_bg = str(photo_map.get(num_arts, cover_bg))
+    slides.append({
+        "type": "outro",
+        "header_tag": "THEPT LAB",
+        "swipe_label": "저장 & 공유 📌",
+        "background": outro_bg,
+        "data": {
+            "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+            "sub": "지금 바로 게시물을 저장하고 동료 물리치료사와 함께 나눠보세요!"
+        },
+        "narration": "오늘 전해드린 소식이 도움 되셨다면 게시물 저장과 공유 부탁드립니다. 내일도 유익하고 알찬 물리치료 소식으로 찾아오겠습니다. 감사합니다!"
+    })
+
+    # 인스타그램 캡션 생성
+    tags_line = f"#{category_title.replace('·', '').replace(' ', '_')} #물리치료 #도수치료 #재활치료 #물리치료사 #4THEPT #THEPT"
+    items_summary = "\n".join([f"📌 {s['index']}. {s['title']} ({s['source']})" for s in sources])
+    caption_text = f"""[THEPT 주간 브리핑] {day_name}: {category_title}
+
+{items_summary}
+
+💡 [4THEPT] 물리치료사를 위한 맞춤 임상 차팅 솔루션:
+- AI 기반 신속하고 정확한 SOAP 물리치료 차팅 지원 (4thept.com)
+- 수작업 차팅 부담은 줄이고, 환자와 치료에 더 집중하세요!
+📢 광고 및 비즈니스 제휴 문의: thept.official@gmail.com
+
+👉 유익하셨다면 동료 선생님들과 공유하고 저장해두세요!
+
+{tags_line}
+"""
+
+    return {
+        "day_name": day_name,
+        "category_title": category_title,
+        "title": main_title,
+        "is_global": is_global,
+        "sources": sources,
+        "slides": slides,
+        "caption": caption_text
+    }
+
 
 
 

@@ -19,7 +19,7 @@ sys.path.append(str(Path(__file__).resolve().parent))
 
 from config import OUTPUT_DIR, DEFAULT_BG_PATH, AI_TECH_BG_PATH
 from modules.news_collector import collect_weekly_3batches
-from modules.content_builder import build_weekly_3batches_schedule
+from modules.content_builder import build_weekly_3batches_schedule, build_daily_curated_package
 from modules.card_renderer import render_cards_to_images
 from modules.tts_synthesizer import synthesize_all_narration
 from modules.video_renderer import render_shorts_video
@@ -282,6 +282,141 @@ async def run_weekly_pipeline(
         "sources_file": weekly_sources_file
     }
 
+
+# ==============================================================================
+# 주 6일 큐레이션 통합 파이프라인 (월~토 매일 쇼츠 + 카드뉴스 동시 생성)
+# ==============================================================================
+
+async def run_curated_6days_pipeline(daily_articles_map: dict) -> dict:
+    """
+    큐레이션된 6대 카테고리(월~토) 기사(각 2~3건)를 바탕으로,
+    매일 [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션]을 동시 생성하여 요일별 6개 폴더에 저장합니다.
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    weekly_dir = OUTPUT_DIR / f"{today_str}_curated_weekly"
+    bg_dir = weekly_dir / "backgrounds"
+
+    weekly_dir.mkdir(parents=True, exist_ok=True)
+    bg_dir.mkdir(parents=True, exist_ok=True)
+
+    # 기본 배경 복사
+    if DEFAULT_BG_PATH.exists():
+        shutil.copy(DEFAULT_BG_PATH, bg_dir / "pt_clinic_bg.jpg")
+    if AI_TECH_BG_PATH.exists():
+        shutil.copy(AI_TECH_BG_PATH, bg_dir / "ai_rehab_bg.jpg")
+
+    print("=" * 70)
+    print(f"🚀 [THEPT] 주 6일 큐레이션 기반 통합 콘텐츠 자동 생성 ({today_str})")
+    print("   📅 월~토 매일: [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션] 동시 생성")
+    print("=" * 70)
+
+    # 요일별 폴더 및 카테고리 정의
+    day_configs = [
+        ("mon_policy", "월요일", "01_Mon_Policy", "국내 정책·제도·수가·협회", False),
+        ("tue_creator", "화요일", "02_Tue_Creator", "유튜버·인플루언서·운동이슈", False),
+        ("wed_sports", "수요일", "03_Wed_Sports", "운동·스포츠 재활", False),
+        ("thu_tech", "목요일", "04_Thu_Tech", "첨단 재활 기술·AI·로봇", False),
+        ("fri_celeb", "금요일", "05_Fri_Celeb", "셀럽 스타 치료 & 건강 가십", False),
+        ("sat_global", "토요일", "06_Sat_Global", "해외 글로벌 트렌드", True),
+    ]
+
+    results_by_day = []
+
+    for cat_key, day_name, folder_name, cat_title, is_global in day_configs:
+        articles = daily_articles_map.get(cat_key, [])
+        if not articles:
+            print(f"\n⚠️ [{day_name}] 선택된 기사가 없어 건너뜁니다.")
+            continue
+
+        day_dir = weekly_dir / folder_name
+        day_dir.mkdir(parents=True, exist_ok=True)
+        cards_dir = day_dir / "card_images_4x5"
+        audio_dir = day_dir / "audio"
+        video_path = day_dir / "shorts_1080x1920.mp4"
+
+        print(f"\n[{day_name}] {cat_title} ({len(articles)}개 기사) 제작 시작 -> {folder_name}")
+
+        # 1. 보도 사진 확보
+        prefix = cat_key[:3]
+        day_photos = await fetch_article_images(articles, bg_dir, prefix=prefix)
+
+        # 2. 일별 통합 패키지 조립
+        pkg = build_daily_curated_package(
+            day_name=day_name,
+            category_title=cat_title,
+            articles=articles,
+            bg_dir=bg_dir,
+            article_photos=day_photos,
+            is_global=is_global
+        )
+
+        (day_dir / "package_data.json").write_text(
+            json.dumps(pkg, ensure_ascii=False, indent=2),
+            encoding="utf-8"
+        )
+
+        # 3. 4:5 카드뉴스 렌더링
+        print(f"  🎨 4:5 고화질 카드뉴스 렌더링 중...")
+        card_paths = await render_cards_to_images(pkg, cards_dir)
+        print(f"  ✅ 카드뉴스 완성 ({len(card_paths)}장 PNG)")
+
+        # 4. 고품질 TTS 나레이션 합성 (최대 2분 분량 호흡)
+        print(f"  🎙️ TTS 음성 나레이션 합성 중...")
+        audio_results = await synthesize_all_narration(pkg, audio_dir)
+        total_sec = sum(a["duration"] for a in audio_results)
+
+        # 5. 9:16 쇼츠 비디오 렌더링
+        print(f"  🎬 9:16 쇼츠 비디오 합성 중...")
+        render_shorts_video(card_paths, audio_results, video_path)
+        print(f"  ✅ 쇼츠 완성 ({total_sec:.2f}초, {video_path.stat().st_size / (1024*1024):.2f} MB)")
+
+        # 6. 인스타그램 및 유튜브 캡션 저장
+        (day_dir / "instagram_caption.txt").write_text(pkg["caption"], encoding="utf-8")
+        
+        # 7. 기사 출처 및 선택 이유 저장
+        curation_notes = f"📌 [{day_name} 큐레이션 기사 및 선택 이유]\n\n"
+        for idx, a in enumerate(articles, 1):
+            curation_notes += f"{idx}. {a.get('title')}\n"
+            curation_notes += f"   - 출처: {a.get('source')} ({a.get('pub_date')})\n"
+            curation_notes += f"   - 링크: {a.get('link')}\n"
+            curation_notes += f"   - 선택 이유: {a.get('selection_reason', '(미입력)')}\n\n"
+        (day_dir / "curation_notes.txt").write_text(curation_notes, encoding="utf-8")
+
+        results_by_day.append({
+            "day": day_name,
+            "category": cat_title,
+            "folder": day_dir,
+            "cards_count": len(card_paths),
+            "video_duration": total_sec,
+            "video_path": video_path
+        })
+
+    # 주간 요약 문서 작성
+    summary_path = weekly_dir / "weekly_summary.md"
+    summary_lines = [
+        f"# 📊 THEPT 주 6일 큐레이션 통합 콘텐츠 제작 결과 ({today_str})",
+        "",
+        "| 요일 | 카테고리 | 카드뉴스 | 쇼츠 비디오 길이 | 저장 폴더 |",
+        "|---|---|---|---|---|"
+    ]
+    for r in results_by_day:
+        summary_lines.append(
+            f"| {r['day']} | {r['category']} | {r['cards_count']}장 | {r['video_duration']:.1f}초 | `{r['folder'].name}` |"
+        )
+    summary_path.write_text("\n".join(summary_lines), encoding="utf-8")
+
+    print("\n" + "=" * 70)
+    print("🎉 [주간 6일 일괄 제작 성공] 모든 요일의 쇼츠와 카드뉴스가 생성되었습니다!")
+    for r in results_by_day:
+        print(f"  • [{r['day']}] {r['category']}: 카드뉴스 {r['cards_count']}장 + 쇼츠 {r['video_duration']:.1f}초 ({r['folder'].name})")
+    print(f"👉 전체 결과 요약: {summary_path}")
+    print("=" * 70)
+
+    return {
+        "weekly_dir": weekly_dir,
+        "results": results_by_day,
+        "summary_file": summary_path
+    }
 
 
 if __name__ == "__main__":

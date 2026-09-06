@@ -3,6 +3,7 @@
 
 import re
 from modules.translator import translate_to_korean, is_english_text
+from modules.llm_summarizer import summarize_article_with_llm
 
 
 def clean_text_segment(text: str) -> str:
@@ -263,7 +264,7 @@ def complete_korean_sentence(phrase: str) -> str:
     if any(p.endswith(e) for e in ['다', '음', '임', '됨', '함']):
         return p + '.'
         
-    return p + ' 관련 최신 동향이 발표되었습니다.'
+    return p + ' 관련 주요 내용이 공식 확인되었습니다.'
 
 
 def compact_bullet_sentence(text: str, max_chars: int = 56) -> str:
@@ -313,9 +314,23 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
     """
     기사 데이터(title, description, article_body)를 분석하여
     - 헤드라인: 최대 2줄(34자 이내)
-    - 본문 불릿: 3개 합계 8줄 이내(불릿당 50~55자, 총 165자 이내)
-    - 1줄 하이라이트 및 쇼츠 본문 나레이션(1분 이상 ~ 2분 미만)을 생성합니다.
+    - 본문 불릿: 3개 합계 8줄 이내(불릿당 45~55자, 총 160자 이내)
+    - 1줄 하이라이트 및 쇼츠 본문 나레이션을 생성합니다.
+    (OpenAI GPT 지능형 요약 1순위 적용, 예외 시 규칙 기반 Fallback)
     """
+    # 1. OpenAI GPT 모델 기반 고품질 지능형 요약 시도
+    try:
+        llm_result = summarize_article_with_llm(article, is_global=is_global)
+        if (
+            isinstance(llm_result, dict)
+            and "bullets" in llm_result
+            and len(llm_result["bullets"]) == 3
+            and llm_result.get("headline")
+        ):
+            return llm_result
+    except Exception as e:
+        print(f"  [LLM 요약 실패, 규칙 기반 Fallback 적용]: {e}")
+
     title_raw = article.get("title", "")
     desc_raw = article.get("description", "")
     body_raw = article.get("article_body", "")

@@ -49,6 +49,11 @@ async def render_cards_to_images(package: dict, output_dir: Path) -> list[Path]:
         raise FileNotFoundError(f"4:5 템플릿 파일을 찾을 수 없습니다: {TEMPLATE_4X5}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    for old_f in output_dir.glob("*.png"):
+        try:
+            old_f.unlink()
+        except Exception:
+            pass
     template_content = TEMPLATE_4X5.read_text(encoding="utf-8")
 
     slides = package.get("slides", [])
