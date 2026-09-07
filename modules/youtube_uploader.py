@@ -63,12 +63,17 @@ class YouTubeShortsUploader:
                         f"프로젝트 루트에 저장해 주세요. (가이드: docs/api_setup_guide.md)"
                     )
 
-                print("\n🌐 [YouTube 1회 인증] 웹 브라우저에서 Google 계정 로그인을 진행합니다...")
+                print("\n🌐 [YouTube 1회 인증] 웹 브라우저에서 Google 계정 로그인을 진행합니다...", flush=True)
                 flow = InstalledAppFlow.from_client_secrets_file(
                     str(self.client_secret),
                     scopes=YOUTUBE_SCOPES
                 )
-                creds = flow.run_local_server(port=0)
+                creds = flow.run_local_server(
+                    port=0,
+                    authorization_prompt_message=(
+                        "\n👉 브라우저가 자동으로 열리지 않는 경우 아래 주소를 복사하여 브라우저에 붙여넣어 주세요:\n{url}\n"
+                    )
+                )
 
             # 새 토큰 저장
             with open(self.token_path, "wb") as token:

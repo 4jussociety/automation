@@ -305,16 +305,29 @@ def cmd_upload(args):
                 raw_title = pkg_data.get("title", f"{day_label} 물리치료 브리핑")
                 clean_title = re.sub(r"<[^>]+>", "", raw_title).strip()
                 yt_title = f"[{day_label}] {clean_title} #Shorts"[:95]
-                yt_desc = (
-                    f"{caption}\n\n"
-                    f"📌 본 영상은 물리치료사를 위한 전문 커뮤니티 THEPT 주간 브리핑입니다.\n"
-                    f"👉 공식 웹사이트: https://4thept.com\n"
-                    f"📢 광고 및 비즈니스 제휴: teamthept@gmail.com\n\n"
-                    f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #4THEPT #재활"
-                )
+
+                # 생성된 전용 유튜브 설명란 파일이 있으면 우선 사용
+                yt_caption_file = folder / "youtube_shorts_caption.txt"
+                if yt_caption_file.exists():
+                    yt_desc = yt_caption_file.read_text(encoding="utf-8").strip()
+                else:
+                    yt_desc = (
+                        f"📢 [{day_label}] {clean_title} #Shorts\n\n"
+                        f"{caption}\n\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
+                        f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
+                        f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
+                        f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
+                        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                        f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활"
+                    )
+
                 first_comment = (
                     "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
-                    "지금 바로 4THEPT.com에서 무료로 체험해보세요 👉 https://4thept.com\n"
+                    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
+                    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
+                    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
                     "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
                 )
 
@@ -343,10 +356,18 @@ def cmd_upload(args):
                 total_tasks += 1
                 image_urls = [get_github_raw_url(p) for p in card_images]
                 print(f"   📸 [Instagram 캐러셀] 예약 업로드 요청 중... (총 {len(card_images)}장)")
+                first_comment = (
+                    "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
+                    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
+                    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
+                    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
+                    "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
+                )
                 res_ig = upload_instagram_carousel(
                     image_urls=image_urls,
                     caption=caption,
                     scheduled_timestamp=sched["unix_timestamp"],
+                    first_comment=first_comment,
                     dry_run=dry_run
                 )
                 if res_ig.get("success"):
@@ -363,10 +384,18 @@ def cmd_upload(args):
                 total_tasks += 1
                 video_url = get_github_raw_url(shorts_files[0])
                 print(f"   🎥 [Instagram 릴스] 예약 업로드 요청 중...")
+                first_comment = (
+                    "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
+                    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
+                    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
+                    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
+                    "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
+                )
                 res_reel = upload_instagram_reel(
                     video_url=video_url,
                     caption=caption,
                     scheduled_timestamp=sched["unix_timestamp"],
+                    first_comment=first_comment,
                     dry_run=dry_run
                 )
                 if res_reel.get("success"):

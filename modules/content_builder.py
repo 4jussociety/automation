@@ -592,22 +592,29 @@ def build_daily_curated_package(
     })
 
     # 인스타그램 캡션 생성
-    tags_line = f"#{category_title.replace('·', '').replace(' ', '_')} #물리치료 #도수치료 #재활치료 #물리치료사 #4THEPT #THEPT"
-    items_summary = "\n".join([f"📌 {s['index']}. {s['title']} ({s['source']})" for s in sources])
-    caption_text = f"""[THEPT 주간 브리핑] {day_name}: {category_title}
+    clean_cat = category_title.replace('·', '').replace(' ', '_')
+    tags_line = f"#{clean_cat} #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스"
 
-{items_summary}
+    sources_text = ""
+    for s in sources:
+        sources_text += f"{s['index']}. {s['title']} ({s['source']})\n   🔗 {s['link']}\n\n"
 
-💡 [4THEPT] 방문재활 물리치료사 맞춤 AI음성 차팅:
-- AI음성분석 기반 SOAP차팅, 라포데이터 차팅 지원 (4thept.com)
-- THEPT회원은 매월 무료 5시간 사용 가능!
-- 수작업 차팅 부담은 줄이고, 고객과의 소통에 더 집중하세요!
-📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com
-
-👉 유익하셨다면 동료 선생님들과 공유하고 저장해두세요!
-
-{tags_line}
-"""
+    caption_text = (
+        f"📋 [THEPT 주간 브리핑 - {day_name}]\n"
+        f"{day_name} 물리치료 브리핑: {category_title}\n\n"
+        f"주요 핵심 뉴스 {num_arts}가지의 상세 카드뉴스입니다.\n"
+        f"슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"📰 [기사 원문 출처 및 링크]\n"
+        f"{sources_text}"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        f"💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n"
+        f"'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
+        f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+        f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
+        f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
+        f"{tags_line}\n"
+    )
 
     return {
         "day_name": day_name,

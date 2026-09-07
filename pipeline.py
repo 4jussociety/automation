@@ -6,6 +6,8 @@ from pathlib import Path
 import asyncio
 from datetime import datetime
 import json
+import re
+import shutil
 
 # 윈도우 콘솔 유니코드(이모지 등) 인코딩 처리
 if sys.platform == "win32":
@@ -24,7 +26,15 @@ from modules.card_renderer import render_cards_to_images
 from modules.tts_synthesizer import synthesize_all_narration
 from modules.video_renderer import render_shorts_video
 from modules.article_image_fetcher import fetch_article_images
-import shutil
+
+# 공식 첫 댓글(고정 댓글) 템플릿
+FIRST_COMMENT_TEXT = (
+    "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
+    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
+    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
+    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
+    "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
+)
 
 
 
@@ -152,11 +162,16 @@ async def run_weekly_pipeline(
             insta_caption += f"{s['index']}. {s['title']} ({s['source']})\n   🔗 {s['link']}\n\n"
         insta_caption += (
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"💬 더 많은 임상 연구 자료와 동료 치료사들의 의견은\n"
+            f"'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
+            f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+            f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
             f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
-            f"#물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #카드뉴스 #피지컬테라피"
+            f"#물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스 #피지컬테라피\n"
         )
         (day_dir / "instagram_caption.txt").write_text(insta_caption, encoding="utf-8")
         (day_dir / "sources_and_links.txt").write_text(insta_caption, encoding="utf-8")
+        (day_dir / "first_comment.txt").write_text(FIRST_COMMENT_TEXT, encoding="utf-8")
 
         results_by_day.append({
             "day": day_name,
@@ -198,23 +213,72 @@ async def run_weekly_pipeline(
         # 9:16 세로형 쇼츠 비디오 렌더링
         render_shorts_video(card_paths, audio_results, video_path)
 
-        # 유튜브 쇼츠 설명란 및 댓글 캡션
+        # 유튜브 쇼츠 설명란 (타임라인 + 기사 1줄 요약 + 원문 링크)
+        cum_sec = 0.0
+        timestamps = []
+        for a in audio_results:
+            m = int(cum_sec // 60)
+            s = int(cum_sec % 60)
+            timestamps.append(f"{m:02d}:{s:02d}")
+            cum_sec += a.get("duration", 0.0)
+
+        t_intro = timestamps[0] if len(timestamps) > 0 else "00:00"
+        t_n1 = timestamps[1] if len(timestamps) > 1 else "00:07"
+        t_n2 = timestamps[2] if len(timestamps) > 2 else "00:23"
+        t_n3 = timestamps[3] if len(timestamps) > 3 else "00:39"
+        t_outro = timestamps[-1] if len(timestamps) > 4 else "00:52"
+
         sources = pkg.get("sources", [])
+        slides = pkg.get("slides", [])
+        news_slides = [s for s in slides if s.get("type") == "news"]
+
+        def get_summary(idx):
+            if idx < len(news_slides):
+                sdata = news_slides[idx].get("data", {})
+                hl = sdata.get("highlight", "")
+                if hl:
+                    return hl
+                bullets = sdata.get("bullets", [])
+                if bullets:
+                    return bullets[0]
+            return ""
+
+        s1_summary = get_summary(0)
+        s2_summary = get_summary(1)
+        s3_summary = get_summary(2)
+
+        s1 = sources[0] if len(sources) > 0 else {"title": "", "source": "", "link": ""}
+        s2 = sources[1] if len(sources) > 1 else {"title": "", "source": "", "link": ""}
+        s3 = sources[2] if len(sources) > 2 else {"title": "", "source": "", "link": ""}
+
+        raw_title = pkg.get("title", f"{day_name} 물리치료 브리핑")
+        clean_title = re.sub(r"<[^>]+>", "", raw_title).strip()
+
         shorts_caption = (
-            f"📢 [THEPT 주간 브리핑 쇼츠 - {day_name}]\n"
-            f"{pkg['title']}\n\n"
+            f"📢 [{day_name}] {clean_title} #Shorts\n\n"
             f"한 주간 가장 주목할 물리치료 최신 뉴스 3가지를 1분 만에 전해드립니다!\n\n"
+            f"⏱️ [타임라인 & 기사 원문 요약]\n"
+            f"{t_intro} 인트로\n"
+            f"{t_n1} [1] {s1['title']} ({s1['source']})\n"
+            f"  • {s1_summary}\n"
+            f"  🔗 원문 링크: {s1['link']}\n\n"
+            f"{t_n2} [2] {s2['title']} ({s2['source']})\n"
+            f"  • {s2_summary}\n"
+            f"  🔗 원문 링크: {s2['link']}\n\n"
+            f"{t_n3} [3] {s3['title']} ({s3['source']})\n"
+            f"  • {s3_summary}\n"
+            f"  🔗 원문 링크: {s3['link']}\n\n"
+            f"{t_outro} 아웃트로\n\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"📰 [기사 원문 출처]\n"
-        )
-        for s in sources:
-            shorts_caption += f"• {s['index']}. {s['title']} ({s['source']})\n  🔗 {s['link']}\n"
-        shorts_caption += (
+            f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
+            f"• 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+            f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
+            f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"💡 상세한 분석은 카드뉴스로 확인하세요!\n"
-            f"#물리치료 #도수치료 #재활치료 #물리치료사 #더피티 #THEPT #쇼츠"
+            f"#물리치료 #물리치료사 #쇼츠 #Shorts #더피티 #THEPT #도수치료 #재활치료\n"
         )
         (day_dir / "youtube_shorts_caption.txt").write_text(shorts_caption, encoding="utf-8")
+        (day_dir / "first_comment.txt").write_text(FIRST_COMMENT_TEXT, encoding="utf-8")
 
         results_by_day.append({
             "day": day_name,
@@ -378,9 +442,79 @@ async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: boo
         else:
             print(f"  ℹ️ [렌더링 가드레일] 카드뉴스/비디오 미디어 파일 렌더링은 대기합니다. (대본 및 패키지 데이터 생성 완료)")
 
-        # 6. 인스타그램 및 유튜브 캡션 저장
+        # 6. 인스타그램 및 유튜브 캡션, 첫 댓글 저장
         (day_dir / "instagram_caption.txt").write_text(pkg["caption"], encoding="utf-8")
-        
+
+        # 유튜브 쇼츠 설명란 생성 (타임라인 + 기사 1줄 요약 + 원문 링크)
+        cum_sec = 0.0
+        timestamps = []
+        if audio_results:
+            for a in audio_results:
+                m = int(cum_sec // 60)
+                s = int(cum_sec % 60)
+                timestamps.append(f"{m:02d}:{s:02d}")
+                cum_sec += a.get("duration", 0.0)
+        else:
+            timestamps = ["00:00", "00:07", "00:23", "00:39", "00:52"]
+
+        t_intro = timestamps[0] if len(timestamps) > 0 else "00:00"
+        t_n1 = timestamps[1] if len(timestamps) > 1 else "00:07"
+        t_n2 = timestamps[2] if len(timestamps) > 2 else "00:23"
+        t_n3 = timestamps[3] if len(timestamps) > 3 else "00:39"
+        t_outro = timestamps[-1] if len(timestamps) > 4 else "00:52"
+
+        sources = pkg.get("sources", [])
+        slides = pkg.get("slides", [])
+        news_slides = [s for s in slides if s.get("type") == "news"]
+
+        def get_summary(idx):
+            if idx < len(news_slides):
+                sdata = news_slides[idx].get("data", {})
+                hl = sdata.get("highlight", "")
+                if hl:
+                    return hl
+                bullets = sdata.get("bullets", [])
+                if bullets:
+                    return bullets[0]
+            return ""
+
+        s1_summary = get_summary(0)
+        s2_summary = get_summary(1)
+        s3_summary = get_summary(2)
+
+        s1 = sources[0] if len(sources) > 0 else {"title": "", "source": "", "link": ""}
+        s2 = sources[1] if len(sources) > 1 else {"title": "", "source": "", "link": ""}
+        s3 = sources[2] if len(sources) > 2 else {"title": "", "source": "", "link": ""}
+
+        raw_title = pkg.get("title", f"{day_name} 물리치료 브리핑")
+        clean_title = re.sub(r"<[^>]+>", "", raw_title).strip()
+
+        shorts_caption = (
+            f"📢 [{day_name}] {clean_title} #Shorts\n\n"
+            f"한 주간 가장 주목할 물리치료 최신 뉴스 {len(articles)}가지를 1분 만에 전해드립니다!\n\n"
+            f"⏱️ [타임라인 & 기사 원문 요약]\n"
+            f"{t_intro} 인트로\n"
+            f"{t_n1} [1] {s1['title']} ({s1['source']})\n"
+            f"  • {s1_summary}\n"
+            f"  🔗 원문 링크: {s1['link']}\n\n"
+            f"{t_n2} [2] {s2['title']} ({s2['source']})\n"
+            f"  • {s2_summary}\n"
+            f"  🔗 원문 링크: {s2['link']}\n\n"
+            f"{t_n3} [3] {s3['title']} ({s3['source']})\n"
+            f"  • {s3_summary}\n"
+            f"  🔗 원문 링크: {s3['link']}\n\n"
+            f"{t_outro} 아웃트로\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
+            f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
+            f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
+            f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활\n"
+        )
+        (day_dir / "youtube_shorts_caption.txt").write_text(shorts_caption, encoding="utf-8")
+        (day_dir / "first_comment.txt").write_text(FIRST_COMMENT_TEXT, encoding="utf-8")
+
         # 7. 기사 출처 및 선택 이유 저장
         curation_notes = f"📌 [{day_name} 큐레이션 기사 및 선택 이유]\n\n"
         for idx, a in enumerate(articles, 1):

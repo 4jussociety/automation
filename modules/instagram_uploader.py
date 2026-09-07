@@ -60,16 +60,43 @@ class InstagramGraphUploader:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
+    def add_comment(self, media_id: str, comment_text: str) -> dict:
+        """
+        발행된 인스타그램 미디어(게시물/릴스)에 댓글을 작성합니다.
+        POST https://graph.facebook.com/v20.0/{media_id}/comments
+        """
+        if not self.is_configured():
+            raise ValueError("인스타그램 인증 정보(ACCOUNT_ID / ACCESS_TOKEN)가 설정되지 않았습니다.")
+
+        url = f"{GRAPH_API_BASE}/{media_id}/comments"
+        payload = {
+            "message": comment_text,
+            "access_token": self.access_token
+        }
+        try:
+            res = requests.post(url, data=payload, timeout=15)
+            data = res.json()
+            if "id" not in data:
+                print(f"⚠️ [Instagram] 첫 댓글 등록 실패: {data.get('error', data)}")
+                return {"success": False, "error": data.get("error")}
+            print(f"💬 [Instagram] 첫 댓글 등록 성공 (Comment ID: {data['id']})")
+            return {"success": True, "comment_id": data["id"]}
+        except Exception as e:
+            print(f"⚠️ [Instagram] 첫 댓글 작성 중 예외 발생: {e}")
+            return {"success": False, "error": str(e)}
+
     def upload_carousel_feed(
         self,
         image_urls: List[str],
         caption: str,
-        schedule_timestamp: Optional[int] = None
+        schedule_timestamp: Optional[int] = None,
+        first_comment: Optional[str] = None
     ) -> dict:
         """
         4:5 카드뉴스 캐러셀(최대 10장)을 생성하고 예약 발행합니다.
         - image_urls: 공개적으로 접근 가능한 고화질 이미지 URL 목록
         - schedule_timestamp: UNIX 타임스탬프 (현재 기준 20분 후 ~ 75일 이내)
+        - first_comment: 즉시 발행 시 함께 등록할 첫 댓글 문구
         """
         if not self.is_configured():
             raise ValueError("인스타그램 인증 정보(ACCOUNT_ID / ACCESS_TOKEN)가 설정되지 않았습니다.")
@@ -135,22 +162,36 @@ class InstagramGraphUploader:
         post_id = pub_data["id"]
         print(f"✅ [Instagram] 카드뉴스 캐러셀 {'예약 ' if is_scheduled else ''}발행 완료! (게시물 ID: {post_id})")
 
+        # 4. 첫 댓글 등록 (즉시 발행 시 지원)
+        comment_res = None
+        if first_comment:
+            if not is_scheduled:
+                comment_res = self.add_comment(post_id, first_comment)
+            else:
+                print("   ℹ️ [Instagram] 예약 발행 게시물은 스케줄 시점에 활성화되므로 첫 댓글은 본문 캡션 안내로 연동됩니다.")
+
         return {
             "post_id": post_id,
             "container_id": container_id,
             "is_scheduled": is_scheduled,
-            "schedule_timestamp": schedule_timestamp
+            "schedule_timestamp": schedule_timestamp,
+            "comment": comment_res
         }
+
+    # 메서드 별칭 지원
+    upload_carousel = upload_carousel_feed
 
     def upload_reels_video(
         self,
         video_url: str,
         caption: str,
-        schedule_timestamp: Optional[int] = None
+        schedule_timestamp: Optional[int] = None,
+        first_comment: Optional[str] = None
     ) -> dict:
         """
         9:16 쇼츠 영상을 인스타그램 릴스(Reels)로 예약 업로드합니다.
         - video_url: 공개적으로 접근 가능한 MP4 영상 URL
+        - first_comment: 즉시 발행 시 함께 등록할 첫 댓글 문구
         """
         if not self.is_configured():
             raise ValueError("인스타그램 인증 정보(ACCOUNT_ID / ACCESS_TOKEN)가 설정되지 않았습니다.")
@@ -214,18 +255,31 @@ class InstagramGraphUploader:
         reels_id = pub_data["id"]
         print(f"✅ [Instagram] 릴스 영상 {'예약 ' if is_scheduled else ''}발행 완료! (게시물 ID: {reels_id})")
 
+        # 4. 첫 댓글 등록 (즉시 발행 시 지원)
+        comment_res = None
+        if first_comment:
+            if not is_scheduled:
+                comment_res = self.add_comment(reels_id, first_comment)
+            else:
+                print("   ℹ️ [Instagram] 예약 발행 릴스는 스케줄 시점에 활성화되므로 첫 댓글은 본문 캡션 안내로 연동됩니다.")
+
         return {
             "reels_id": reels_id,
             "container_id": container_id,
             "is_scheduled": is_scheduled,
-            "schedule_timestamp": schedule_timestamp
+            "schedule_timestamp": schedule_timestamp,
+            "comment": comment_res
         }
+
+    # 메서드 별칭 지원
+    upload_reels = upload_reels_video
 
 
 def upload_instagram_carousel(
     image_urls: List[str],
     caption: str,
     scheduled_timestamp: Optional[int] = None,
+    first_comment: Optional[str] = None,
     dry_run: bool = False
 ) -> dict:
     """
@@ -237,6 +291,8 @@ def upload_instagram_carousel(
         print(f"        • 이미지 수: {len(image_urls)}장")
         print(f"        • 대표 이미지 URL: {image_urls[0] if image_urls else 'N/A'}")
         print(f"        • 예약 타임스탬프: {scheduled_timestamp}")
+        if first_comment:
+            print(f"        • 첫 댓글: {first_comment.splitlines()[0]}...")
         return {
             "success": True,
             "container_id": "DRY-RUN-IG-CAROUSEL",
@@ -249,7 +305,8 @@ def upload_instagram_carousel(
         res = uploader.upload_carousel(
             image_urls=image_urls,
             caption=caption,
-            schedule_timestamp=scheduled_timestamp
+            schedule_timestamp=scheduled_timestamp,
+            first_comment=first_comment
         )
         return {"success": True, **res}
     except Exception as e:
@@ -260,6 +317,7 @@ def upload_instagram_reel(
     video_url: str,
     caption: str,
     scheduled_timestamp: Optional[int] = None,
+    first_comment: Optional[str] = None,
     dry_run: bool = False
 ) -> dict:
     """
@@ -270,6 +328,8 @@ def upload_instagram_reel(
         print(f"     🧪 [DRY-RUN 시뮬레이션]")
         print(f"        • 비디오 URL: {video_url}")
         print(f"        • 예약 타임스탬프: {scheduled_timestamp}")
+        if first_comment:
+            print(f"        • 첫 댓글: {first_comment.splitlines()[0]}...")
         return {
             "success": True,
             "container_id": "DRY-RUN-IG-REELS",
@@ -282,7 +342,8 @@ def upload_instagram_reel(
         res = uploader.upload_reels(
             video_url=video_url,
             caption=caption,
-            schedule_timestamp=scheduled_timestamp
+            schedule_timestamp=scheduled_timestamp,
+            first_comment=first_comment
         )
         return {"success": True, **res}
     except Exception as e:
