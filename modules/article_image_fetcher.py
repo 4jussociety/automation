@@ -71,6 +71,40 @@ async def fetch_article_images(articles: list[dict], bg_dir: Path, prefix: str =
             title_brief = art.get("title", "")[:30]
             print(f"  [{idx}/{total_arts}] 기사 사진/본문 및 원문 제목 검수 중: {title_brief}...")
 
+            # 0. YouTube 영상인 경우 브라우저 렌더링 대신 고화질 썸네일 및 메타데이터 직통 처리
+            link_url = art.get("link", "")
+            if art.get("is_youtube") or "youtube.com" in link_url or "youtu.be" in link_url:
+                print(f"     📺 [유튜브 영상 감지] 고화질 썸네일 및 설명글 직통 수집 중...")
+                vid = art.get("video_id")
+                if not vid:
+                    m = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", link_url)
+                    if m:
+                        vid = m.group(1)
+
+                img_url = art.get("image_url")
+                if not img_url and vid:
+                    img_url = f"https://i.ytimg.com/vi/{vid}/maxresdefault.jpg"
+
+                if img_url:
+                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+                    try:
+                        resp = requests.get(img_url, headers=headers, timeout=10)
+                        if resp.status_code != 200 and vid:
+                            img_url = f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"
+                            resp = requests.get(img_url, headers=headers, timeout=10)
+                        if resp.status_code == 200 and len(resp.content) > 3000:
+                            target_path.write_bytes(resp.content)
+                            results[idx] = target_path
+                            art["image_path"] = str(target_path)
+                            print(f"     ✅ 유튜브 썸네일 저장 완료: {target_path.name}")
+                    except Exception as ex:
+                        print(f"     ⚠️ 유튜브 썸네일 다운로드 실패: {ex}")
+
+                if not art.get("article_body") or len(art.get("article_body", "")) < 30:
+                    art["article_body"] = art.get("description", "")
+                    art["article_body_raw"] = art.get("description", "")
+                continue
+
             try:
                 # 1. 언론사 원문 링크로 리다이렉트 대기
                 await page.goto(art["link"], wait_until="domcontentloaded", timeout=12000)

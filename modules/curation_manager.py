@@ -121,11 +121,14 @@ def parse_candidates_titles_markdown(titles_path: Path, cache_file: Path = CACHE
     # 요일 매핑
     day_to_key = {
         "월": "mon_policy", "월요일": "mon_policy", "mon": "mon_policy",
-        "화": "tue_creator", "화요일": "tue_creator", "tue": "tue_creator",
+        "화": "tue_clinical", "화요일": "tue_clinical", "tue": "tue_clinical",
         "수": "wed_sports", "수요일": "wed_sports", "wed": "wed_sports",
         "목": "thu_tech", "목요일": "thu_tech", "thu": "thu_tech",
-        "금": "fri_celeb", "금요일": "fri_celeb", "fri": "fri_celeb",
+        "금": "fri_youtube", "금요일": "fri_youtube", "fri": "fri_youtube",
         "토": "sat_global", "토요일": "sat_global", "sat": "sat_global",
+        # 이전 키 호환성
+        "tue_creator": "tue_clinical",
+        "fri_celeb": "fri_youtube",
     }
 
     # 라인별 정규식 검사

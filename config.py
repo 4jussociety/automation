@@ -77,3 +77,16 @@ GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
 # SNS 발행 기본 시각 (오전 8시 KST)
 PUBLISH_HOUR_KST = int(os.getenv("PUBLISH_HOUR_KST", "8"))
 
+# 금요일: 운동/재활 추천 유튜브 채널 설정 파일 경로
+YOUTUBE_CHANNELS_FILE = BASE_DIR / "data" / "youtube_channels.json"
+
+# 기본 추천 유튜브 채널 목록 (언제든 data/youtube_channels.json 파일에서 채널 추가/삭제 가능)
+DEFAULT_YOUTUBE_CHANNELS = [
+    {"name": "피지컬갤러리", "query": "피지컬갤러리", "enabled": True},
+    {"name": "라이프에이드", "query": "라이프에이드", "enabled": True},
+    {"name": "자세요정", "query": "자세요정", "enabled": True},
+    {"name": "핏블리", "query": "핏블리 재활", "enabled": True},
+    {"name": "물리치료사 이과장", "query": "물리치료사 이과장", "enabled": True},
+    {"name": "문교석 교수", "query": "문교석 물리치료", "enabled": True}
+]
+

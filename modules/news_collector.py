@@ -343,6 +343,88 @@ def fetch_from_google_rss_global(keyword: str, max_items: int = 15) -> list[dict
     return results
 
 
+def load_target_youtube_channels() -> list[dict]:
+    """data/youtube_channels.json 파일에서 활성화된 추천 유튜브 채널 목록을 로드합니다."""
+    import json
+    from config import YOUTUBE_CHANNELS_FILE, DEFAULT_YOUTUBE_CHANNELS
+    if YOUTUBE_CHANNELS_FILE.exists():
+        try:
+            with open(YOUTUBE_CHANNELS_FILE, "r", encoding="utf-8") as f:
+                channels = json.load(f)
+                return [c for c in channels if c.get("enabled", True)]
+        except Exception as e:
+            print(f"⚠️ [YouTube Channels] JSON 로드 실패, 기본 목록 사용: {e}")
+    return DEFAULT_YOUTUBE_CHANNELS
+
+
+def fetch_from_youtube(query: str, max_items: int = 5, max_days: int = 7) -> list[dict]:
+    """
+    YouTube Data API v3를 통해 최근 max_days일(기본 7일) 이내 최신 운동/재활 동영상을 수집합니다.
+    - 고화질 썸네일, 제목, 설명글, 업로드 일시, 채널명 및 비디오 ID를 추출합니다.
+    """
+    from modules.youtube_uploader import YouTubeShortsUploader
+
+    results = []
+    try:
+        uploader = YouTubeShortsUploader()
+        service = uploader.get_service()
+        if not service:
+            return []
+
+        now_dt = datetime.now(timezone.utc)
+        published_after = (now_dt - timedelta(days=max_days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        req = service.search().list(
+            q=query,
+            part="snippet",
+            type="video",
+            order="date",
+            publishedAfter=published_after,
+            maxResults=max_items
+        )
+        resp = req.execute()
+        items = resp.get("items", [])
+
+        for item in items:
+            vid = item.get("id", {}).get("videoId")
+            if not vid:
+                continue
+            snip = item.get("snippet", {})
+            title = clean_html(snip.get("title", ""))
+            desc = clean_html(snip.get("description", ""))
+            channel_title = snip.get("channelTitle", "유튜브 채널")
+            pub_date_raw = snip.get("publishedAt", "")
+
+            is_recent, pub_formatted = parse_and_validate_pub_date(pub_date_raw, max_days=max_days)
+            if not is_recent:
+                continue
+
+            # 고화질 썸네일 확보 (maxresdefault 우선, 없으면 hqdefault)
+            thumbs = snip.get("thumbnails", {})
+            img_url = (
+                thumbs.get("maxres", {}).get("url") or
+                thumbs.get("standard", {}).get("url") or
+                thumbs.get("high", {}).get("url") or
+                f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"
+            )
+
+            results.append({
+                "title": f"[{channel_title}] {title}",
+                "description": desc or f"{channel_title} 채널의 최신 재활/운동 영상입니다.",
+                "link": f"https://www.youtube.com/watch?v={vid}",
+                "pub_date": pub_formatted,
+                "source": f"유튜브 ({channel_title})",
+                "image_url": img_url,
+                "video_id": vid,
+                "channel_name": channel_title,
+                "is_youtube": True
+            })
+    except Exception as e:
+        print(f"  [유튜브 검색 경고 ({query})]: {e}")
+
+    return results
+
+
 def collect_themed_batch(
     keywords: list[str],
     category: str,
@@ -504,7 +586,7 @@ def collect_weekly_3batches(
 SIX_CATEGORIES = {
     "mon_policy": {
         "day": "월요일",
-        "title": "국내 정책·제도·수가·협회",
+        "title": "국내 정책·제도·수가·실손보험",
         "description": "보건복지부 정책, 실손보험 도수치료, 물리치료 수가, 협회 및 법안 이슈",
         "keywords": [
             "도수치료 실손보험",
@@ -519,19 +601,20 @@ SIX_CATEGORIES = {
         ],
         "is_global": False
     },
-    "tue_creator": {
+    "tue_clinical": {
         "day": "화요일",
-        "title": "유튜버·인플루언서·운동이슈",
-        "description": "운동/재활 전문 유튜버, 크리에이터 콘텐츠, 체형교정 및 치료 이슈",
+        "title": "임상 실무·질환별 재활 프로토콜",
+        "description": "디스크·회전근개·오십견·관절염 등 다빈도 질환의 최신 도수치료 및 운동재활 가이드",
         "keywords": [
-            "물리치료사 유튜브",
-            "물리치료 체형교정",
-            "도수치료 재활운동",
-            "물리치료 운동법",
-            "자세교정 물리치료",
-            "체형교정 도수치료",
-            "재활운동 크리에이터",
-            "체형교정 스트레칭 물리치료"
+            "도수치료 효과",
+            "회전근개 재활",
+            "허리디스크 운동치료",
+            "오십견 도수치료",
+            "체형교정 운동치료",
+            "거북목 교정치료",
+            "근골격계 물리치료",
+            "관절염 재활",
+            "물리치료 임상"
         ],
         "is_global": False
     },
@@ -567,21 +650,20 @@ SIX_CATEGORIES = {
         ],
         "is_global": False
     },
-    "fri_celeb": {
+    "fri_youtube": {
         "day": "금요일",
-        "title": "셀럽 스타 치료 & 건강 가십",
-        "description": "연예인/스타/유명인의 물리치료·도수치료·부상 후기 및 체형 가십",
+        "title": "운동/재활 유튜버 소식",
+        "description": "인기 재활·운동 전문 유튜버 최신 영상 스크랩, 핵심 치료 팁 및 운동 이슈 브리핑",
         "keywords": [
-            "연예인 물리치료",
-            "스타 재활치료",
-            "도수치료 연예인",
-            "스타 체형교정",
-            "물리치료 투혼",
-            "선수 물리치료 부상",
-            "스타 재활운동",
-            "도수치료 스타"
+            "물리치료사 유튜브",
+            "재활운동 유튜버",
+            "체형교정 스트레칭 유튜브",
+            "도수치료 운동 팁",
+            "피지컬갤러리 재활",
+            "자세요정 스트레칭"
         ],
-        "is_global": False
+        "is_global": False,
+        "is_youtube": True
     },
     "sat_global": {
         "day": "토요일",
@@ -710,6 +792,74 @@ def collect_6categories_candidates(target_per_category: int = 17) -> dict:
                             break
                 except Exception as e:
                     print(f"  - 글로벌 검색 실패 ({kw}): {e}")
+        elif meta.get("is_youtube") or cat_key == "fri_youtube":
+            # 금요일: 운동/재활 추천 유튜브 채널 및 영상 전문 스크랩
+            channels = load_target_youtube_channels()
+            print(f"  📺 [유튜브 채널 스크랩] 등록된 {len(channels)}개 추천 채널 및 영상 탐색 중...")
+            
+            # 1. 등록된 전문 채널별 최신 영상 우선 수집
+            for ch in channels:
+                if len(cat_articles) >= target_per_category:
+                    break
+                ch_query = ch.get("query", ch.get("name", ""))
+                try:
+                    yt_arts = fetch_from_youtube(ch_query, max_items=4)
+                    for ya in yt_arts:
+                        t = ya.get("title", "")
+                        if len(t) < 5 or is_similar_issue(t, seen_in_cat):
+                            continue
+                        seen_in_cat.append(t)
+                        global_seen_titles.append(t)
+                        ya["category_key"] = cat_key
+                        ya["category"] = cat_title
+                        ya["day"] = day_name
+                        cat_articles.append(ya)
+                        if len(cat_articles) >= target_per_category:
+                            break
+                except Exception as e:
+                    print(f"  - 유튜브 채널 검색 실패 ({ch.get('name')}): {e}")
+
+            # 2. 재활/운동 유튜브 키워드 보충 수집
+            for kw in keywords:
+                if len(cat_articles) >= target_per_category:
+                    break
+                try:
+                    yt_arts = fetch_from_youtube(kw, max_items=5)
+                    for ya in yt_arts:
+                        t = ya.get("title", "")
+                        if len(t) < 5 or is_similar_issue(t, seen_in_cat):
+                            continue
+                        seen_in_cat.append(t)
+                        global_seen_titles.append(t)
+                        ya["category_key"] = cat_key
+                        ya["category"] = cat_title
+                        ya["day"] = day_name
+                        cat_articles.append(ya)
+                        if len(cat_articles) >= target_per_category:
+                            break
+                except Exception as e:
+                    print(f"  - 유튜브 키워드 검색 실패 ({kw}): {e}")
+
+            # 3. 유튜브 수집이 부족할 경우 네이버/구글 RSS 보완 수집
+            if len(cat_articles) < target_per_category:
+                for kw in keywords:
+                    if len(cat_articles) >= target_per_category:
+                        break
+                    backup_arts = fetch_from_naver(f"{kw} 유튜브", display=10) or fetch_from_google_rss(f"{kw} 유튜브", max_items=10)
+                    for a in backup_arts:
+                        t = a.get("title", "")
+                        d = a.get("description", "")
+                        if len(t) < 8 or not is_valid_pt_article(t, d, is_global=False) or is_similar_issue(t, seen_in_cat):
+                            continue
+                        seen_in_cat.append(t)
+                        global_seen_titles.append(t)
+                        a["category_key"] = cat_key
+                        a["category"] = cat_title
+                        a["day"] = day_name
+                        a["is_global"] = False
+                        cat_articles.append(a)
+                        if len(cat_articles) >= target_per_category:
+                            break
         else:
             # 국내 네이버 및 구글 RSS 수집
             for kw in keywords:

@@ -383,11 +383,11 @@ async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: boo
 
     # 요일별 폴더 및 카테고리 정의
     day_configs = [
-        ("mon_policy", "월요일", "01_Mon_Policy", "국내 정책·제도·수가·협회", False),
-        ("tue_creator", "화요일", "02_Tue_Creator", "유튜버·인플루언서·운동이슈", False),
+        ("mon_policy", "월요일", "01_Mon_Policy", "국내 정책·제도·수가·실손보험", False),
+        ("tue_clinical", "화요일", "02_Tue_Clinical", "임상 실무·질환별 재활 프로토콜", False),
         ("wed_sports", "수요일", "03_Wed_Sports", "운동·스포츠 재활", False),
         ("thu_tech", "목요일", "04_Thu_Tech", "첨단 재활 기술·AI·로봇", False),
-        ("fri_celeb", "금요일", "05_Fri_Celeb", "셀럽 스타 치료 & 건강 가십", False),
+        ("fri_youtube", "금요일", "05_Fri_YouTube", "운동/재활 유튜버 소식", False),
         ("sat_global", "토요일", "06_Sat_Global", "해외 글로벌 트렌드", True),
     ]
 
@@ -395,6 +395,11 @@ async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: boo
 
     for cat_key, day_name, folder_name, cat_title, is_global in day_configs:
         articles = daily_articles_map.get(cat_key, [])
+        if not articles and cat_key == "tue_clinical":
+            articles = daily_articles_map.get("tue_creator", [])
+        if not articles and cat_key == "fri_youtube":
+            articles = daily_articles_map.get("fri_celeb", [])
+
         if not articles:
             print(f"\n⚠️ [{day_name}] 선택된 기사가 없어 건너뜁니다.")
             continue
