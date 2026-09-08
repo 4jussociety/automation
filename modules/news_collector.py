@@ -425,166 +425,9 @@ def fetch_from_youtube(query: str, max_items: int = 5, max_days: int = 7) -> lis
     return results
 
 
-def collect_themed_batch(
-    keywords: list[str],
-    category: str,
-    target_count: int = 3,
-    existing_titles: list[str] = None
-) -> list[dict]:
-    """
-    지정된 키워드 풀에서 네이버 API HUB(1순위) 및 구글 RSS를 통해 기사를 수집하고,
-    가십/스팸 필터 및 자카드 유사도 기반 중복 배제를 거쳐 엄선된 기사 리스트를 반환합니다.
-    """
-    if existing_titles is None:
-        existing_titles = []
-
-    collected = []
-    seen_in_batch = list(existing_titles)
-
-    for kw in keywords:
-        arts = []
-        if NAVER_CLIENT_ID and NAVER_CLIENT_SECRET:
-            try:
-                arts = fetch_from_naver(kw, display=10)
-            except Exception as e:
-                print(f"  [네이버 검색 경고 ({kw})]: {e}")
-        if not arts:
-            arts = fetch_from_google_rss(kw, max_items=10)
-
-        for a in arts:
-            title = a["title"]
-            desc = a.get("description", "")
-            link = a.get("link", "")
-            # 유튜브 스크랩은 오직 금요일 전용: 일반 기사 수집에서 유튜브 링크 엄격 배제
-            if "youtube.com" in link or "youtu.be" in link:
-                continue
-            # 1. 길이 및 기본 유효성 검사
-            if len(title) < 10:
-                continue
-            # 2. 연예 가십 및 단순 비전문 기사 필터링
-            if is_gossip_or_spam(title, desc):
-                continue
-            # 3. 기존 수집된 기사들과의 중복/유사성 검사
-            if is_similar_issue(title, seen_in_batch):
-                continue
-
-            a["is_global"] = False
-            a["category"] = category
-            collected.append(a)
-            seen_in_batch.append(title)
-
-            if len(collected) >= target_count:
-                return collected
-
-    return collected
-
-
-def collect_weekly_3batches(
-    domestic_keywords_a: list[str] = None,
-    domestic_keywords_b: list[str] = None,
-    global_keywords: list[str] = None
-) -> dict:
-    """
-    주간 3대 브리핑 세트(배치 1, 2, 3)를 주제별로 완벽히 분리하고 중복 없이 총 9건의 기사를 엄선합니다.
-    - 배치 1 (월 쇼츠 / 화 카드뉴스): 국내 물리치료 핵심 정책 & 제도 이슈 (수가, 실손보험, 정책 등)
-    - 배치 2 (수 쇼츠 / 목 카드뉴스): 최신 재활 임상 연구 & 첨단 치료 기술 (로봇재활, 임상효과, 신경계 등)
-    - 배치 3 (금 쇼츠 / 토 카드뉴스): 글로벌 물리치료 연구 & 해외 트렌드 (한국어 번역)
-    """
-    # 1. 배치 1 전용 키워드: 국내 정책 / 제도 / 수가 / 협회
-    if domestic_keywords_a is None:
-        domestic_keywords_a = [
-            "물리치료사 정책",
-            "도수치료 실손보험",
-            "물리치료 수가",
-            "재활의료기관 물리치료",
-            "물리치료사 협회"
-        ]
-
-    # 2. 배치 2 전용 키워드: 임상 연구 / 첨단 기술 / 학술 / 논문
-    if domestic_keywords_b is None:
-        domestic_keywords_b = [
-            "물리치료 임상 연구",
-            "로봇 재활치료",
-            "도수치료 임상 효과",
-            "신경계 물리치료",
-            "근골격계 재활치료"
-        ]
-
-    # 3. 배치 3 전용 키워드: 해외 글로벌 연구 / APTA
-    if global_keywords is None:
-        global_keywords = [
-            "physical therapy rehabilitation",
-            "sports physical therapy",
-            "physiotherapy clinical research"
-        ]
-
-    # [배치 1 수집]: 국내 정책 & 제도 이슈 3건
-    batch_1 = collect_themed_batch(
-        keywords=domestic_keywords_a,
-        category="국내 정책/제도",
-        target_count=3,
-        existing_titles=[]
-    )
-    if len(batch_1) < 3:
-        # 백업 키워드 풀
-        fallback_a = ["물리치료 제도", "물리치료 의료보험"]
-        more_a = collect_themed_batch(fallback_a, "국내 정책/제도", 3 - len(batch_1), [a["title"] for a in batch_1])
-        batch_1.extend(more_a)
-
-    if len(batch_1) < 3:
-        raise RuntimeError(f"배치 1 (국내 정책 이슈) 기사가 부족합니다. (수집: {len(batch_1)}건)")
-
-    # [배치 2 수집]: 임상 재활 & 첨단 기술 이슈 3건 (배치 1의 기사와 절대 중복 불가)
-    b1_titles = [a["title"] for a in batch_1]
-    batch_2 = collect_themed_batch(
-        keywords=domestic_keywords_b,
-        category="임상 재활/연구",
-        target_count=3,
-        existing_titles=b1_titles
-    )
-    if len(batch_2) < 3:
-        # 백업 키워드 풀
-        fallback_b = ["재활치료 효과", "물리치료 학술"]
-        more_b = collect_themed_batch(fallback_b, "임상 재활/연구", 3 - len(batch_2), b1_titles + [a["title"] for a in batch_2])
-        batch_2.extend(more_b)
-
-    if len(batch_2) < 3:
-        raise RuntimeError(f"배치 2 (임상 연구 이슈) 기사가 부족합니다. (수집: {len(batch_2)}건)")
-
-    # [배치 3 수집]: 해외 글로벌 연구 및 트렌드 3건
-    batch_3 = []
-    seen_global_titles = set()
-    for kw in global_keywords:
-        g_arts = fetch_from_google_rss_global(kw, max_items=5)
-        for ga in g_arts:
-            t = ga["title"]
-            if t and t not in seen_global_titles and len(t) > 10:
-                # 에러 문자열 및 중복 체크
-                if not is_similar_issue(t, list(seen_global_titles)):
-                    seen_global_titles.add(t)
-                    batch_3.append(ga)
-                    if len(batch_3) >= 3:
-                        break
-        if len(batch_3) >= 3:
-            break
-
-    if len(batch_3) < 3:
-        raise RuntimeError(f"배치 3 (해외 글로벌 기사)가 부족합니다. (수집: {len(batch_3)}건)")
-
-    total_count = len(batch_1) + len(batch_2) + len(batch_3)
-
-    return {
-        "batch_1": batch_1[:3],
-        "batch_2": batch_2[:3],
-        "batch_3": batch_3[:3],
-        "total_collected": total_count,
-        "all_domestic": batch_1 + batch_2,
-        "all_global": batch_3
-    }
-
 
 # ==============================================================================
-# 주 6일 6대 카테고리 체계 정의 및 100건 대량 수집 함수
+# 주 6일 6대 카테고리 체계 정의 및 대량 수집 함수
 # ==============================================================================
 
 SIX_CATEGORIES = {
@@ -925,18 +768,12 @@ if __name__ == "__main__":
     if sys.platform == "win32":
         sys.stdout.reconfigure(encoding="utf-8")
 
-    print("[테스트] 주간 3대 브리핑 세트(주제별 분리 수집 및 중복 배제) 실행 중...")
-    batches = collect_weekly_3batches()
-    print("\n✅ 배치 1 (월/화 - 국내 정책·제도 A, 3건):")
-    for i, a in enumerate(batches["batch_1"], 1):
-        print(f"   {i}. {a['title']} ({a['source']})")
+    print("[테스트] 주 6일 6대 카테고리 구성 확인:")
+    for key, meta in SIX_CATEGORIES.items():
+        yt_tag = " (유튜브 스크랩 전용)" if meta.get("is_youtube") else ""
+        global_tag = " (글로벌 영문 번역)" if meta.get("is_global") else ""
+        print(f"  - [{meta['day']}] {meta['title']}{yt_tag}{global_tag}")
+        print(f"    키워드 풀: {', '.join(meta['keywords'][:4])}...")
 
-    print("\n✅ 배치 2 (수/목 - 임상 연구·첨단 B, 3건):")
-    for i, a in enumerate(batches["batch_2"], 1):
-        print(f"   {i}. {a['title']} ({a['source']})")
-
-    print("\n✅ 배치 3 (금/토 - 해외 글로벌 C, 3건):")
-    for i, a in enumerate(batches["batch_3"], 1):
-        print(f"   {i}. {a['title']} ({a['source']})")
 
 
