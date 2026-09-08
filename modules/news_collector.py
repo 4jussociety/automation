@@ -454,6 +454,10 @@ def collect_themed_batch(
         for a in arts:
             title = a["title"]
             desc = a.get("description", "")
+            link = a.get("link", "")
+            # 유튜브 스크랩은 오직 금요일 전용: 일반 기사 수집에서 유튜브 링크 엄격 배제
+            if "youtube.com" in link or "youtu.be" in link:
+                continue
             # 1. 길이 및 기본 유효성 검사
             if len(title) < 10:
                 continue
@@ -779,6 +783,10 @@ def collect_6categories_candidates(target_per_category: int = 17) -> dict:
                         d = ga.get("description", "")
                         t_en = ga.get("title_en", "")
                         d_en = ga.get("description_en", "")
+                        link = ga.get("link", "")
+                        # 유튜브 스크랩은 오직 금요일 전용: 토요일(해외)에서도 유튜브 링크 배제
+                        if "youtube.com" in link or "youtu.be" in link:
+                            continue
                         combined_all = f"{t} {d} {t_en} {d_en}"
                         if len(t) < 10 or not is_valid_pt_article(t, combined_all, is_global=True) or is_similar_issue(t, seen_in_cat):
                             continue
@@ -792,10 +800,10 @@ def collect_6categories_candidates(target_per_category: int = 17) -> dict:
                             break
                 except Exception as e:
                     print(f"  - 글로벌 검색 실패 ({kw}): {e}")
-        elif meta.get("is_youtube") or cat_key == "fri_youtube":
-            # 금요일: 운동/재활 추천 유튜브 채널 및 영상 전문 스크랩
+        elif cat_key == "fri_youtube":
+            # [오직 금요일 전용] 운동/재활 추천 유튜브 채널 및 영상 전문 스크랩
             channels = load_target_youtube_channels()
-            print(f"  📺 [유튜브 채널 스크랩] 등록된 {len(channels)}개 추천 채널 및 영상 탐색 중...")
+            print(f"  📺 [금요일 유튜브 채널 스크랩] 등록된 {len(channels)}개 추천 채널 및 영상 탐색 중...")
             
             # 1. 등록된 전문 채널별 최신 영상 우선 수집
             for ch in channels:
@@ -861,7 +869,7 @@ def collect_6categories_candidates(target_per_category: int = 17) -> dict:
                         if len(cat_articles) >= target_per_category:
                             break
         else:
-            # 국내 네이버 및 구글 RSS 수집
+            # 국내 네이버 및 구글 RSS 수집 (월, 화, 수, 목요일 뉴스 전용)
             for kw in keywords:
                 if len(cat_articles) >= target_per_category:
                     break
@@ -883,6 +891,10 @@ def collect_6categories_candidates(target_per_category: int = 17) -> dict:
                 for a in arts:
                     t = a.get("title", "")
                     d = a.get("description", "")
+                    link = a.get("link", "")
+                    # 유튜브 스크랩은 오직 금요일 전용: 월~목에서는 유튜브 링크 배제
+                    if "youtube.com" in link or "youtu.be" in link:
+                        continue
                     if len(t) < 8 or not is_valid_pt_article(t, d, is_global=False) or is_similar_issue(t, seen_in_cat):
                         continue
                     seen_in_cat.append(t)
