@@ -59,7 +59,13 @@ python curate.py upload
 # 유튜브 쇼츠 6편만 예약 업로드
 python curate.py upload --platform youtube
 
-# 인스타그램 콘텐츠(캐러셀 + 릴스)만 예약 업로드
+# 오늘 요일(KST) 인스타그램 콘텐츠만 1건 즉시 발행 (GitHub Actions에서 매일 아침 자동 실행)
+python curate.py upload --platform instagram --today-only
+
+# 특정 요일(예: 수요일) 인스타그램 콘텐츠만 지정하여 즉시 발행
+python curate.py upload --platform instagram --day wed
+
+# 인스타그램 콘텐츠(캐러셀 + 릴스) 전체 업로드
 python curate.py upload --platform instagram
 
 # 인스타그램 카드뉴스 캐러셀만 업로드
@@ -67,6 +73,9 @@ python curate.py upload --platform instagram --type carousel
 
 # 인스타그램 릴스만 업로드
 python curate.py upload --platform instagram --type video
+
+# 주간 큐레이션 결과물을 GitHub 원격 저장소로 스마트 동기화 (4주 롤링 슬림화 자동 적용)
+python curate.py sync
 ```
 
 ---
