@@ -171,7 +171,7 @@ async def run_weekly_pipeline(
             f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
             f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
             f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
-            f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
+            f"도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
             f"#물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스 #피지컬테라피\n"
         )
         (day_dir / "instagram_caption.txt").write_text(insta_caption, encoding="utf-8")

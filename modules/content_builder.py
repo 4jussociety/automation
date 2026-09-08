@@ -92,7 +92,7 @@ def build_slide_html(slide_type: str, data: dict) -> str:
 
     elif slide_type == "outro":
         is_shorts = data.get("is_shorts", False)
-        sub_text = data.get("sub", "지금 저장해두고 동료 치료사와 함께 나눠보세요!")
+        sub_text = data.get("sub", "도움이 되셨다면 좋아요를 누르고 동료 치료사와 함께 나눠보세요!")
         next_notice = f"""<div style="background: rgba(255, 204, 0, 0.15); border: 1px solid #ffcc00; border-radius: 12px; padding: 12px; margin-bottom: 20px; font-size: 20px; color: #ffeb3b; font-weight: 700; text-align: center;">
             {data.get('notice', '💡 내일 4:5 심층 카드뉴스로 이어집니다!')}
         </div>""" if is_shorts else ""
@@ -104,16 +104,16 @@ def build_slide_html(slide_type: str, data: dict) -> str:
             {next_notice}
             <div class="outro-insta-buttons">
                 <div class="insta-button highlight-save">
-                    <span class="btn-icon">📌</span>
-                    <span>게시물 저장하기</span>
+                    <span class="btn-icon">❤️</span>
+                    <span>좋아요 응원</span>
                 </div>
                 <div class="insta-button">
                     <span class="btn-icon">✈️</span>
                     <span>동료에게 공유</span>
                 </div>
                 <div class="insta-button">
-                    <span class="btn-icon">❤️</span>
-                    <span>좋아요 응원</span>
+                    <span class="btn-icon">💬</span>
+                    <span>댓글과 소통</span>
                 </div>
             </div>
             <div class="channels-card">
@@ -321,16 +321,16 @@ def build_content_package(
                 {
                     "type": "outro",
                     "header_tag": "THEPT LAB",
-                    "swipe_label": "저장 & 공유 📌",
+                    "swipe_label": "좋아요 & 공유 ❤️",
                     "background": bg_outro,
                     "data": {
                         "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
-                        "sub": "지금 바로 저장하고 동료 물리치료사와 함께 보세요!"
+                        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
                     },
                     "narration": (
-                        "더 자세한 분석과 상세 자료는, 내일 업로드되는 4:5 카드뉴스에서 확인하실 수 있습니다. 게시물 저장과 동료 공유 부탁드리며, 구독과 좋아요로 매주 최신 소식을 받아보세요!"
+                        "더 자세한 분석과 상세 자료는, 내일 업로드되는 4:5 카드뉴스에서 확인하실 수 있습니다. 좋아요와 동료 공유 부탁드리며, 구독과 알림 설정으로 매주 최신 소식을 받아보세요!"
                         if content_type == "shorts" else
-                        "도움이 되셨다면, 게시물 저장과 동료 공유 부탁드립니다! 다음 주에도 더욱 알차고 깊이 있는 물리치료 소식으로 찾아오겠습니다."
+                        "도움이 되셨다면 좋아요와 동료 공유 부탁드립니다! 다음 주에도 더욱 알차고 깊이 있는 물리치료 소식으로 찾아오겠습니다."
                     )
                 }
             ]
@@ -581,16 +581,21 @@ def build_daily_curated_package(
 
     # 슬라이드 6: 아웃트로 슬라이드
     outro_bg = str(photo_map.get(num_arts, cover_bg))
+    outro_narration = (
+        "오늘 전해드린 소식이 도움 되셨다면 좋아요와 공유 부탁드립니다. 다음 주에도 유익하고 알찬 물리치료 소식으로 찾아오겠습니다. 감사합니다!"
+        if day_key == "sat" or day_name == "토요일" else
+        "오늘 전해드린 소식이 도움 되셨다면 좋아요와 공유 부탁드립니다. 내일도 유익하고 알찬 물리치료 소식으로 찾아오겠습니다. 감사합니다!"
+    )
     slides.append({
         "type": "outro",
         "header_tag": "THEPT NEWS",
-        "swipe_label": "저장 & 공유 📌",
+        "swipe_label": "좋아요 & 공유 ❤️",
         "background": outro_bg,
         "data": {
             "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
-            "sub": "지금 바로 게시물을 저장하고 동료 물리치료사와 함께 나눠보세요!"
+            "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
         },
-        "narration": "오늘 전해드린 소식이 도움 되셨다면 게시물 저장과 공유 부탁드립니다. 내일도 유익하고 알찬 물리치료 소식으로 찾아오겠습니다. 감사합니다!"
+        "narration": outro_narration
     })
 
     # 인스타그램 캡션 생성
@@ -641,7 +646,7 @@ def build_daily_curated_package(
                 f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
                 f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
                 f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
-                f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
+                f"도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
                 f"{tags_line}\n"
             )
             if len(caption_text) <= 2150:
@@ -666,7 +671,7 @@ def build_daily_curated_package(
             f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
             f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
             f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
-            f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
+            f"도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
             f"{tags_line}\n"
         )
 
