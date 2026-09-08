@@ -514,7 +514,8 @@ def build_daily_curated_package(
             "index": f"{idx:02d}",
             "title": h,
             "source": art.get("source", "뉴스"),
-            "link": art.get("link", "#")
+            "link": art.get("link", "#"),
+            "story_summary": comp.get("story_summary", "")
         })
         cover_items.append(h)
 
@@ -559,7 +560,8 @@ def build_daily_curated_package(
                 "source": f"{art.get('source', '뉴스')} ({art.get('pub_date', '')})",
                 "headline": art_headline,
                 "bullets": comp["bullets"],
-                "highlight": comp["highlight"]
+                "highlight": comp["highlight"],
+                "story_summary": comp.get("story_summary", "")
             },
             "narration": f"{ord_word} 소식입니다. {narration_headline}. {comp['narration_body']}"
         })
@@ -595,26 +597,78 @@ def build_daily_curated_package(
     clean_cat = category_title.replace('·', '').replace(' ', '_')
     tags_line = f"#{clean_cat} #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스"
 
-    sources_text = ""
-    for s in sources:
-        sources_text += f"{s['index']}. {s['title']} ({s['source']})\n   🔗 {s['link']}\n\n"
+    if is_global:
+        # 글로벌 기사 전용: [헤드라인 + 4~6문장 상세 스토리텔링 번역 브리핑 + 원문 출처 + 링크]
+        def build_global_sources_block(max_summary_len: int = 500) -> str:
+            blocks = []
+            for s in sources:
+                summ = s.get("story_summary", "").strip()
+                if len(summ) > max_summary_len:
+                    summ = summ[:max_summary_len].rstrip() + "..."
 
-    caption_text = (
-        f"📋 [THEPT 주간 브리핑 - {day_name}]\n"
-        f"{day_name} 물리치료 브리핑: {category_title}\n\n"
-        f"주요 핵심 뉴스 {num_arts}가지의 상세 카드뉴스입니다.\n"
-        f"슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"📰 [기사 원문 출처 및 링크]\n"
-        f"{sources_text}"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        f"💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n"
-        f"'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
-        f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
-        f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
-        f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
-        f"{tags_line}\n"
-    )
+                # 인스타그램 캡션은 하이퍼링크가 작동하지 않으므로 수백 자의 구글 RSS URL 대신 간결한 출처로 최적화
+                link_url = s.get("link", "")
+                if "news.google.com" in link_url and len(link_url) > 80:
+                    link_line = f"🔗 원문 출처: {s['source']} (상세 링크는 유튜브 설명란 참조)\n"
+                elif link_url and link_url != "#":
+                    link_line = f"🔗 원문 링크: {link_url}\n"
+                else:
+                    link_line = f"🔗 원문 출처: {s['source']}\n"
+
+                b = f"🌐 [{s['index']}] {s['title']} ({s['source']})\n"
+                if summ:
+                    b += f"• 상세 번역 브리핑:\n  {summ}\n"
+                b += link_line
+                blocks.append(b)
+            return "\n".join(blocks) + "\n"
+
+        # 인스타그램 2,200자 제한 안전 가드레일 (기사 요약 길이 동적 조정, 최대 2,150자 이내 보장)
+        summary_limit = 500
+        caption_text = ""
+        while summary_limit >= 150:
+            sources_text = build_global_sources_block(summary_limit)
+            caption_text = (
+                f"📋 [THEPT 글로벌 주간 브리핑 - {day_name}]\n"
+                f"{day_name} 해외 물리치료 글로벌 트렌드 핵심 브리핑입니다.\n\n"
+                f"해외 최신 임상 가이드라인과 재활 연구 등 주요 뉴스 {num_arts}가지의 상세 번역 브리핑을 전해드립니다.\n"
+                f"카드뉴스를 넘겨보신 후 아래 상세 내용을 확인해보세요! 👉\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"🌐 [글로벌 뉴스 심층 번역 브리핑 & 원문 출처]\n\n"
+                f"{sources_text}"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"💬 더 많은 글로벌 임상 연구 자료와 동료 치료사들의 토론은\n"
+                f"'THEPT 커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
+                f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+                f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
+                f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
+                f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
+                f"{tags_line}\n"
+            )
+            if len(caption_text) <= 2150:
+                break
+            summary_limit -= 50
+    else:
+        sources_text = ""
+        for s in sources:
+            sources_text += f"{s['index']}. {s['title']} ({s['source']})\n   🔗 {s['link']}\n\n"
+
+        caption_text = (
+            f"📋 [THEPT 주간 브리핑 - {day_name}]\n"
+            f"{day_name} 물리치료 브리핑: {category_title}\n\n"
+            f"주요 핵심 뉴스 {num_arts}가지의 상세 카드뉴스입니다.\n"
+            f"슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📰 [기사 원문 출처 및 링크]\n"
+            f"{sources_text}"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            f"💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n"
+            f"'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
+            f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+            f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
+            f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
+            f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
+            f"{tags_line}\n"
+        )
 
     return {
         "day_name": day_name,

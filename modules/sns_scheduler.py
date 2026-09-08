@@ -30,8 +30,11 @@ def get_schedule_for_day(
 ) -> dict:
     """
     지정된 요일 또는 폴더명의 예약 발행 일시를 계산합니다.
-    - base_date 기준으로 해당 주차의 해당 요일 오전 target_hour 시(KST)를 산출합니다.
-    - YouTube용 RFC 3339 및 Instagram용 UNIX Timestamp를 함께 반환합니다.
+    - [일요일 실행 시]: 다가오는 주간(월~토) 6일 전체를 순차적으로 오전 target_hour 시(KST)에 예약 발행합니다.
+    - [평일 실행 시 (월~토)]:
+        * 오늘 및 이미 지난 요일(target_weekday <= current_weekday): 즉시 업로드 (is_immediate=True)
+          (예: 월요일 시작 시 월요일 즉시, 화요일 시작 시 월/화 즉시, 수요일 시작 시 월/화/수 즉시 등)
+        * 오늘 이후의 미래 요일(target_weekday > current_weekday): 이번 주 해당 요일 오전 target_hour 시 예약 발행
     """
     now_kst = datetime.now(KST)
     base = base_date if base_date else now_kst
@@ -39,29 +42,47 @@ def get_schedule_for_day(
     target_weekday = DAY_MAP.get(day_name_or_folder, 0)
     current_weekday = base.weekday()
 
-    # 이번 주 해당 요일 날짜 산출 (월요일 기준)
-    days_diff = target_weekday - current_weekday
-    target_date = (base + timedelta(days=days_diff)).replace(
-        hour=target_hour, minute=0, second=0, microsecond=0
-    )
+    if current_weekday == 6:
+        # [일요일 실행]: 내일(월요일)부터 시작하는 다가오는 주간 6일 순차 예약
+        days_to_monday = 1
+        monday_date = (base + timedelta(days=days_to_monday)).replace(
+            hour=target_hour, minute=0, second=0, microsecond=0
+        )
+        target_date = monday_date + timedelta(days=target_weekday)
+        is_immediate = False
+    else:
+        # [평일 실행 (월~토)]:
+        if target_weekday <= current_weekday:
+            # 월요일 시작 시 월요일 즉시, 화요일 시작 시 월/화 즉시 등
+            is_immediate = True
+            target_date = now_kst
+        else:
+            # 이번 주 남은 요일: 이번 주 해당 요일 오전 target_hour 시 예약
+            is_immediate = False
+            days_diff = target_weekday - current_weekday
+            target_date = (base + timedelta(days=days_diff)).replace(
+                hour=target_hour, minute=0, second=0, microsecond=0
+            )
 
-    # 만약 목표 예약 시각이 현재보다 과거라면 (이미 지난 요일),
-    # 안전하게 다음 주 동일 요일로 배정하거나 현재 시각 기준 최소 지연 시각을 고려합니다.
-    if target_date <= now_kst:
-        # 이미 오늘 오전 8시가 지난 경우 다음 주 해당 요일로 스케줄링
-        target_date += timedelta(days=7)
-
-    # 타임스탬프 및 형식 변환
-    unix_timestamp = int(target_date.timestamp())
-    # YouTube API: RFC 3339 형식 (예: 2026-09-08T08:00:00+09:00)
-    rfc3339_str = target_date.isoformat()
-
-    return {
-        "target_datetime": target_date,
-        "unix_timestamp": unix_timestamp,
-        "rfc3339": rfc3339_str,
-        "formatted_kst": target_date.strftime("%Y년 %m월 %d일 (%a) %H:%M KST")
-    }
+    if is_immediate:
+        day_korean = ["월", "화", "수", "목", "금", "토", "일"][target_weekday]
+        return {
+            "target_datetime": target_date,
+            "unix_timestamp": None,
+            "rfc3339": None,
+            "is_immediate": True,
+            "formatted_kst": f"[즉시 업로드] ({day_korean}요일 콘텐츠 즉시 공개)"
+        }
+    else:
+        unix_timestamp = int(target_date.timestamp())
+        rfc3339_str = target_date.isoformat()
+        return {
+            "target_datetime": target_date,
+            "unix_timestamp": unix_timestamp,
+            "rfc3339": rfc3339_str,
+            "is_immediate": False,
+            "formatted_kst": target_date.strftime("%Y년 %m월 %d일 (%a) %H:%M KST")
+        }
 
 
 def get_github_raw_url(local_path: Path) -> str:

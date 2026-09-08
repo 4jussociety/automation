@@ -341,6 +341,10 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
             and len(llm_result["bullets"]) == 3
             and llm_result.get("headline")
         ):
+            if is_global and not llm_result.get("story_summary"):
+                b = llm_result["bullets"]
+                hl = llm_result.get("highlight", "").replace("💡 포인트: ", "").strip()
+                llm_result["story_summary"] = f"{b[0]} {b[1]} {b[2]} {hl}"
             return llm_result
     except Exception as e:
         print(f"  [LLM 요약 실패, 규칙 기반 Fallback 적용]: {e}")
@@ -484,10 +488,16 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
 
     narration_body = refine_text_for_tts(f"{spoken_fact} {theme_impact}")
 
+    story_summary = ""
+    if is_global:
+        hl_clean = highlight.replace("💡 포인트: ", "").strip()
+        story_summary = f"{bullet_1} {bullet_2} {bullet_3} {hl_clean}"
+
     return {
         "headline": headline,
         "bullets": [bullet_1, bullet_2, bullet_3],
         "highlight": highlight,
-        "narration_body": narration_body
+        "narration_body": narration_body,
+        "story_summary": story_summary
     }
 

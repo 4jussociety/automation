@@ -101,7 +101,8 @@ async def fetch_article_images(articles: list[dict], bg_dir: Path, prefix: str =
                     verified_title = clean_article_title(raw_full_title)
                     # 외신 기사이거나 영문일 경우 즉시 한국어로 번역 반영
                     from modules.translator import is_english_text
-                    if art.get("is_global") or prefix == "b3" or is_english_text(verified_title):
+                    if art.get("is_global") or prefix in ("sat", "b3") or is_english_text(verified_title):
+                        art["original_title"] = verified_title
                         ko_title = translate_to_korean(verified_title)
                         print(f"     🌐 외신 풀 제목 한국어 번역 완료: '{ko_title}'")
                         art["title"] = ko_title
@@ -132,11 +133,14 @@ async def fetch_article_images(articles: list[dict], bg_dir: Path, prefix: str =
                 }''')
                 if body_text:
                     clean_b = body_text.strip()
+                    art["article_body_raw"] = clean_b[:3000]
                     from modules.translator import is_english_text
-                    if art.get("is_global") or prefix == "b3" or is_english_text(clean_b):
-                        clean_b = translate_to_korean(clean_b[:500])
-                    art["article_body"] = clean_b
-                    print(f"     📄 기사 본문 텍스트 획득 ({len(art['article_body'])}자)")
+                    if art.get("is_global") or prefix in ("sat", "b3") or is_english_text(clean_b):
+                        ko_b = translate_to_korean(clean_b[:800])
+                        art["article_body"] = ko_b
+                    else:
+                        art["article_body"] = clean_b
+                    print(f"     📄 기사 본문 텍스트 획득 (원문 {len(art.get('article_body_raw', ''))}자 / 번역 {len(art['article_body'])}자)")
 
                 # 3. og:image 및 본문 대표 보도사진 태그 추출
                 img_url = await page.evaluate('''() => {

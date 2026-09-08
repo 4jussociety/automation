@@ -68,12 +68,7 @@ class YouTubeShortsUploader:
                     str(self.client_secret),
                     scopes=YOUTUBE_SCOPES
                 )
-                creds = flow.run_local_server(
-                    port=0,
-                    authorization_prompt_message=(
-                        "\n👉 브라우저가 자동으로 열리지 않는 경우 아래 주소를 복사하여 브라우저에 붙여넣어 주세요:\n{url}\n"
-                    )
-                )
+                creds = self._run_auth_server(flow)
 
             # 새 토큰 저장
             with open(self.token_path, "wb") as token:
@@ -82,6 +77,52 @@ class YouTubeShortsUploader:
 
         self._service = build("youtube", "v3", credentials=creds)
         return self._service
+
+    def _run_auth_server(self, flow):
+        """인증 URL을 즉시 출력하고 Windows 브라우저를 안정적으로 오픈하는 로컬 인증 서버"""
+        import wsgiref.simple_server
+        import webbrowser
+        from google_auth_oauthlib.flow import (
+            _RedirectWSGIApp,
+            _ExclusiveWSGIServer,
+            _WSGIRequestHandler
+        )
+
+        wsgi_app = _RedirectWSGIApp("The authentication flow has completed. You may close this window.")
+        local_server = wsgiref.simple_server.make_server(
+            "localhost",
+            0,
+            wsgi_app,
+            server_class=_ExclusiveWSGIServer,
+            handler_class=_WSGIRequestHandler,
+        )
+
+        try:
+            flow.redirect_uri = f"http://localhost:{local_server.server_port}/"
+            auth_url, _ = flow.authorization_url(prompt="consent", access_type="offline")
+
+            print("\n" + "=" * 70, flush=True)
+            print("🔗 [인증 링크] 아래 URL을 클릭하거나 웹 브라우저에 붙여넣어 주세요:", flush=True)
+            print(f"\n{auth_url}\n", flush=True)
+            print("=" * 70 + "\n", flush=True)
+
+            try:
+                os.startfile(auth_url)
+            except Exception:
+                try:
+                    webbrowser.open(auth_url, new=1, autoraise=True)
+                except Exception:
+                    pass
+
+            print("⏳ 브라우저에서 Google 계정 승인을 완료해 주세요...", flush=True)
+            local_server.handle_request()
+
+            authorization_response = wsgi_app.last_request_uri.replace("http", "https")
+            flow.fetch_token(authorization_response=authorization_response)
+        finally:
+            local_server.server_close()
+
+        return flow.credentials
 
     def upload_shorts(
         self,
@@ -208,17 +249,18 @@ def upload_youtube_short(
     dry_run=True 시 실제 API 호출 없이 파라미터 시뮬레이션만 수행합니다.
     """
     if dry_run:
-        print(f"     🧪 [DRY-RUN 시뮬레이션]")
+        mode = "예약 업로드" if publish_at_rfc3339 else "즉시 업로드"
+        print(f"     🧪 [DRY-RUN 시뮬레이션 - {mode}]")
         print(f"        • 비디오: {Path(video_path).name}")
         print(f"        • 제목: {title}")
-        print(f"        • 예약 일시: {publish_at_rfc3339}")
+        print(f"        • 발행 설정: {publish_at_rfc3339 or '즉시 공개 (Public)'}")
         if first_comment:
             print(f"        • 첫 댓글: {first_comment.splitlines()[0]}...")
         return {
             "success": True,
             "video_id": "DRY-RUN-YT-SHORT",
             "video_url": "https://youtube.com/shorts/DRY-RUN-YT-SHORT",
-            "status": "scheduled (dry-run)"
+            "status": "scheduled (dry-run)" if publish_at_rfc3339 else "published (dry-run)"
         }
 
     try:

@@ -293,7 +293,7 @@ def cmd_upload(args):
         cat_title = pkg_data.get("category_title", folder_name)
 
         print(f"\n📅 [{day_label}] {cat_title} ({folder_name})")
-        print(f"   ⏰ 예약 발행 시각: {sched['formatted_kst']}")
+        print(f"   ⏰ 발행 모드: {sched['formatted_kst']}")
 
         # 1. YouTube Shorts 업로드
         if platform in ("all", "youtube") and content_type in ("all", "shorts", "video"):
@@ -317,6 +317,7 @@ def cmd_upload(args):
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
                         f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
+                        f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
                         f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
                         f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -324,14 +325,19 @@ def cmd_upload(args):
                     )
 
                 first_comment = (
-                    "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
-                    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
-                    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
-                    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
+                    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
+                    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
+                    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
+                    "👉 바로가기: https://4thept.com\n\n"
+                    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
+                    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
+                    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
+                    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
                     "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
                 )
 
-                print(f"   ▶️ [YouTube Shorts] 예약 업로드 요청 중...")
+                yt_mode = "예약 업로드" if sched["rfc3339"] else "즉시 업로드"
+                print(f"   ▶️ [YouTube Shorts] {yt_mode} 요청 중...")
                 res_yt = upload_youtube_short(
                     video_path=video_path,
                     title=yt_title,
@@ -355,12 +361,17 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 image_urls = [get_github_raw_url(p) for p in card_images]
-                print(f"   📸 [Instagram 캐러셀] 예약 업로드 요청 중... (총 {len(card_images)}장)")
+                ig_mode = "예약 업로드" if sched["unix_timestamp"] else "즉시 업로드"
+                print(f"   📸 [Instagram 캐러셀] {ig_mode} 요청 중... (총 {len(card_images)}장)")
                 first_comment = (
-                    "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
-                    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
-                    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
-                    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
+                    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
+                    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
+                    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
+                    "👉 바로가기: https://4thept.com\n\n"
+                    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
+                    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
+                    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
+                    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
                     "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
                 )
                 res_ig = upload_instagram_carousel(
@@ -383,12 +394,17 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 video_url = get_github_raw_url(shorts_files[0])
-                print(f"   🎥 [Instagram 릴스] 예약 업로드 요청 중...")
+                reel_mode = "예약 업로드" if sched["unix_timestamp"] else "즉시 업로드"
+                print(f"   🎥 [Instagram 릴스] {reel_mode} 요청 중...")
                 first_comment = (
-                    "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
-                    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
-                    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
-                    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
+                    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
+                    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
+                    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
+                    "👉 바로가기: https://4thept.com\n\n"
+                    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
+                    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
+                    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
+                    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
                     "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
                 )
                 res_reel = upload_instagram_reel(

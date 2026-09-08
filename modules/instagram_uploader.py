@@ -24,6 +24,11 @@ class InstagramGraphUploader:
     ):
         self.account_id = account_id or INSTAGRAM_ACCOUNT_ID
         self.access_token = access_token or INSTAGRAM_ACCESS_TOKEN
+        # Instagram Login 토큰(IG...) 또는 Facebook Login 토큰(EAA...)에 따라 엔드포인트 호스트 자동 선택
+        if self.access_token and self.access_token.startswith("IG"):
+            self.api_base = f"https://graph.instagram.com/{GRAPH_API_VERSION}"
+        else:
+            self.api_base = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
 
     def is_configured(self) -> bool:
         """인증 정보가 .env에 설정되어 있는지 확인합니다."""
@@ -37,7 +42,7 @@ class InstagramGraphUploader:
                 "error": "INSTAGRAM_ACCOUNT_ID 또는 INSTAGRAM_ACCESS_TOKEN이 .env에 설정되지 않았습니다."
             }
 
-        url = f"{GRAPH_API_BASE}/{self.account_id}"
+        url = f"{self.api_base}/{self.account_id}"
         params = {
             "fields": "id,username,name",
             "access_token": self.access_token
@@ -63,12 +68,12 @@ class InstagramGraphUploader:
     def add_comment(self, media_id: str, comment_text: str) -> dict:
         """
         발행된 인스타그램 미디어(게시물/릴스)에 댓글을 작성합니다.
-        POST https://graph.facebook.com/v20.0/{media_id}/comments
+        POST {api_base}/{media_id}/comments
         """
         if not self.is_configured():
             raise ValueError("인스타그램 인증 정보(ACCOUNT_ID / ACCESS_TOKEN)가 설정되지 않았습니다.")
 
-        url = f"{GRAPH_API_BASE}/{media_id}/comments"
+        url = f"{self.api_base}/{media_id}/comments"
         payload = {
             "message": comment_text,
             "access_token": self.access_token
@@ -108,7 +113,7 @@ class InstagramGraphUploader:
         print(f"\n📸 [Instagram] 캐러셀 슬라이드 {len(image_urls)}장 컨테이너 생성 중...")
         item_ids = []
         for idx, img_url in enumerate(image_urls, 1):
-            item_url = f"{GRAPH_API_BASE}/{self.account_id}/media"
+            item_url = f"{self.api_base}/{self.account_id}/media"
             payload = {
                 "image_url": img_url,
                 "is_carousel_item": "true",
@@ -141,7 +146,7 @@ class InstagramGraphUploader:
         else:
             print("   ⚡ 즉시 발행 모드로 진행합니다.")
 
-        res = requests.post(f"{GRAPH_API_BASE}/{self.account_id}/media", data=carousel_payload, timeout=20)
+        res = requests.post(f"{self.api_base}/{self.account_id}/media", data=carousel_payload, timeout=20)
         c_data = res.json()
         if "id" not in c_data:
             raise RuntimeError(f"캐러셀 부모 컨테이너 생성 실패: {c_data.get('error', c_data)}")
@@ -151,7 +156,7 @@ class InstagramGraphUploader:
         # 3. 최종 발행 (publish)
         print("🚀 [Instagram] 캐러셀 최종 등록(publish) 실행 중...")
         pub_res = requests.post(
-            f"{GRAPH_API_BASE}/{self.account_id}/media_publish",
+            f"{self.api_base}/{self.account_id}/media_publish",
             data={"creation_id": container_id, "access_token": self.access_token},
             timeout=20
         )
@@ -214,7 +219,7 @@ class InstagramGraphUploader:
             is_scheduled = True
             print(f"   ⏰ 릴스 예약 발행 설정: 타임스탬프 {schedule_timestamp}")
 
-        res = requests.post(f"{GRAPH_API_BASE}/{self.account_id}/media", data=reels_payload, timeout=25)
+        res = requests.post(f"{self.api_base}/{self.account_id}/media", data=reels_payload, timeout=25)
         r_data = res.json()
         if "id" not in r_data:
             raise RuntimeError(f"릴스 컨테이너 생성 실패: {r_data.get('error', r_data)}")
@@ -226,7 +231,7 @@ class InstagramGraphUploader:
         for _ in range(36):
             time.sleep(5)
             status_res = requests.get(
-                f"{GRAPH_API_BASE}/{container_id}",
+                f"{self.api_base}/{container_id}",
                 params={"fields": "status_code", "access_token": self.access_token},
                 timeout=10
             )
@@ -244,7 +249,7 @@ class InstagramGraphUploader:
         # 3. 최종 발행
         print("🚀 [Instagram] 릴스 최종 등록(publish) 실행 중...")
         pub_res = requests.post(
-            f"{GRAPH_API_BASE}/{self.account_id}/media_publish",
+            f"{self.api_base}/{self.account_id}/media_publish",
             data={"creation_id": container_id, "access_token": self.access_token},
             timeout=20
         )
@@ -287,17 +292,18 @@ def upload_instagram_carousel(
     dry_run=True 시 실제 API 호출 없이 파라미터 시뮬레이션만 수행합니다.
     """
     if dry_run:
-        print(f"     🧪 [DRY-RUN 시뮬레이션]")
+        mode = "예약 업로드" if scheduled_timestamp else "즉시 업로드"
+        print(f"     🧪 [DRY-RUN 시뮬레이션 - {mode}]")
         print(f"        • 이미지 수: {len(image_urls)}장")
         print(f"        • 대표 이미지 URL: {image_urls[0] if image_urls else 'N/A'}")
-        print(f"        • 예약 타임스탬프: {scheduled_timestamp}")
+        print(f"        • 발행 설정: {f'타임스탬프 {scheduled_timestamp}' if scheduled_timestamp else '즉시 발행(Immediate)'}")
         if first_comment:
             print(f"        • 첫 댓글: {first_comment.splitlines()[0]}...")
         return {
             "success": True,
             "container_id": "DRY-RUN-IG-CAROUSEL",
             "is_scheduled": bool(scheduled_timestamp),
-            "status": "scheduled (dry-run)"
+            "status": "scheduled (dry-run)" if scheduled_timestamp else "published (dry-run)"
         }
 
     try:
@@ -325,16 +331,17 @@ def upload_instagram_reel(
     dry_run=True 시 실제 API 호출 없이 파라미터 시뮬레이션만 수행합니다.
     """
     if dry_run:
-        print(f"     🧪 [DRY-RUN 시뮬레이션]")
+        mode = "예약 업로드" if scheduled_timestamp else "즉시 업로드"
+        print(f"     🧪 [DRY-RUN 시뮬레이션 - {mode}]")
         print(f"        • 비디오 URL: {video_url}")
-        print(f"        • 예약 타임스탬프: {scheduled_timestamp}")
+        print(f"        • 발행 설정: {f'타임스탬프 {scheduled_timestamp}' if scheduled_timestamp else '즉시 발행(Immediate)'}")
         if first_comment:
             print(f"        • 첫 댓글: {first_comment.splitlines()[0]}...")
         return {
             "success": True,
             "container_id": "DRY-RUN-IG-REELS",
             "is_scheduled": bool(scheduled_timestamp),
-            "status": "scheduled (dry-run)"
+            "status": "scheduled (dry-run)" if scheduled_timestamp else "published (dry-run)"
         }
 
     try:

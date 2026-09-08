@@ -44,23 +44,37 @@ def get_audio_duration(audio_path: Path) -> float:
         raise RuntimeError(f"오디오 길이 측정 실패 ({audio_path}): {e}")
 
 
-async def synthesize_slide_audio(text: str, output_file: Path, voice: str = TTS_VOICE, rate: str = TTS_RATE) -> float:
-    """단일 슬라이드의 텍스트를 음성으로 합성하고 재생 길이를 반환합니다."""
+async def synthesize_slide_audio(text: str, output_file: Path, voice: str = TTS_VOICE, rate: str = TTS_RATE, retries: int = 3) -> float:
+    """단일 슬라이드의 텍스트를 음성으로 합성하고 재생 길이를 반환합니다. (일시적 네트워크 오류 시 최대 3회 재시도)"""
     if not text.strip():
         raise ValueError("합성할 음성 텍스트가 비어 있습니다.")
 
     # 띄어쓰기, 쉼표, 온점 및 약어 정밀 정제 (TTS 호흡/발음 최적화)
     refined_text = refine_text_for_tts(text)
-
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    communicate = edge_tts.Communicate(text=refined_text, voice=voice, rate=rate, volume=TTS_VOLUME)
-    await communicate.save(str(output_file))
 
-    if not output_file.exists() or output_file.stat().st_size == 0:
-        raise RuntimeError(f"TTS 음성 합성 실패 (파일 생성 불가): {output_file}")
+    last_err = None
+    for attempt in range(1, retries + 1):
+        try:
+            communicate = edge_tts.Communicate(text=refined_text, voice=voice, rate=rate, volume=TTS_VOLUME)
+            await communicate.save(str(output_file))
 
-    duration = get_audio_duration(output_file)
-    return duration
+            if not output_file.exists() or output_file.stat().st_size < 3000:
+                if len(refined_text) > 15:
+                    size_now = output_file.stat().st_size if output_file.exists() else 0
+                    raise RuntimeError(f"TTS 음성 파일 크기 비정상 ({size_now} bytes)")
+
+            duration = get_audio_duration(output_file)
+            if duration < 1.0 and len(refined_text) > 15:
+                raise RuntimeError(f"TTS 오디오 재생 길이 비정상 ({duration:.2f}초)")
+
+            return duration
+        except Exception as e:
+            last_err = e
+            if attempt < retries:
+                await asyncio.sleep(1.2 * attempt)
+
+    raise RuntimeError(f"TTS 음성 합성 {retries}회 시도 실패 ({output_file}): {last_err}")
 
 
 async def synthesize_all_narration(package: dict, output_dir: Path) -> list[dict]:

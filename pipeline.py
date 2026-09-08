@@ -29,10 +29,14 @@ from modules.article_image_fetcher import fetch_article_images
 
 # 공식 첫 댓글(고정 댓글) 템플릿
 FIRST_COMMENT_TEXT = (
-    "📌 방문재활 물리치료사를 위한 가장 스마트한 AI 음성 차팅 솔루션!\n"
-    "👉 지금 바로 무료로 체험해보세요: https://4thept.com\n\n"
-    "💬 이번 주 다룬 최신 물리치료 임상·정책 자료와 동료 치료사들의 의견은 'THEPT커뮤니티'에서 확인해보세요!\n"
-    "👉 THEPT커뮤니티 바로가기: https://thept.co.kr\n\n"
+    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
+    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
+    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
+    "👉 바로가기: https://4thept.com\n\n"
+    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
+    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
+    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
+    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
     "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
 )
 
@@ -165,6 +169,7 @@ async def run_weekly_pipeline(
             f"💬 더 많은 임상 연구 자료와 동료 치료사들의 의견은\n"
             f"'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
             f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+            f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
             f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
             f"도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
             f"#물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스 #피지컬테라피\n"
@@ -271,7 +276,8 @@ async def run_weekly_pipeline(
             f"{t_outro} 아웃트로\n\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
-            f"• 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+            f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
+            f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
             f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
             f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -489,29 +495,58 @@ async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: boo
         raw_title = pkg.get("title", f"{day_name} 물리치료 브리핑")
         clean_title = re.sub(r"<[^>]+>", "", raw_title).strip()
 
-        shorts_caption = (
-            f"📢 [{day_name}] {clean_title} #Shorts\n\n"
-            f"한 주간 가장 주목할 물리치료 최신 뉴스 {len(articles)}가지를 1분 만에 전해드립니다!\n\n"
-            f"⏱️ [타임라인 & 기사 원문 요약]\n"
-            f"{t_intro} 인트로\n"
-            f"{t_n1} [1] {s1['title']} ({s1['source']})\n"
-            f"  • {s1_summary}\n"
-            f"  🔗 원문 링크: {s1['link']}\n\n"
-            f"{t_n2} [2] {s2['title']} ({s2['source']})\n"
-            f"  • {s2_summary}\n"
-            f"  🔗 원문 링크: {s2['link']}\n\n"
-            f"{t_n3} [3] {s3['title']} ({s3['source']})\n"
-            f"  • {s3_summary}\n"
-            f"  🔗 원문 링크: {s3['link']}\n\n"
-            f"{t_outro} 아웃트로\n\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
-            f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
-            f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
-            f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활\n"
-        )
+        if is_global:
+            # 글로벌 기사 전용 유튜브 쇼츠 설명란: 상세 번역 브리핑 전문 수록
+            articles_briefing_text = ""
+            for idx, s in enumerate(sources, 1):
+                t_stamp = timestamps[idx] if idx < len(timestamps) else f"00:{idx*15:02d}"
+                summ = s.get("story_summary", "")
+                articles_briefing_text += f"{t_stamp} [{idx}] {s['title']} ({s['source']})\n"
+                if summ:
+                    articles_briefing_text += f"  • 상세 번역 브리핑:\n    {summ}\n"
+                articles_briefing_text += f"  🔗 원문 링크: {s['link']}\n\n"
+
+            shorts_caption = (
+                f"📢 [{day_name}] {clean_title} #Shorts\n\n"
+                f"해외 최신 물리치료 임상 가이드라인과 글로벌 트렌드 {len(articles)}가지를 전해드립니다!\n\n"
+                f"⏱️ [타임라인 & 글로벌 뉴스 심층 번역 브리핑]\n"
+                f"{t_intro} 인트로\n"
+                f"{articles_briefing_text}"
+                f"{t_outro} 아웃트로\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
+                f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
+                f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
+                f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
+                f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활 #해외물리치료\n"
+            )
+        else:
+            shorts_caption = (
+                f"📢 [{day_name}] {clean_title} #Shorts\n\n"
+                f"한 주간 가장 주목할 물리치료 최신 뉴스 {len(articles)}가지를 1분 만에 전해드립니다!\n\n"
+                f"⏱️ [타임라인 & 기사 원문 요약]\n"
+                f"{t_intro} 인트로\n"
+                f"{t_n1} [1] {s1['title']} ({s1['source']})\n"
+                f"  • {s1_summary}\n"
+                f"  🔗 원문 링크: {s1['link']}\n\n"
+                f"{t_n2} [2] {s2['title']} ({s2['source']})\n"
+                f"  • {s2_summary}\n"
+                f"  🔗 원문 링크: {s2['link']}\n\n"
+                f"{t_n3} [3] {s3['title']} ({s3['source']})\n"
+                f"  • {s3_summary}\n"
+                f"  🔗 원문 링크: {s3['link']}\n\n"
+                f"{t_outro} 아웃트로\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
+                f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
+                f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
+                f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
+                f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활\n"
+            )
         (day_dir / "youtube_shorts_caption.txt").write_text(shorts_caption, encoding="utf-8")
         (day_dir / "first_comment.txt").write_text(FIRST_COMMENT_TEXT, encoding="utf-8")
 

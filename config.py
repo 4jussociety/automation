@@ -47,18 +47,19 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 # 5번째 슬라이드: 광고/프로모션 페이지 기본 설정 (언제든 수정 가능)
 DEFAULT_AD_CONFIG = {
-    "badge": "THEPT SPONSOR",
-    "title": "방문재활 물리치료사 맞춤<br><span class=\"hl-yellow\">AI음성 차팅</span>",
-    "subtitle": "수작업 차팅 부담은 줄이고, 고객과의 소통에 더 집중하세요.",
+    "badge": "THEPT RECOMMENDED",
+    "title": "물리치료사 맞춤<br><span class=\"hl-yellow\">AI차팅 & 센터창업 전자책</span>",
+    "subtitle": "차팅 부담은 줄이고, 독립 센터 창업 노하우를 한 번에!",
     "bullets": [
-        "AI음성분석 기반 SOAP차팅, 라포데이터 차팅 지원",
-        "THEPT회원은 매월 무료5시간 사용가능!",
-        "4thept.com 에서 무료로 체험해보세요!"
+        "방문재활 AI 음성 차팅: SOAP·라포 차팅 자동화 (4thept.com)",
+        "크몽 전자책: 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』",
+        "독립·방문재활 물리치료사를 위한 실전 솔루션 패키지!"
     ],
     "cta_button": "",
-    "inquiry_text": "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com",
-    "narration": "방문재활 물리치료사를 위한 가장 스마트한 AI음성 차팅 솔루션, 수기차팅은 줄이고 환자 관리에만 집중하세요. 지금 4THEPT.com에서 무료로 시작할 수 있습니다. 광고 및 제휴 문의도 언제든 환영합니다!",
-    "link": "https://4thept.com"
+    "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+    "narration": "물리치료사를 위한 스마트 솔루션! 수기 차팅을 줄여주는 방문재활 AI 음성 차팅 4THEPT와, 크몽 전자책 병원밖 물리치료사 가성비 소규모 센터창업 가이드를 지금 바로 확인해보세요. 상세 링크는 설명란과 첫 댓글에서 확인하실 수 있습니다.",
+    "link": "https://4thept.com",
+    "kmong_link": "https://kmong.com/gig/813101"
 }
 
 # SNS 자동 예약 업로드 설정

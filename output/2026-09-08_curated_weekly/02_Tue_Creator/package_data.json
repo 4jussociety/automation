@@ -1,0 +1,142 @@
+{
+  "day_name": "화요일",
+  "category_title": "유튜버·인플루언서·운동이슈",
+  "title": "화요일 물리치료 브리핑 | <span class=\"hl-yellow\">유튜버·인플루언서·운동이슈</span>",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "신미래, '미스트롯 포유' 특별 무대 출연 예고",
+      "source": "네이버 뉴스",
+      "link": "https://www.topstarnews.net/news/articleView.html?idxno=16182556",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "서울광장, 야간 운동 프로그램 시작!",
+      "source": "헤럴드경제",
+      "link": "https://biz.heraldcorp.com/article/10863225?ref=naver",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "장애인 스포츠 현장에서 배우는 물리치료",
+      "source": "네이버 뉴스",
+      "link": "https://www.edaily.co.kr/News/Read?newsId=04054086645577824&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-08_curated_weekly\\backgrounds\\tue_01_article_photo.jpg",
+      "data": {
+        "tag": "THEPT WEEKLY | 화요일 브리핑",
+        "title": "<span class=\"hl-yellow\">화요일 유튜버·인플루언서·운동이슈</span>",
+        "desc": "오늘 꼭 살펴봐야 할 유튜버·인플루언서·운동이슈 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "신미래, '미스트롯 포유' 특별 무대 출연 예고",
+          "서울광장, 야간 운동 프로그램 시작!",
+          "장애인 스포츠 현장에서 배우는 물리치료"
+        ]
+      },
+      "narration": "오직 물리치료사를 위한 커뮤니티, THEPT입니다. 화요일에 전해드리는 유튜버·인플루언서·운동이슈 핵심 뉴스 3가지, 지금 바로 시작합니다!"
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-08_curated_weekly\\backgrounds\\tue_01_article_photo.jpg",
+      "data": {
+        "index": "01",
+        "category": "유튜버·인플루언서·운동이슈",
+        "source": "네이버 뉴스 (2026년 09월 03일 22:48)",
+        "headline": "신미래, '미스트롯 포유' 특별 무대 출연 예고",
+        "bullets": [
+          "트로트가수 신미래가 TV조선 '미스트롯 포유'에 출연합니다.",
+          "신미래는 물리치료사 경력을 바탕으로 다양한 직업을 병행하고 있습니다.",
+          "이번 출연은 그의 음악적 존재감을 더욱 부각시키는 계기가 될 것입니다."
+        ],
+        "highlight": "💡 포인트: 신미래의 음악적 경력을 활용해 다양한 무대에서 존재감을 높여보세요.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 신미래, '미스트롯 포유' 특별 무대 출연 예고. 트로트가수 신미래가 TV조선 '미스트롯 포유'에 출연합니다. 그는 물리치료사로도 활동하며 다양한 직업을 병행하고 있습니다. 이번 무대는 그의 음악적 존재감을 더욱 부각시킬 것으로 기대됩니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-08_curated_weekly\\backgrounds\\tue_02_article_photo.jpg",
+      "data": {
+        "index": "02",
+        "category": "유튜버·인플루언서·운동이슈",
+        "source": "헤럴드경제 (2026년 09월 05일 21:12)",
+        "headline": "서울광장, 야간 운동 프로그램 시작!",
+        "bullets": [
+          "서울시는 9월 1일부터 매주 목요일 저녁 7시에 ‘운동하는 서울광장’을 운영합니다.",
+          "운동처방소에서는 물리치료사와 전문가가 1:1 맞춤형 상담을 진행하며, 체력 측정도 가능합니다.",
+          "시민들은 다양한 운동 프로그램에 무료로 참여하며, 건강한 야간 여가를 즐길 수 있습니다."
+        ],
+        "highlight": "💡 포인트: 물리치료사는 맞춤형 상담을 통해 시민들의 운동 효과를 극대화할 수 있습니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 서울광장, 야간 운동 프로그램 시작. 서울시는 9월 1일부터 매주 목요일 저녁 7시에 서울광장에서 ‘운동하는 서울광장’ 프로그램을 운영합니다. 시민들은 물리치료사와 함께 맞춤형 운동 상담을 받고, 다양한 운동을 무료로 즐길 수 있습니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-08_curated_weekly\\backgrounds\\tue_03_article_photo.jpg",
+      "data": {
+        "index": "03",
+        "category": "유튜버·인플루언서·운동이슈",
+        "source": "네이버 뉴스 (2026년 09월 07일 19:22)",
+        "headline": "장애인 스포츠 현장에서 배우는 물리치료",
+        "bullets": [
+          "대구대 물리치료학과 학생들이 휠체어 럭비 선수단과 제주 원정에 동행합니다.",
+          "학생들은 선수들의 부상 예방과 경기력 관리를 위해 훈련과 장비 세팅을 지원합니다.",
+          "이번 경험은 물리치료 기술과 장애인 선수와의 소통 능력을 동시에 향상시킵니다."
+        ],
+        "highlight": "💡 포인트: 장애인 스포츠 현장에서의 실습은 물리치료사의 전문성을 높이는 기회입니다.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 장애인 스포츠 현장에서 배우는 물리치료. 대구대학교 물리치료학과 학생들이 장애인 휠체어 럭비 선수단과 함께 제주로 원정에 나섭니다. 이들은 부상 예방과 경기력 관리를 위해 훈련 지원과 장비 세팅을 담당합니다. 현장 경험을 통해 물리치료 기술과 의사소통 능력을 동시에 향상시키고 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-08_curated_weekly\\backgrounds\\tue_02_article_photo.jpg",
+      "data": {
+        "badge": "THEPT RECOMMENDED",
+        "title": "물리치료사 맞춤<br><span class=\"hl-yellow\">AI차팅 & 센터창업 전자책</span>",
+        "subtitle": "차팅 부담은 줄이고, 독립 센터 창업 노하우를 한 번에!",
+        "bullets": [
+          "방문재활 AI 음성 차팅: SOAP·라포 차팅 자동화 (4thept.com)",
+          "크몽 전자책: 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』",
+          "독립·방문재활 물리치료사를 위한 실전 솔루션 패키지!"
+        ],
+        "cta_button": "",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "물리치료사를 위한 스마트 솔루션! 수기 차팅을 줄여주는 방문재활 AI 음성 차팅 4THEPT와, 크몽 전자책 병원밖 물리치료사 가성비 소규모 센터창업 가이드를 지금 바로 확인해보세요. 상세 링크는 설명란과 첫 댓글에서 확인하실 수 있습니다.",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "물리치료사를 위한 스마트 솔루션! 수기 차팅을 줄여주는 방문재활 AI 음성 차팅 4THEPT와, 크몽 전자책 병원밖 물리치료사 가성비 소규모 센터창업 가이드를 지금 바로 확인해보세요. 상세 링크는 설명란과 첫 댓글에서 확인하실 수 있습니다."
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "저장 & 공유 📌",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-08_curated_weekly\\backgrounds\\tue_03_article_photo.jpg",
+      "data": {
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "지금 바로 게시물을 저장하고 동료 물리치료사와 함께 나눠보세요!"
+      },
+      "narration": "오늘 전해드린 소식이 도움 되셨다면 게시물 저장과 공유 부탁드립니다. 내일도 유익하고 알찬 물리치료 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 화요일]\n화요일 물리치료 브리핑: 유튜버·인플루언서·운동이슈\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 신미래, '미스트롯 포유' 특별 무대 출연 예고 (네이버 뉴스)\n   🔗 https://www.topstarnews.net/news/articleView.html?idxno=16182556\n\n02. 서울광장, 야간 운동 프로그램 시작! (헤럴드경제)\n   🔗 https://biz.heraldcorp.com/article/10863225?ref=naver\n\n03. 장애인 스포츠 현장에서 배우는 물리치료 (네이버 뉴스)\n   🔗 https://www.edaily.co.kr/News/Read?newsId=04054086645577824&mediaCodeNo=257&utm_source=naver&utm_medium=referral&utm_campaign=news_syndication&utm_content=original_article\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 게시물 저장 📌 과 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#유튜버인플루언서운동이슈 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n"
+}
