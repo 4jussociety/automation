@@ -257,6 +257,42 @@ def cmd_upload(args):
         print("   먼저 콘텐츠를 제작하세요: python curate.py build --render")
         return
 
+    # 요일 필터링 (--today-only 또는 --day)
+    today_only = getattr(args, "today_only", False)
+    target_day_arg = getattr(args, "day", None)
+
+    from modules.sns_scheduler import KST
+    now_kst = datetime.now(KST)
+    current_weekday = now_kst.weekday()  # 0:월, 1:화, 2:수, 3:목, 4:금, 5:토, 6:일
+
+    WEEKDAY_PREFIX_MAP = {
+        0: "01_Mon",
+        1: "02_Tue",
+        2: "03_Wed",
+        3: "04_Thu",
+        4: "05_Fri",
+        5: "06_Sat",
+    }
+
+    if today_only:
+        if current_weekday == 6:
+            print("ℹ️ [스킵] 오늘은 일요일입니다. 주 6일(월~토) 정기 발행 대상 요일이 아니므로 안전하게 종료합니다.")
+            return
+        target_prefix = WEEKDAY_PREFIX_MAP.get(current_weekday)
+        day_folders = [d for d in day_folders if d.name.startswith(target_prefix)]
+        if not day_folders:
+            print(f"⚠️ [주의] 오늘 요일({target_prefix})에 해당하는 콘텐츠 폴더를 찾을 수 없습니다: {weekly_dir}")
+            return
+        print(f"🎯 [당일 전용 모드 (--today-only)] 오늘 요일({target_prefix}) 콘텐츠만 선별하여 즉시 발행합니다.")
+
+    elif target_day_arg:
+        day_arg = target_day_arg.strip().lower()
+        day_folders = [d for d in day_folders if day_arg in d.name.lower()]
+        if not day_folders:
+            print(f"⚠️ [주의] 지정하신 요일 키워드('{target_day_arg}')와 일치하는 폴더를 찾을 수 없습니다.")
+            return
+        print(f"🎯 [지정 요일 모드 (--day)] 대상 폴더: {[d.name for d in day_folders]}")
+
     from modules.sns_scheduler import get_schedule_for_day, get_github_raw_url
     from modules.youtube_uploader import upload_youtube_short
     from modules.instagram_uploader import upload_instagram_carousel, upload_instagram_reel
@@ -289,6 +325,11 @@ def cmd_upload(args):
 
         # 스케줄 계산 (월~토)
         sched = get_schedule_for_day(folder_name)
+        if today_only or target_day_arg:
+            sched["unix_timestamp"] = None
+            sched["is_immediate"] = True
+            sched["formatted_kst"] = f"[즉시 업로드] (당일 선별 발행)"
+
         day_label = pkg_data.get("day_name", folder_name)
         cat_title = pkg_data.get("category_title", folder_name)
 
@@ -482,6 +523,16 @@ def cmd_stats(args):
     print("=" * 50)
 
 
+def cmd_sync(args):
+    """GitHub 저장소와 주간 큐레이션 미디어를 동기화하고 최근 4주치 롤링 보관을 적용합니다."""
+    from modules.git_sync_manager import sync_weekly_output_to_github
+    weekly_dir = find_active_weekly_dir(getattr(args, "date", None))
+    dry_run = getattr(args, "dry_run", False)
+    commit_msg = getattr(args, "message", None)
+    retain_weeks = getattr(args, "retain", 4)
+    sync_weekly_output_to_github(weekly_dir=weekly_dir, commit_msg=commit_msg, retain_weeks=retain_weeks, dry_run=dry_run)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="THEPT 주 6일 6대 카테고리 2단계 마크다운 큐레이션 및 자동 발행 도구"
@@ -509,15 +560,24 @@ def main():
     p_upload.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
     p_upload.add_argument("--platform", type=str, default="all", choices=["all", "youtube", "instagram"], help="대상 플랫폼 선택 (all, youtube, instagram)")
     p_upload.add_argument("--type", type=str, default="all", choices=["all", "carousel", "shorts", "video"], help="대상 콘텐츠 유형 (all, carousel, shorts)")
+    p_upload.add_argument("--today-only", action="store_true", default=False, help="오늘 요일(KST 기준)에 해당하는 콘텐츠 1건만 즉시 발행")
+    p_upload.add_argument("--day", type=str, default=None, help="특정 요일 지정 발행 (예: mon, tue, wed, thu, fri, sat 또는 01, 02 등)")
     p_upload.add_argument("--dry-run", action="store_true", default=False, help="실제 API 호출 없이 예약 스케줄 및 업로드 매핑 시뮬레이션")
 
-    # 5. auth-yt
+    # 5. sync
+    p_sync = subparsers.add_parser("sync", help="GitHub 저장소와 주간 미디어 동기화 및 4주 롤링 슬림화")
+    p_sync.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
+    p_sync.add_argument("--message", "-m", type=str, default=None, help="커밋 메시지 직접 지정")
+    p_sync.add_argument("--retain", type=int, default=4, help="활성 유지할 주간 폴더 수 (기본 4주)")
+    p_sync.add_argument("--dry-run", action="store_true", default=False, help="실제 Git 커밋/푸시 없이 시뮬레이션만 수행")
+
+    # 6. auth-yt
     p_auth_yt = subparsers.add_parser("auth-yt", help="YouTube Data API OAuth 최초 1회 브라우저 인증 도우미")
 
-    # 6. test-insta
+    # 7. test-insta
     p_test_insta = subparsers.add_parser("test-insta", help="Instagram Graph API 토큰 및 비즈니스 계정 연결 진단 도우미")
 
-    # 7. stats
+    # 8. stats
     p_stats = subparsers.add_parser("stats", help="누적된 큐레이션 데이터셋 통계 확인")
 
     args = parser.parse_args()
@@ -530,6 +590,8 @@ def main():
         cmd_build(args)
     elif args.command == "upload":
         cmd_upload(args)
+    elif args.command == "sync":
+        cmd_sync(args)
     elif args.command == "auth-yt":
         cmd_auth_yt(args)
     elif args.command == "test-insta":

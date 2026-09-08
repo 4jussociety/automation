@@ -6,7 +6,10 @@ __pycache__/
 client_secret*.json
 *.pickle
 token.json
-output/
+# output 디렉토리 내 임시 파일만 제외 (주간 큐레이션 결과물은 Git 추적 허용)
+output/**/.cache/
+output/**/tmp/
+output/**/*.tmp
 venv/
 .venv/
 .pytest_cache/
