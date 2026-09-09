@@ -1,0 +1,59 @@
+{
+  "total_duration": 55.92,
+  "items": [
+    {
+      "id": "slide0_cover",
+      "voice": "ko-KR-SunHiNeural",
+      "gender": "여성 (SunHi)",
+      "rate": "+20%",
+      "text": "9월 9일 더피티 뉴스 1분 브리핑 시작합니다.",
+      "duration": 3.768,
+      "filename": "slide0_cover.mp3"
+    },
+    {
+      "id": "slide1_news1",
+      "voice": "ko-KR-InJoonNeural",
+      "gender": "남성 (InJoon)",
+      "rate": "+20%",
+      "text": "첫 번째 소식입니다. 복지부가 방문재활 맞춤형 건강보험 지침을 발표했습니다. 거동 불편 환자 대상 급여 수가가 공식 신설되며 하반기부터 단계별로 시행됩니다.",
+      "duration": 12.576,
+      "filename": "slide1_news1.mp3"
+    },
+    {
+      "id": "slide2_news2",
+      "voice": "ko-KR-SunHiNeural",
+      "gender": "여성 (SunHi)",
+      "rate": "+20%",
+      "text": "두 번째 소식입니다. 초음파 피드백을 병행한 도수재활 치료가 관절 가동성을 30% 개선하는 것으로 나타났습니다. 실시간 영상 피드백으로 근신경 재교육 효과를 극대화합니다.",
+      "duration": 13.008,
+      "filename": "slide2_news2.mp3"
+    },
+    {
+      "id": "slide3_news3",
+      "voice": "ko-KR-InJoonNeural",
+      "gender": "남성 (InJoon)",
+      "rate": "+20%",
+      "text": "세 번째 소식입니다. 독립 물리치료사를 위한 AI 음성 차팅 솔루션이 확산되고 있습니다. 말로 하는 자동 기록으로 방문재활 행정 시간을 60% 이상 줄여줍니다.",
+      "duration": 12.48,
+      "filename": "slide3_news3.mp3"
+    },
+    {
+      "id": "slide4_ad",
+      "voice": "ko-KR-SunHiNeural",
+      "gender": "여성 (SunHi)",
+      "rate": "+20%",
+      "text": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+      "duration": 7.464,
+      "filename": "slide4_ad.mp3"
+    },
+    {
+      "id": "slide5_outro",
+      "voice": "ko-KR-InJoonNeural",
+      "gender": "남성 (InJoon)",
+      "rate": "+20%",
+      "text": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일 뵙겠습니다!",
+      "duration": 6.624,
+      "filename": "slide5_outro.mp3"
+    }
+  ]
+}

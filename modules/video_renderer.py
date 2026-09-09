@@ -57,6 +57,74 @@ def render_slide_segment(image_path: Path, audio_path: Path, duration: float, ou
     return output_segment
 
 
+def render_multi_photo_slide_segment(image_paths: list[Path], audio_path: Path, duration: float, output_segment: Path) -> Path:
+    """복수의 보도사진(2~3장)을 슬라이드 재생 시간에 맞춰 순차 교체 컷으로 렌더링합니다."""
+    valid_paths = [p for p in image_paths if p and p.exists()]
+    if not valid_paths:
+        raise ValueError("렌더링할 유효한 이미지 경로가 없습니다.")
+    if len(valid_paths) == 1:
+        return render_slide_segment(valid_paths[0], audio_path, duration, output_segment)
+
+    output_segment.parent.mkdir(parents=True, exist_ok=True)
+    temp_dir = output_segment.parent / "temp_sub_segments"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
+    n = len(valid_paths)
+    sub_duration = duration / n
+    sub_segments = []
+
+    for i, img in enumerate(valid_paths):
+        sub_seg = temp_dir / f"sub_{output_segment.stem}_{i:02d}.mp4"
+        filter_complex = (
+            f"[0:v]scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
+            f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},boxblur=28:6,setsar=1[bg];"
+            f"[0:v]scale={CARD_WIDTH}:{CARD_HEIGHT}[fg];"
+            f"[bg][fg]overlay=(W-w)/2:(H-h)/2[v]"
+        )
+        cmd = [
+            "ffmpeg", "-y",
+            "-loop", "1",
+            "-t", f"{sub_duration:.3f}",
+            "-i", str(img),
+            "-filter_complex", filter_complex,
+            "-map", "[v]",
+            "-c:v", "libx264",
+            "-preset", "veryfast",
+            "-crf", "20",
+            "-pix_fmt", "yuv420p",
+            "-r", "30",
+            str(sub_seg)
+        ]
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
+        if res.returncode == 0 and sub_seg.exists():
+            sub_segments.append(sub_seg)
+
+    # 비디오 서브 세그먼트 연결 후 오디오 합성
+    concat_txt = temp_dir / f"concat_{output_segment.stem}.txt"
+    concat_txt.write_text("\n".join([f"file '{p.resolve().as_posix()}'" for p in sub_segments]), encoding="utf-8")
+    merged_v = temp_dir / f"merged_v_{output_segment.name}"
+
+    subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_txt), "-c", "copy", str(merged_v)],
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # 최종 오디오 합성
+    cmd_final = [
+        "ffmpeg", "-y",
+        "-i", str(merged_v),
+        "-i", str(audio_path),
+        "-c:v", "copy",
+        "-c:a", "aac",
+        "-b:a", "192k",
+        "-shortest",
+        str(output_segment)
+    ]
+    subprocess.run(cmd_final, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # 임시 폴더 정리
+    shutil.rmtree(temp_dir, ignore_errors=True)
+    return output_segment
+
+
 def concatenate_segments(segment_paths: list[Path], final_output: Path) -> Path:
     """모든 슬라이드 비디오 세그먼트를 하나의 완성형 MP4로 병합합니다."""
     final_output.parent.mkdir(parents=True, exist_ok=True)

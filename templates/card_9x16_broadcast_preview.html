@@ -1,0 +1,1252 @@
+<!-- 이 파일은 남녀 2인 앵커 교차 브리핑 및 광고/엔딩이 포함된 9:16 방송형 쇼츠 인터랙티브 프리뷰 페이지입니다. -->
+<!-- 6개 슬라이드(표지, 뉴스1, 뉴스2, 뉴스3, 광고, 아웃트로)와 실제 55초 TTS 음성 재생을 브라우저에서 통합 검토합니다. -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THEPT 1분 브리핑 쇼츠 (남녀 듀오 & 광고 포함) 인터랙티브 프리뷰</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #030712;
+      color: #f8fafc;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+
+    /* 프리뷰 컨트롤 헤더 */
+    .preview-header {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 20px 28px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.55);
+    }
+
+    .preview-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .preview-badge {
+      background: #facc15;
+      color: #000;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+    }
+
+    .preview-time-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+    }
+
+    .preview-heading {
+      font-size: 20px;
+      font-weight: 800;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .scale-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .scale-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+
+    .scale-btn:hover {
+      background: #facc15;
+      color: #000;
+    }
+
+    /* 6종 슬라이드 네비게이션 탭 */
+    .tabs-wrap {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #facc15, #eab308);
+      color: #0f172a;
+      border-color: #facc15;
+      font-weight: 900;
+      box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
+    }
+
+    /* 나레이션 & 오디오 실시간 컨트롤러 바 */
+    .narration-panel {
+      width: 100%;
+      background: rgba(2, 6, 23, 0.75);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      padding: 14px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .narr-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .narr-anchor-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .narr-audio-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .audio-play-btn {
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #030712;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .audio-play-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(56, 189, 248, 0.4);
+    }
+
+    .all-play-btn {
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      color: #030712;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.15s;
+    }
+
+    .all-play-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(250, 204, 21, 0.4);
+    }
+
+    .narr-script-box {
+      font-size: 14px;
+      line-height: 1.55;
+      color: #f1f5f9;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border-left: 3px solid #facc15;
+    }
+
+    /* 9:16 프리뷰 뷰포트 컨테이너 (스케일 렌더링) */
+    .viewport-wrapper {
+      position: relative;
+      width: 486px;  /* 1080 * 0.45 */
+      height: 864px; /* 1920 * 0.45 */
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      overflow: hidden;
+      background: #0b0f19;
+      margin-bottom: 40px;
+    }
+
+    .viewport-scale-inner {
+      width: 1080px;
+      height: 1920px;
+      transform-origin: top left;
+      transform: scale(0.45);
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* 카드뉴스 캔버스 */
+    .card-canvas {
+      width: 1080px;
+      height: 1920px;
+      position: relative;
+      overflow: hidden;
+      background-color: #0b0f19;
+      color: #ffffff;
+      font-family: 'Pretendard', sans-serif;
+    }
+
+    .bg-overlay-gradient {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1080px;
+      height: 1920px;
+      background: linear-gradient(
+        180deg, 
+        rgba(11, 15, 25, 0.94) 0%, 
+        rgba(11, 15, 25, 0.72) 20%, 
+        rgba(11, 15, 25, 0.65) 50%, 
+        rgba(11, 15, 25, 0.88) 80%, 
+        rgba(11, 15, 25, 0.98) 100%
+      );
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 1080px;
+      height: 1920px;
+      padding: 50px 70px 160px 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* 상단 방송형 헤더 */
+    .broadcast-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      padding-top: 10px;
+      padding-bottom: 18px;
+    }
+
+    .broadcast-brand-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 0.88;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.75);
+    }
+
+    .brand-line-1 {
+      font-size: 126px;
+      letter-spacing: 2px;
+    }
+
+    .brand-line-2 {
+      font-size: 126px;
+      letter-spacing: 6px;
+    }
+
+    .broadcast-date {
+      font-size: 48px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 22px;
+      letter-spacing: -1px;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    .broadcast-subtitle {
+      font-size: 54px;
+      font-weight: 900;
+      color: #ffffff;
+      margin-top: 6px;
+      letter-spacing: -1px;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.65);
+    }
+
+    .broadcast-divider {
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 20%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0.35) 80%, transparent 100%);
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
+    /* 본문 공통 */
+    .main-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 0;
+    }
+
+    /* 보도사진 프레임 (480px) */
+    .media-frame-480 {
+      width: 100%;
+      height: 480px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .media-img-inner {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* 헤드라인 스타일 */
+    .news-main-headline {
+      font-size: 48px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.36;
+      letter-spacing: -1.2px;
+      margin-bottom: 20px;
+      word-break: keep-all;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+    }
+
+    .news-index-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #facc15;
+      color: #0f172a;
+      font-size: 32px;
+      font-weight: 900;
+      padding: 3px 14px;
+      border-radius: 8px;
+      margin-right: 12px;
+      vertical-align: middle;
+      line-height: 1.15;
+      box-shadow: 0 3px 10px rgba(250, 204, 21, 0.4);
+    }
+
+    .news-source-inline {
+      font-size: 32px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-left: 8px;
+      opacity: 0.9;
+    }
+
+    /* 글래스모피즘 3줄 요약 박스 */
+    .news-glass-box {
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      border-radius: 22px;
+      padding: 28px 34px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .news-body-bullet {
+      font-size: 34px;
+      line-height: 1.55;
+      color: #f1f5f9;
+      font-weight: 600;
+      word-break: keep-all;
+      letter-spacing: -0.6px;
+    }
+
+    /* 표지 3대 헤드라인 목록 */
+    .cover-item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .cover-item-row {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .cover-num-bullet {
+      background: #facc15;
+      color: #0f172a;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 26px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.35);
+    }
+
+    /* 광고 전용 스타일 */
+    .ad-sponsor-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      color: #0f172a;
+      font-size: 32px;
+      font-weight: 900;
+      padding: 4px 16px;
+      border-radius: 8px;
+      margin-right: 12px;
+      vertical-align: middle;
+      line-height: 1.15;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+    }
+
+    .ad-hot-cta {
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      border-radius: 18px;
+      padding: 20px 28px;
+      font-size: 34px;
+      font-weight: 900;
+      color: #0f172a;
+      text-align: center;
+      margin-top: 18px;
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+      letter-spacing: -0.5px;
+    }
+
+    /* 광고 2개 카테고리 분할 스타일 (사진 제외형) */
+    .ad-split-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ad-top-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .ad-category-block {
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      border-radius: 24px;
+      padding: 30px 34px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .ad-category-block.highlight {
+      border-color: rgba(250, 204, 21, 0.5);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.88) 100%);
+    }
+
+    .ad-cat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
+      padding-bottom: 16px;
+    }
+
+    .ad-cat-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ad-cat-num {
+      background: #facc15;
+      color: #0f172a;
+      font-size: 28px;
+      font-weight: 900;
+      padding: 4px 14px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(250, 204, 21, 0.35);
+    }
+
+    .ad-cat-name {
+      font-size: 38px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.8px;
+      line-height: 1.25;
+    }
+
+    .ad-cat-tag {
+      font-size: 24px;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .ad-cat-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ad-cat-bullet {
+      font-size: 32px;
+      line-height: 1.5;
+      color: #f1f5f9;
+      font-weight: 600;
+      word-break: keep-all;
+      letter-spacing: -0.5px;
+    }
+
+    /* 하단 네비게이션 및 채널 바 */
+    .bottom-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 2px solid rgba(255, 255, 255, 0.2);
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+    .footer-channels-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 10px;
+    }
+
+    .footer-channel-badge {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.78);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      border-radius: 18px;
+      padding: 15px 6px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .footer-channel-badge span {
+      font-size: 36px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.8px;
+      white-space: nowrap;
+    }
+
+    .footer-icon-svg {
+      width: 40px;
+      height: 40px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .footer-icon-stroke {
+      width: 40px;
+      height: 40px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.4;
+      flex-shrink: 0;
+    }
+
+    .footer-bottom-action-bar {
+      position: relative;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      width: 100%;
+      min-height: 46px;
+      padding: 0 6px;
+    }
+
+    .carousel-dots {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .dot.active {
+      width: 46px;
+      height: 16px;
+      border-radius: 9999px;
+      background: #facc15;
+      box-shadow: 0 0 14px #facc15;
+    }
+
+    .swipe-action-text {
+      font-size: 34px;
+      font-weight: 900;
+      color: #facc15;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .slide-view {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide-view.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 인터랙티브 프리뷰 컨트롤 헤더 -->
+  <header class="preview-header">
+    <div class="preview-title-row">
+      <div class="preview-heading">
+        <span class="preview-badge">BROADCAST 9:16</span>
+        <span>THEPT 쇼츠 통합 프리뷰 (광고 포함)</span>
+        <span class="preview-time-badge">⚡ 총 55.9초 (완벽한 1분 브리핑)</span>
+      </div>
+      <div class="scale-control">
+        <span>비율:</span>
+        <button class="scale-btn" onclick="setScale(0.4)">40%</button>
+        <button class="scale-btn" onclick="setScale(0.45)">45%</button>
+        <button class="scale-btn" onclick="setScale(0.5)">50%</button>
+      </div>
+    </div>
+
+    <!-- 6개 슬라이드 탭 버튼 (남녀 교차 듀오 표시) -->
+    <nav class="tabs-wrap" aria-label="슬라이드 선택">
+      <button class="tab-btn active" onclick="switchSlide(0)">1. 표지 (3.8초) 👩 여</button>
+      <button class="tab-btn" onclick="switchSlide(1)">2. 뉴스 1 (12.6초) 👨 남</button>
+      <button class="tab-btn" onclick="switchSlide(2)">3. 뉴스 2 (13.0초) 👩 여</button>
+      <button class="tab-btn" onclick="switchSlide(3)">4. 뉴스 3 (12.5초) 👨 남</button>
+      <button class="tab-btn" onclick="switchSlide(4)">5. 광고/스폰서 (7.5초) 👩 여</button>
+      <button class="tab-btn" onclick="switchSlide(5)">6. 아웃트로 (6.6초) 👨 남</button>
+    </nav>
+
+    <!-- 나레이션 대본 및 오디오 컨트롤 패널 -->
+    <div class="narration-panel">
+      <div class="narr-meta-row">
+        <div class="narr-anchor-badge" id="narrAnchor">👩 여성 앵커 (SunHi, 속도 +20%)</div>
+        <div class="narr-audio-controls">
+          <button class="audio-play-btn" id="playBtn" onclick="toggleAudio()">
+            <span>▶ 현재 슬라이드 음성 듣기</span>
+          </button>
+          <button class="all-play-btn" id="playAllBtn" onclick="togglePlayAll()">
+            <span>⏩ 55초 전체 연속 듣기</span>
+          </button>
+        </div>
+      </div>
+      <div class="narr-script-box" id="narrScript">
+        "9월 9일 더피티 뉴스 1분 브리핑 시작합니다."
+      </div>
+    </div>
+  </header>
+
+  <!-- 9:16 세로형 쇼츠 뷰포트 (486x864 px, 원본 1080x1920) -->
+  <div class="viewport-wrapper" id="viewportWrap">
+    <div class="viewport-scale-inner" id="scaleInner">
+      <div class="card-canvas">
+        <div class="bg-overlay-gradient"></div>
+
+        <div class="container">
+          <!-- 상단 방송형 브랜딩 헤더 -->
+          <header class="broadcast-header">
+            <div class="broadcast-brand-title">
+              <div class="brand-line-1">THEPT</div>
+              <div class="brand-line-2">NEWS</div>
+            </div>
+            <div class="broadcast-date">26년 9월 9일 (수)</div>
+            <div class="broadcast-subtitle">오늘의 물리치료 뉴스</div>
+            <div class="broadcast-divider"></div>
+          </header>
+
+          <!-- 슬라이드 0: 표지 (인트로 3.8초, 👩 여성 앵커) -->
+          <main class="slide-view active" id="slide-0">
+            <div class="main-body">
+              <div class="media-frame-480">
+                <div class="media-img-inner" style="background-image: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1080&q=80');"></div>
+              </div>
+
+              <div class="cover-item-list">
+                <div class="cover-item-row">
+                  <span class="cover-num-bullet">1</span>
+                  <span style="font-size: 34px; font-weight: 800; line-height: 1.36;">"방문재활 건보 수가 신설 추진"··복지부 실무협의체 가동</span>
+                </div>
+                <div class="cover-item-row">
+                  <span class="cover-num-bullet">2</span>
+                  <span style="font-size: 34px; font-weight: 800; line-height: 1.36;">초음파 바이오피드백 도수재활 치료, 어깨 가동성 30% 개선</span>
+                </div>
+                <div class="cover-item-row">
+                  <span class="cover-num-bullet">3</span>
+                  <span style="font-size: 34px; font-weight: 800; line-height: 1.36;">병원 밖 독립 물리치료사를 위한 AI 음성 차팅 솔루션 도입 확산</span>
+                </div>
+              </div>
+            </div>
+
+            <footer class="bottom-nav">
+              <div class="footer-channels-bar">
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #f43f5e;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  <span>@teamthept</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-svg" viewBox="0 0 24 24" style="color: #ef4444;"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <span>더피티THEPT</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #38bdf8;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>thept.co.kr</span>
+                </div>
+              </div>
+              <div class="footer-bottom-action-bar">
+                <div class="carousel-dots">
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="swipe-action-text"><span>밀어서 보기 👉</span></div>
+              </div>
+            </footer>
+          </main>
+
+          <!-- 슬라이드 1: 뉴스 1 (12.6초, 👨 남성 앵커) -->
+          <main class="slide-view" id="slide-1">
+            <div class="main-body">
+              <div class="media-frame-480">
+                <div class="media-img-inner" style="background-image: url('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1080&q=80');"></div>
+              </div>
+
+              <h2 class="news-main-headline">
+                <span class="news-index-badge">01</span>복지부, 방문재활 맞춤형 건강보험 시범사업 지침 발표<span class="news-source-inline"> - 보건복지부 / 메디컬투데이</span>
+              </h2>
+              <div class="news-glass-box">
+                <p class="news-body-bullet">· 거동 불편 환자를 위한 방문재활 급여 수가화 및 인증 기준 신설</p>
+                <p class="news-body-bullet">· 물리치료사 1인당 일일 방문 횟수 4회 제한 및 안전관리 의무화</p>
+                <p class="news-body-bullet">· 2026년 하반기 5개 권역 우선 적용 후 전국 단위 확대 예정</p>
+              </div>
+            </div>
+
+            <footer class="bottom-nav">
+              <div class="footer-channels-bar">
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #f43f5e;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  <span>@teamthept</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-svg" viewBox="0 0 24 24" style="color: #ef4444;"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <span>더피티THEPT</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #38bdf8;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>thept.co.kr</span>
+                </div>
+              </div>
+              <div class="footer-bottom-action-bar">
+                <div class="carousel-dots">
+                  <div class="dot"></div>
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="swipe-action-text"><span>다음 소식 👉</span></div>
+              </div>
+            </footer>
+          </main>
+
+          <!-- 슬라이드 2: 뉴스 2 (13.0초, 👩 여성 앵커) -->
+          <main class="slide-view" id="slide-2">
+            <div class="main-body">
+              <div class="media-frame-480">
+                <div class="media-img-inner" style="background-image: url('https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=1080&q=80');"></div>
+              </div>
+
+              <h2 class="news-main-headline">
+                <span class="news-index-badge">02</span>초음파 가이드하 도수재활 치료 시 관절 가동성 30% 개선<span class="news-source-inline"> - 대한물리치료학회지</span>
+              </h2>
+              <div class="news-glass-box">
+                <p class="news-body-bullet">· 실시간 초음파 피드백 병행 시 회전근개 손상 회복 기간 30% 단축</p>
+                <p class="news-body-bullet">· 환자의 근신경 재교육(Biofeedback) 효과 극대화로 재발률 감소</p>
+                <p class="news-body-bullet">· 전문 도수치료사의 영상 판독 역량 강화 교육 커리큘럼 신설 권고</p>
+              </div>
+            </div>
+
+            <footer class="bottom-nav">
+              <div class="footer-channels-bar">
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #f43f5e;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  <span>@teamthept</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-svg" viewBox="0 0 24 24" style="color: #ef4444;"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <span>더피티THEPT</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #38bdf8;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>thept.co.kr</span>
+                </div>
+              </div>
+              <div class="footer-bottom-action-bar">
+                <div class="carousel-dots">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="swipe-action-text"><span>다음 소식 👉</span></div>
+              </div>
+            </footer>
+          </main>
+
+          <!-- 슬라이드 3: 뉴스 3 (12.5초, 👨 남성 앵커) -->
+          <main class="slide-view" id="slide-3">
+            <div class="main-body">
+              <div class="media-frame-480">
+                <div class="media-img-inner" style="background-image: url('https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=1080&q=80');"></div>
+              </div>
+
+              <h2 class="news-main-headline">
+                <span class="news-index-badge">03</span>병원 밖 독립 치료사를 위한 AI 음성 차팅 솔루션 확산<span class="news-source-inline"> - 의료IT동향</span>
+              </h2>
+              <div class="news-glass-box">
+                <p class="news-body-bullet">· 음성 인식 AI 기반 SOAP 및 라포 기록 자동화로 시간 단축</p>
+                <p class="news-body-bullet">· 방문재활 및 소규모 운동센터 물리치료사의 행정 부담 60% 경감</p>
+                <p class="news-body-bullet">· 모바일 및 태블릿 연동으로 현장에서 진료 후 즉시 기록 완료</p>
+              </div>
+            </div>
+
+            <footer class="bottom-nav">
+              <div class="footer-channels-bar">
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #f43f5e;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  <span>@teamthept</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-svg" viewBox="0 0 24 24" style="color: #ef4444;"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <span>더피티THEPT</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #38bdf8;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>thept.co.kr</span>
+                </div>
+              </div>
+              <div class="footer-bottom-action-bar">
+                <div class="carousel-dots">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="swipe-action-text"><span>스폰서십 👉</span></div>
+              </div>
+            </footer>
+          </main>
+
+          <!-- 슬라이드 4: 광고 / 프로모션 (7.5초, 👩 여성 앵커) -->
+          <main class="slide-view" id="slide-4">
+            <div class="main-body" style="justify-content: space-between;">
+              <!-- 상단 스폰서 헤드라인 -->
+              <div>
+                <div class="ad-top-badge-row">
+                  <span class="ad-sponsor-badge">THEPT SPONSOR</span>
+                  <span style="font-size: 28px; font-weight: 800; color: #facc15;">물리치료사 필수 솔루션</span>
+                </div>
+                <h2 class="news-main-headline" style="font-size: 46px; margin-bottom: 12px; line-height: 1.3;">
+                  병원 밖 독립을 위한 <span style="color: #facc15;">핵심 솔루션 2가지</span>
+                </h2>
+              </div>
+
+              <!-- 2개 카테고리 분할 배치 영역 (사진 제외) -->
+              <div class="ad-split-container">
+                <!-- 카테고리 1: 방문재활 AI 음성차팅 -->
+                <div class="ad-category-block highlight">
+                  <div class="ad-cat-header">
+                    <div class="ad-cat-title-wrap">
+                      <span class="ad-cat-num">01</span>
+                      <span class="ad-cat-name">방문재활 AI 음성차팅</span>
+                    </div>
+                    <span class="ad-cat-tag">4thept.com</span>
+                  </div>
+                  <div class="ad-cat-bullets">
+                    <p class="ad-cat-bullet">🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화</p>
+                    <p class="ad-cat-bullet">⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축</p>
+                  </div>
+                </div>
+
+                <!-- 카테고리 2: 소규모 가성비 센터창업 가이드 - 병원밖 물리치료사 -->
+                <div class="ad-category-block">
+                  <div class="ad-cat-header">
+                    <div class="ad-cat-title-wrap">
+                      <span class="ad-cat-num">02</span>
+                      <div style="display: flex; flex-direction: column;">
+                        <span class="ad-cat-name">소규모 가성비 센터창업 가이드</span>
+                        <span style="font-size: 26px; color: #cbd5e1; font-weight: 700; margin-top: 4px;">- 병원밖 물리치료사</span>
+                      </div>
+                    </div>
+                    <span class="ad-cat-tag">크몽 전자책</span>
+                  </div>
+                  <div class="ad-cat-bullets">
+                    <p class="ad-cat-bullet">📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z</p>
+                    <p class="ad-cat-bullet">💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 하단 핫 CTA -->
+              <div class="ad-hot-cta" style="margin-top: 4px; font-size: 32px; padding: 22px 24px;">
+                👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!
+              </div>
+            </div>
+
+            <footer class="bottom-nav">
+              <div class="footer-channels-bar">
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #f43f5e;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  <span>@teamthept</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-svg" viewBox="0 0 24 24" style="color: #ef4444;"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <span>더피티THEPT</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #38bdf8;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>thept.co.kr</span>
+                </div>
+              </div>
+              <div class="footer-bottom-action-bar">
+                <div class="carousel-dots">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot active"></div>
+                  <div class="dot"></div>
+                </div>
+                <div class="swipe-action-text"><span>마무리 👉</span></div>
+              </div>
+            </footer>
+          </main>
+
+          <!-- 슬라이드 5: 아웃트로 / 엔딩 (6.6초, 👨 남성 앵커) -->
+          <main class="slide-view" id="slide-5">
+            <div class="main-body">
+              <div class="media-frame-480">
+                <div class="media-img-inner" style="background-image: url('../assets/outro_thept_team.jpg');"></div>
+              </div>
+
+              <h2 class="news-main-headline" style="text-align: center;">
+                더 많은 물리치료 소식이 궁금하다면?
+              </h2>
+              <div class="news-glass-box" style="text-align: center; align-items: center;">
+                <p class="news-body-bullet">❤️ 도움이 되셨다면 좋아요를 누르고 동료 치료사와 공유해보세요!</p>
+                <p class="news-body-bullet">🔔 구독과 알림 설정으로 매일 최신 재활 소식을 가장 빠르게 받아보세요!</p>
+              </div>
+            </div>
+
+            <footer class="bottom-nav">
+              <div class="footer-channels-bar">
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #f43f5e;"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  <span>@teamthept</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-svg" viewBox="0 0 24 24" style="color: #ef4444;"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                  <span>더피티THEPT</span>
+                </div>
+                <div class="footer-channel-badge">
+                  <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #38bdf8;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span>thept.co.kr</span>
+                </div>
+              </div>
+              <div class="footer-bottom-action-bar">
+                <div class="carousel-dots">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot active"></div>
+                </div>
+                <div class="swipe-action-text"><span>구독 & 좋아요 ❤️</span></div>
+              </div>
+            </footer>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 숨겨진 오디오 엘리먼트 -->
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <script>
+    let currentSlide = 0;
+    const totalSlides = 6;
+    let isPlayingAll = false;
+
+    // 슬라이드별 나레이션 및 오디오 메타데이터
+    const slidesData = [
+      {
+        anchor: "👩 여성 앵커 (SunHi, 속도 +20%)",
+        script: "\"9월 9일 더피티 뉴스 1분 브리핑 시작합니다.\"",
+        audio: "preview_audio/slide0_cover.mp3"
+      },
+      {
+        anchor: "👨 남성 앵커 (InJoon, 속도 +20%)",
+        script: "\"첫 번째 소식입니다. 복지부가 방문재활 맞춤형 건강보험 지침을 발표했습니다. 거동 불편 환자 대상 급여 수가가 공식 신설되며 하반기부터 단계별로 시행됩니다.\"",
+        audio: "preview_audio/slide1_news1.mp3"
+      },
+      {
+        anchor: "👩 여성 앵커 (SunHi, 속도 +20%)",
+        script: "\"두 번째 소식입니다. 초음파 피드백을 병행한 도수재활 치료가 관절 가동성을 30% 개선하는 것으로 나타났습니다. 실시간 영상 피드백으로 근신경 재교육 효과를 극대화합니다.\"",
+        audio: "preview_audio/slide2_news2.mp3"
+      },
+      {
+        anchor: "👨 남성 앵커 (InJoon, 속도 +20%)",
+        script: "\"세 번째 소식입니다. 독립 물리치료사를 위한 AI 음성 차팅 솔루션이 확산되고 있습니다. 말로 하는 자동 기록으로 방문재활 행정 시간을 60% 이상 줄여줍니다.\"",
+        audio: "preview_audio/slide3_news3.mp3"
+      },
+      {
+        anchor: "👩 여성 앵커 (SunHi, 속도 +20%)",
+        script: "\"방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!\"",
+        audio: "preview_audio/slide4_ad.mp3"
+      },
+      {
+        anchor: "👨 남성 앵커 (InJoon, 속도 +20%)",
+        script: "\"오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일 뵙겠습니다!\"",
+        audio: "preview_audio/slide5_outro.mp3"
+      }
+    ];
+
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playBtn = document.getElementById('playBtn');
+    const playAllBtn = document.getElementById('playAllBtn');
+
+    function switchSlide(idx) {
+      currentSlide = idx;
+      
+      for (let i = 0; i < totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        const tab = document.querySelectorAll('.tab-btn')[i];
+        if (i === idx) {
+          slide.classList.add('active');
+          tab.classList.add('active');
+        } else {
+          slide.classList.remove('active');
+          tab.classList.remove('active');
+        }
+      }
+
+      // 나레이션 정보 업데이트
+      const data = slidesData[idx];
+      document.getElementById('narrAnchor').textContent = data.anchor;
+      document.getElementById('narrScript').textContent = data.script;
+
+      // 오디오 소스 변경
+      audioPlayer.src = data.audio;
+      resetPlayBtn();
+    }
+
+    function toggleAudio() {
+      if (isPlayingAll) {
+        stopPlayAll();
+      }
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        playBtn.innerHTML = "<span>⏸ 일시정지</span>";
+      } else {
+        audioPlayer.pause();
+        resetPlayBtn();
+      }
+    }
+
+    function resetPlayBtn() {
+      playBtn.innerHTML = "<span>▶ 현재 슬라이드 음성 듣기</span>";
+    }
+
+    audioPlayer.onended = () => {
+      resetPlayBtn();
+      if (isPlayingAll) {
+        if (currentSlide < totalSlides - 1) {
+          switchSlide(currentSlide + 1);
+          setTimeout(() => {
+            audioPlayer.play();
+          }, 300); // 0.3초 슬라이드 전환 딜레이
+        } else {
+          stopPlayAll();
+        }
+      }
+    };
+
+    function togglePlayAll() {
+      if (isPlayingAll) {
+        stopPlayAll();
+      } else {
+        isPlayingAll = true;
+        playAllBtn.innerHTML = "<span>⏹ 전체 재생 중지</span>";
+        switchSlide(0);
+        setTimeout(() => {
+          audioPlayer.play();
+          playBtn.innerHTML = "<span>⏸ 일시정지</span>";
+        }, 200);
+      }
+    }
+
+    function stopPlayAll() {
+      isPlayingAll = false;
+      audioPlayer.pause();
+      playAllBtn.innerHTML = "<span>⏩ 55초 전체 연속 듣기</span>";
+      resetPlayBtn();
+    }
+
+    function setScale(scale) {
+      const inner = document.getElementById('scaleInner');
+      const wrap = document.getElementById('viewportWrap');
+      inner.style.transform = `scale(${scale})`;
+      wrap.style.width = `${1080 * scale}px`;
+      wrap.style.height = `${1920 * scale}px`;
+    }
+
+    // 초기 로드
+    switchSlide(0);
+
+    // 키보드 좌/우 화살표로 슬라이드 탐색
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        switchSlide(currentSlide);
+      } else if (e.key === 'ArrowLeft') {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        switchSlide(currentSlide);
+      }
+    });
+  </script>
+</body>
+</html>

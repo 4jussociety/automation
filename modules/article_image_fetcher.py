@@ -6,6 +6,7 @@ from pathlib import Path
 import asyncio
 import re
 import requests
+import shutil
 from playwright.async_api import async_playwright
 
 if sys.platform == "win32":
@@ -42,14 +43,20 @@ def clean_article_title(title: str) -> str:
 from modules.translator import translate_to_korean
 
 
-async def fetch_article_images(articles: list[dict], bg_dir: Path, prefix: str = "news") -> dict[int, Path]:
+async def fetch_article_images(
+    articles: list[dict], 
+    bg_dir: Path, 
+    prefix: str = "news", 
+    max_images_per_article: int = 3
+) -> dict[int, Path]:
     """
     Playwright를 사용하여 뉴스 링크의 실제 언론사 페이지로 리다이렉트 후,
-    원문 보도 사진, 기사 본문 텍스트 및 온전한 원문 제목을 검수/추출합니다.
+    원문 보도 사진(기사당 최대 2~3장), 기사 본문 텍스트 및 온전한 원문 제목을 검수/추출합니다.
     - 외신 기사는 100% 한국어로 번역하여 반영합니다.
-    - 보도 사진: {슬라이드번호(1-based): 파일경로} 딕셔너리로 반환
-    - 기사 제목: art['title']에 잘리지 않은 원문 풀 제목 반영
-    - 기사 본문: art['article_body']에 본문 텍스트 저장
+    - 보도 사진: {슬라이드번호(1-based): 대표파일경로} 딕셔너리로 반환
+    - art['image_paths']: 기사별 수집된 보도사진 경로 리스트 [str, ...]
+    - art['image_path']: 1순위 대표 사진 경로 (하위 호환)
+    - 사진이 없는 기사는 당일 수집된 다른 기사의 사진을 자동 복사/대체합니다.
     """
     results = {}
     bg_dir.mkdir(parents=True, exist_ok=True)
@@ -176,45 +183,83 @@ async def fetch_article_images(articles: list[dict], bg_dir: Path, prefix: str =
                         art["article_body"] = clean_b
                     print(f"     📄 기사 본문 텍스트 획득 (원문 {len(art.get('article_body_raw', ''))}자 / 번역 {len(art['article_body'])}자)")
 
-                # 3. og:image 및 본문 대표 보도사진 태그 추출
-                img_url = await page.evaluate('''() => {
-                    // og:image 또는 twitter:image 탐색
+                # 3. og:image 및 기사 본문 내 복수 보도사진(최대 2~3장) 탐색
+                candidate_urls = await page.evaluate('''() => {
+                    const list = [];
+                    // 1순위: og:image 또는 twitter:image
                     const og = document.querySelector('meta[property="og:image"]') || 
                                document.querySelector('meta[name="og:image"]') ||
                                document.querySelector('meta[name="twitter:image"]');
                     if (og && og.content && !og.content.includes("logo") && !og.content.includes("googleusercontent") && !og.content.includes("icon")) {
-                        return og.content;
+                        list.push(og.content);
                     }
-                    // 기사 본문 내 대표 보도사진 탐색
-                    const candidates = Array.from(document.querySelectorAll(
-                        'article img, .article img, #article img, #articleBody img, .news_view img, amp-img, img'
+                    // 2순위: 기사 본문 내 보도사진 태그들
+                    const imgs = Array.from(document.querySelectorAll(
+                        '#dic_area img, #newsct_article img, #articleBody img, article img, .article-body img, .article_view img, .news_view img, img'
                     ));
-                    for (const el of candidates) {
+                    for (const el of imgs) {
                         const src = el.src || el.getAttribute('src') || el.getAttribute('data-src');
-                        if (src && (src.includes('/photo/') || src.includes('/upload/') || src.includes('article') || src.includes('news'))) {
-                            if (!src.includes('logo') && !src.includes('icon') && !src.includes('banner')) {
-                                return src;
+                        if (src && src.startsWith('http') && (src.includes('/photo/') || src.includes('/upload/') || src.includes('article') || src.includes('news') || src.includes('img'))) {
+                            if (!src.includes('logo') && !src.includes('icon') && !src.includes('banner') && !src.includes('reporter') && !src.includes('btn') && !src.includes('advertisement')) {
+                                if (!list.includes(src)) {
+                                    list.push(src);
+                                }
                             }
                         }
                     }
-                    return null;
+                    return list.slice(0, 8);
                 }''')
 
-                # 4. 유효한 이미지일 경우 로컬에 다운로드
-                if img_url and img_url.startswith("http"):
-                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-                    resp = requests.get(img_url, headers=headers, timeout=10)
-                    if resp.status_code == 200 and len(resp.content) > 3000:
-                        target_path.write_bytes(resp.content)
-                        results[idx] = target_path
-                        art["image_path"] = str(target_path)
-                        print(f"     ✅ 보도 사진 획득 완료: {target_path.name} ({len(resp.content)/1024:.1f} KB)")
+                # 4. 유효한 보도 사진 순차 다운로드 (기사당 최대 2~3장)
+                saved_photos = []
+                headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+                photo_sub_idx = 1
+                for c_url in candidate_urls:
+                    if photo_sub_idx > max_images_per_article:
+                        break
+                    try:
+                        resp = requests.get(c_url, headers=headers, timeout=10)
+                        if resp.status_code == 200 and len(resp.content) >= 4000:
+                            sub_path = bg_dir / f"{prefix}_{idx:02d}_photo_{photo_sub_idx:02d}.jpg"
+                            sub_path.write_bytes(resp.content)
+                            saved_photos.append(sub_path)
+                            print(f"     ✅ 보도 사진 #{photo_sub_idx} 저장: {sub_path.name} ({len(resp.content)/1024:.1f} KB)")
+                            photo_sub_idx += 1
+                    except Exception:
                         continue
 
-                print(f"     ℹ️ 기사 사진 없음 -> 보도사진 풀/기본 배경 적용 예정")
+                if saved_photos:
+                    primary_path = bg_dir / f"{prefix}_{idx:02d}_article_photo.jpg"
+                    if not primary_path.exists():
+                        shutil.copyfile(saved_photos[0], primary_path)
+                    results[idx] = saved_photos[0]
+                    art["image_path"] = str(saved_photos[0])
+                    art["image_paths"] = [str(p) for p in saved_photos]
+                else:
+                    art["image_paths"] = []
+                    print(f"     ℹ️ 기사 사진 없음 -> 타 기사 공유 풀 또는 기본 배경 대체 예정")
 
             except Exception as e:
+                art["image_paths"] = []
                 print(f"     ⚠️ 기사 페이지 크롤링 패스 ({e}) -> 기본 요약 및 풀 배경 적용")
+
+        # 5. 사진이 없는 기사에 대한 자동 대체 로직 (타 기사에서 다운로드된 사진 공유 활용)
+        all_collected_photos = [
+            Path(p) for art in articles for p in art.get("image_paths", []) if Path(p).exists()
+        ]
+        if all_collected_photos:
+            for fallback_idx, art in enumerate(articles, start=1):
+                if not art.get("image_paths"):
+                    source_photo = all_collected_photos[(fallback_idx - 1) % len(all_collected_photos)]
+                    fallback_target = bg_dir / f"{prefix}_{fallback_idx:02d}_photo_01.jpg"
+                    shutil.copyfile(source_photo, fallback_target)
+                    primary_path = bg_dir / f"{prefix}_{fallback_idx:02d}_article_photo.jpg"
+                    if not primary_path.exists():
+                        shutil.copyfile(fallback_target, primary_path)
+                    art["image_paths"] = [str(fallback_target)]
+                    art["image_path"] = str(fallback_target)
+                    results[fallback_idx] = fallback_target
+                    print(f"  🔄 [사진 자동 대체] #{fallback_idx} 기사에 타 기사 보도사진({source_photo.name})을 자동 할당했습니다.")
 
         await browser.close()
 

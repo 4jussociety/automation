@@ -7,8 +7,7 @@ import re
 import asyncio
 from playwright.async_api import async_playwright
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-
+from datetime import datetime
 import base64
 from config import TEMPLATE_4X5, CARD_WIDTH, CARD_HEIGHT, LOGO_PATH, DEFAULT_BG_PATH
 from modules.content_builder import build_slide_html
@@ -41,12 +40,21 @@ def generate_dots_html(total: int, active_index: int) -> str:
     return "".join(dots)
 
 
-async def render_cards_to_images(package: dict, output_dir: Path) -> list[Path]:
+async def render_cards_to_images(
+    package: dict,
+    output_dir: Path,
+    template_path: Path = None,
+    width: int = CARD_WIDTH,
+    height: int = CARD_HEIGHT
+) -> list[Path]:
     """
-    Playwright를 사용해 슬라이드 패키지를 1080x1350 PNG 이미지들로 렌더링합니다.
+    Playwright를 사용해 슬라이드 패키지를 PNG 이미지들로 렌더링합니다.
+    기본은 1080x1350(4:5)이며, 방송형 템플릿(1080x1920) 등 다양한 템플릿을 지원합니다.
     """
-    if not TEMPLATE_4X5.exists():
-        raise FileNotFoundError(f"4:5 템플릿 파일을 찾을 수 없습니다: {TEMPLATE_4X5}")
+    if template_path is None:
+        template_path = TEMPLATE_4X5
+    if not template_path.exists():
+        raise FileNotFoundError(f"템플릿 파일을 찾을 수 없습니다: {template_path}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     for old_f in output_dir.glob("*.png"):
@@ -54,7 +62,7 @@ async def render_cards_to_images(package: dict, output_dir: Path) -> list[Path]:
             old_f.unlink()
         except Exception:
             pass
-    template_content = TEMPLATE_4X5.read_text(encoding="utf-8")
+    template_content = template_path.read_text(encoding="utf-8")
 
     slides = package.get("slides", [])
     if not slides:
@@ -65,17 +73,23 @@ async def render_cards_to_images(package: dict, output_dir: Path) -> list[Path]:
 
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        # 1080x1350 픽셀 정확한 뷰포트 설정 (디바이스 배율 1.0)
+        # 정확한 뷰포트 설정 (기본 1080x1350 또는 1080x1920)
         context = await browser.new_context(
-            viewport={"width": CARD_WIDTH, "height": CARD_HEIGHT},
+            viewport={"width": width, "height": height},
             device_scale_factor=1
         )
         page = await context.new_page()
+
+        now_dt = datetime.now()
+        weekday_kr = ["월", "화", "수", "목", "금", "토", "일"][now_dt.weekday()]
+        default_date_text = f"{now_dt.strftime('%y')}년 {now_dt.month}월 {now_dt.day}일 ({weekday_kr})"
 
         for idx, slide in enumerate(slides):
             slide_type = slide["type"]
             header_tag = slide.get("header_tag", "THEPT NEWS")
             swipe_label = slide.get("swipe_label", "밀어서 보기 👉")
+            date_text = slide.get("date_text", package.get("date_text", default_date_text))
+            broadcast_sub = slide.get("broadcast_subtitle", "오늘의 물리치료 뉴스")
             body_html = build_slide_html(slide_type, slide["data"])
             dots_html = generate_dots_html(total_slides, idx)
 
@@ -89,6 +103,8 @@ async def render_cards_to_images(package: dict, output_dir: Path) -> list[Path]:
             rendered_html = rendered_html.replace("{{LOGO_DATA}}", get_logo_data_uri())
             rendered_html = rendered_html.replace("{{BACKGROUND_IMAGE_DATA}}", bg_data_uri)
             rendered_html = rendered_html.replace("{{HEADER_TAG}}", header_tag)
+            rendered_html = rendered_html.replace("{{DATE_TEXT}}", date_text)
+            rendered_html = rendered_html.replace("{{BROADCAST_SUBTITLE}}", broadcast_sub)
             rendered_html = rendered_html.replace("{{BODY_CONTENT}}", body_html)
             rendered_html = rendered_html.replace("{{CAROUSEL_DOTS}}", dots_html)
             rendered_html = rendered_html.replace("{{SWIPE_LABEL}}", swipe_label)
@@ -102,7 +118,7 @@ async def render_cards_to_images(package: dict, output_dir: Path) -> list[Path]:
             out_path = output_dir / f"slide_{idx+1:02d}_{slide_type}.png"
             await page.screenshot(
                 path=str(out_path),
-                clip={"x": 0, "y": 0, "width": CARD_WIDTH, "height": CARD_HEIGHT}
+                clip={"x": 0, "y": 0, "width": width, "height": height}
             )
 
             if not out_path.exists() or out_path.stat().st_size == 0:

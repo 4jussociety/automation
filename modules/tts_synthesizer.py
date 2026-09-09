@@ -16,7 +16,7 @@ if sys.platform == "win32":
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from config import TTS_VOICE, TTS_RATE, TTS_VOLUME
+from config import TTS_VOICE, TTS_RATE, TTS_VOLUME, TTS_VOICE_FEMALE, TTS_VOICE_MALE
 from modules.text_verifier import refine_text_for_tts
 
 
@@ -44,11 +44,12 @@ def get_audio_duration(audio_path: Path) -> float:
         raise RuntimeError(f"오디오 길이 측정 실패 ({audio_path}): {e}")
 
 
-async def synthesize_slide_audio(text: str, output_file: Path, voice: str = TTS_VOICE, rate: str = TTS_RATE, retries: int = 3) -> float:
+async def synthesize_slide_audio(text: str, output_file: Path, voice: str = None, rate: str = TTS_RATE, retries: int = 3) -> float:
     """단일 슬라이드의 텍스트를 음성으로 합성하고 재생 길이를 반환합니다. (일시적 네트워크 오류 시 최대 3회 재시도)"""
     if not text.strip():
         raise ValueError("합성할 음성 텍스트가 비어 있습니다.")
 
+    voice_to_use = voice or TTS_VOICE
     # 띄어쓰기, 쉼표, 온점 및 약어 정밀 정제 (TTS 호흡/발음 최적화)
     refined_text = refine_text_for_tts(text)
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -56,7 +57,7 @@ async def synthesize_slide_audio(text: str, output_file: Path, voice: str = TTS_
     last_err = None
     for attempt in range(1, retries + 1):
         try:
-            communicate = edge_tts.Communicate(text=refined_text, voice=voice, rate=rate, volume=TTS_VOLUME)
+            communicate = edge_tts.Communicate(text=refined_text, voice=voice_to_use, rate=rate, volume=TTS_VOLUME)
             await communicate.save(str(output_file))
 
             if not output_file.exists() or output_file.stat().st_size < 3000:
@@ -79,7 +80,8 @@ async def synthesize_slide_audio(text: str, output_file: Path, voice: str = TTS_
 
 async def synthesize_all_narration(package: dict, output_dir: Path) -> list[dict]:
     """
-    모든 슬라이드의 나레이션을 각각의 MP3로 합성하고, 각 슬라이드의 오디오 경로와 재생 길이를 반환합니다.
+    모든 슬라이드의 나레이션을 남녀 교차 듀오 앵커(여-남-여-남-여-남, 속도 +20%)로 각각의 MP3로 합성하고,
+    각 슬라이드의 오디오 경로와 재생 길이를 반환합니다.
     """
     slides = package.get("slides", [])
     if not slides:
@@ -89,7 +91,7 @@ async def synthesize_all_narration(package: dict, output_dir: Path) -> list[dict
     audio_results = []
     total_duration = 0.0
 
-    print(f"[TTS] 총 {len(slides)}개 슬라이드 음성 합성 시작 (음성: {TTS_VOICE}, 속도: {TTS_RATE})...")
+    print(f"[TTS] 총 {len(slides)}개 슬라이드 남녀 듀오 교차 음성 합성 시작 (속도: {TTS_RATE})...")
 
     for idx, slide in enumerate(slides):
         slide_type = slide["type"]
@@ -97,20 +99,29 @@ async def synthesize_all_narration(package: dict, output_dir: Path) -> list[dict
         if not narration_text:
             raise ValueError(f"슬라이드 {idx+1} ({slide_type})에 나레이션 텍스트가 없습니다.")
 
+        # 남녀 교차 배정: 짝수 슬라이드(표지, 뉴스2, 광고) = 여성 / 홀수 슬라이드(뉴스1, 뉴스3, 아웃트로) = 남성
+        assigned_voice = slide.get("voice")
+        if not assigned_voice:
+            assigned_voice = TTS_VOICE_FEMALE if (idx % 2 == 0) else TTS_VOICE_MALE
+        
+        anchor_name = "여성(SunHi)" if assigned_voice == TTS_VOICE_FEMALE else "남성(InJoon)"
+
         audio_path = output_dir / f"audio_{idx+1:02d}_{slide_type}.mp3"
         refined_narration = refine_text_for_tts(narration_text)
-        duration = await synthesize_slide_audio(refined_narration, audio_path)
+        duration = await synthesize_slide_audio(refined_narration, audio_path, voice=assigned_voice, rate=TTS_RATE)
         total_duration += duration
 
         audio_results.append({
             "slide_index": idx,
             "slide_type": slide_type,
+            "voice": assigned_voice,
+            "anchor": anchor_name,
             "audio_path": audio_path,
             "duration": duration,
             "narration": narration_text,
             "refined_narration": refined_narration
         })
-        print(f"[TTS 완료] 슬라이드 {idx+1}: {duration:.2f}초 - {audio_path.name} (대본 검수/정제 완료: '{refined_narration[:35]}...')")
+        print(f"[TTS 완료] 슬라이드 {idx+1} ({anchor_name}): {duration:.2f}초 - {audio_path.name} (대본: '{refined_narration[:30]}...')")
 
     print(f"[TTS 전체 완료] 총 나레이션 길이: {total_duration:.2f}초 (쇼츠 1분 규격 만족: {'YES' if total_duration <= 60 else 'NO - 길이 초과 주의'})")
 

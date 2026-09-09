@@ -1,0 +1,791 @@
+<!-- 이 파일은 MBC 뉴스 스타일의 2단 THEPT NEWS 빅헤더 및 날짜/요일이 적용된 9:16 방송형 쇼츠 카드뉴스 템플릿입니다. -->
+<!-- 1080x1920 세로 해상도에 맞춰 방송형 상단 브랜딩과 슬라이드 본문, 최적화된 하단 네비게이션을 결합합니다. -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>THEPT Broadcast Shorts Vertical Card (9:16)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1080px;
+      height: 1920px; /* 9:16 풀 세로형 */
+      color: #ffffff;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      overflow: hidden;
+      position: relative;
+      background-color: #0b0f19;
+    }
+
+    .bg-image-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1080px;
+      height: 1920px;
+      background-image: url('{{BACKGROUND_IMAGE_DATA}}');
+      background-size: cover;
+      background-position: center;
+      z-index: 0;
+      filter: blur(14px) brightness(0.65);
+      transform: scale(1.08);
+    }
+
+    .bg-overlay-gradient {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 1080px;
+      height: 1920px;
+      background: linear-gradient(
+        180deg, 
+        rgba(11, 15, 25, 0.94) 0%, 
+        rgba(11, 15, 25, 0.72) 20%, 
+        rgba(11, 15, 25, 0.65) 50%, 
+        rgba(11, 15, 25, 0.88) 80%, 
+        rgba(11, 15, 25, 0.98) 100%
+      );
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 1080px;
+      height: 1920px;
+      padding: 50px 70px 160px 70px; /* 쇼츠 Safe Zone 및 대형 타이포그래피 최적화 */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* 1. 상단 방송형 브랜딩 헤더 (MBC 뉴스 스타일 THEPT NEWS & 날짜/요일) */
+    .broadcast-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      padding-top: 10px;
+      padding-bottom: 18px;
+    }
+
+    .broadcast-brand-title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 0.88;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.75);
+    }
+
+    .brand-line-1 {
+      font-size: 126px; /* 폰트 확대 (114px -> 126px) */
+      letter-spacing: 2px;
+    }
+
+    .brand-line-2 {
+      font-size: 126px; /* 폰트 확대 (114px -> 126px) */
+      letter-spacing: 6px;
+    }
+
+    .broadcast-date {
+      font-size: 48px; /* 폰트 확대 (42px -> 48px) */
+      font-weight: 800;
+      color: #ffffff;
+      margin-top: 22px;
+      letter-spacing: -1px;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+    }
+
+    .broadcast-subtitle {
+      font-size: 54px; /* 폰트 확대 (48px -> 54px) */
+      font-weight: 900;
+      color: #ffffff;
+      margin-top: 6px;
+      letter-spacing: -1.2px;
+      text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+    }
+
+    .broadcast-divider {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.25) 30%, rgba(255, 255, 255, 0.25) 70%, rgba(255, 255, 255, 0) 100%);
+      margin-top: 22px;
+    }
+
+    /* 2. 중앙 메인 컨텐츠 영역 */
+    .main-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 14px 0 0 0;
+    }
+
+    /* 투명 배경 모드 (비디오 오버레이 합성용) */
+    body.transparent-bg {
+      background: transparent !important;
+      background-color: transparent !important;
+    }
+    body.transparent-bg .bg-image-layer,
+    body.transparent-bg .bg-overlay-gradient {
+      display: none !important;
+    }
+
+    /* [표지 슬라이드 (제안 A: MBC 미디어 프레임 + 3개 뉴스 헤드라인)] */
+    .cover-media-frame {
+      width: 100%;
+      height: 480px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .cover-media-img {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .cover-tag-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(250, 204, 21, 0.2);
+      border: 2px solid #facc15;
+      color: #facc15;
+      padding: 12px 28px;
+      border-radius: 14px;
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      width: fit-content;
+      box-shadow: 0 4px 18px rgba(250, 204, 21, 0.25);
+    }
+      background: rgba(250, 204, 21, 0.2);
+      border: 2px solid #facc15;
+      color: #facc15;
+      padding: 12px 28px;
+      border-radius: 14px;
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      width: fit-content;
+      box-shadow: 0 4px 18px rgba(250, 204, 21, 0.25);
+    }
+
+    .cover-huge-title {
+      font-size: 68px;
+      font-weight: 900;
+      line-height: 1.25;
+      letter-spacing: -1.8px;
+      color: #ffffff;
+      margin-bottom: 24px;
+      word-break: keep-all;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .hl-yellow {
+      color: #facc15;
+      text-shadow: 0 0 25px rgba(250, 204, 21, 0.4);
+    }
+
+    .cover-desc-card {
+      background: rgba(15, 23, 42, 0.86);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: 26px 36px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .cover-desc-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: #e2e8f0;
+      line-height: 1.5;
+      word-break: keep-all;
+    }
+
+    .cover-item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .cover-item-row {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      border-radius: 20px;
+      padding: 24px 30px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 34px; /* 확대: 30px -> 34px */
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.36;
+      word-break: keep-all;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .cover-num-bullet {
+      background: #facc15;
+      color: #000000;
+      width: 50px; /* 확대: 44px -> 50px */
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px; /* 확대: 26px -> 30px */
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    /* [뉴스 상세 슬라이드] */
+    /* 뉴스 슬라이드 내부 보도사진 프레임 (최상단 배치, 표지와 동일한 480px) */
+    .news-media-frame {
+      width: 100%;
+      height: 480px;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .news-media-img {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .news-main-headline {
+      font-size: 48px; /* 가독성 강화: 48px */
+      font-weight: 900;
+      line-height: 1.36;
+      letter-spacing: -1.5px;
+      color: #ffffff;
+      margin-bottom: 20px;
+      word-break: keep-all;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.75);
+    }
+
+    .news-index-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #facc15;
+      color: #000000;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 900;
+      font-size: 32px;
+      padding: 4px 18px;
+      border-radius: 12px;
+      margin-right: 14px;
+      vertical-align: 4px;
+      box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
+    }
+
+    .news-source-inline {
+      font-size: 32px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-left: 10px;
+      white-space: nowrap;
+      text-shadow: none;
+    }
+
+    .news-glass-box {
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: 30px 36px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+    }
+
+    .news-body-bullet {
+      font-size: 34px; /* 확대: 34px로 3줄 요약 가독성 극대화 */
+      line-height: 1.55;
+      color: #f1f5f9;
+      font-weight: 600;
+      margin-bottom: 16px;
+      word-break: keep-all;
+    }
+
+    .news-body-bullet:last-child {
+      margin-bottom: 0;
+    }
+
+    .news-action-highlight {
+      background: linear-gradient(135deg, rgba(250, 204, 21, 0.24) 0%, rgba(234, 179, 8, 0.12) 100%);
+      border: 2px solid #facc15;
+      border-radius: 18px;
+      padding: 20px 28px;
+      font-size: 28px; /* 확대: 25px -> 28px */
+      font-weight: 800;
+      color: #fef08a;
+      line-height: 1.45;
+      word-break: keep-all;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(14px);
+    }
+
+    /* [인사이트 슬라이드] */
+    .insight-top-tag {
+      background: rgba(56, 189, 248, 0.22);
+      border: 1.5px solid #38bdf8;
+      color: #38bdf8;
+      padding: 10px 22px;
+      border-radius: 12px;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 22px;
+      width: fit-content;
+    }
+
+    .insight-huge-title {
+      font-size: 56px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.3;
+      letter-spacing: -1.5px;
+      margin-bottom: 26px;
+      word-break: keep-all;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .insight-summary-card {
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: 30px 36px;
+      font-size: 29px;
+      line-height: 1.6;
+      color: #f1f5f9;
+      font-weight: 600;
+      margin-bottom: 24px;
+      backdrop-filter: blur(20px);
+      word-break: keep-all;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .insight-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .insight-check-item {
+      background: rgba(15, 23, 42, 0.78);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 22px 30px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 27px;
+      font-weight: 800;
+      color: #f8fafc;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* [광고/프로모션 슬라이드] */
+    .ad-top-tag {
+      background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(245, 158, 11, 0.25));
+      border: 1.5px solid #facc15;
+      color: #fde047;
+      padding: 10px 24px;
+      border-radius: 14px;
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      width: fit-content;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 14px rgba(250, 204, 21, 0.25);
+    }
+
+    .ad-huge-title {
+      font-size: 52px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.28;
+      letter-spacing: -1.5px;
+      margin-bottom: 22px;
+      word-break: keep-all;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .ad-summary-card {
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid rgba(250, 204, 21, 0.45);
+      border-radius: 22px;
+      padding: 24px 32px;
+      font-size: 27px;
+      line-height: 1.55;
+      color: #f8fafc;
+      font-weight: 700;
+      margin-bottom: 24px;
+      backdrop-filter: blur(20px);
+      word-break: keep-all;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .ad-checklist {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 26px;
+    }
+
+    .ad-check-item {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      border-radius: 18px;
+      padding: 16px 26px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 25px;
+      font-weight: 800;
+      color: #f1f5f9;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .ad-cta-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .ad-cta-btn {
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      color: #0f172a;
+      font-size: 28px;
+      font-weight: 900;
+      padding: 18px 48px;
+      border-radius: 9999px;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45);
+      letter-spacing: -0.5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: fit-content;
+    }
+
+    .ad-hot-cta {
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      border-radius: 18px;
+      padding: 20px 28px;
+      font-size: 34px;
+      font-weight: 900;
+      color: #0f172a;
+      text-align: center;
+      margin-top: 18px;
+      box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
+      letter-spacing: -0.5px;
+    }
+
+    /* 광고 2개 카테고리 분할 스타일 (사진 제외형) */
+    .ad-split-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ad-top-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .ad-sponsor-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      color: #0f172a;
+      font-size: 32px;
+      font-weight: 900;
+      padding: 4px 16px;
+      border-radius: 8px;
+      line-height: 1.15;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+    }
+
+    .ad-category-block {
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      border-radius: 24px;
+      padding: 30px 34px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .ad-category-block.highlight {
+      border-color: rgba(250, 204, 21, 0.5);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 41, 59, 0.88) 100%);
+    }
+
+    .ad-cat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
+      padding-bottom: 16px;
+    }
+
+    .ad-cat-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .ad-cat-num {
+      background: #facc15;
+      color: #0f172a;
+      font-size: 28px;
+      font-weight: 900;
+      padding: 4px 14px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(250, 204, 21, 0.35);
+    }
+
+    .ad-cat-name {
+      font-size: 38px;
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.8px;
+      line-height: 1.25;
+    }
+
+    .ad-cat-tag {
+      font-size: 24px;
+      font-weight: 800;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 6px 16px;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+
+    .ad-cat-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ad-cat-bullet {
+      font-size: 32px;
+      line-height: 1.5;
+      color: #f1f5f9;
+      font-weight: 600;
+      word-break: keep-all;
+      letter-spacing: -0.5px;
+    }
+
+    /* 3. 하단 네비게이션 및 채널 3종 바 (쇼츠 Safe Zone 여백 확보) */
+    .bottom-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 2px solid rgba(255, 255, 255, 0.2);
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+    /* 1행: 채널 3종 바 */
+    .footer-channels-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      gap: 10px;
+    }
+
+    .footer-channel-badge {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.78);
+      border: 1.5px solid rgba(255, 255, 255, 0.22);
+      border-radius: 18px;
+      padding: 15px 6px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .footer-channel-badge span {
+      font-size: 36px; /* 확대: 32px -> 36px */
+      font-weight: 900;
+      color: #ffffff;
+      letter-spacing: -0.8px;
+      white-space: nowrap;
+    }
+
+    .footer-icon-svg {
+      width: 40px; /* 확대: 36px -> 40px */
+      height: 40px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .footer-icon-stroke {
+      width: 40px; /* 확대: 36px -> 40px */
+      height: 40px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.4;
+      flex-shrink: 0;
+    }
+
+    /* 2행: 최하단 인디케이터 점들과 다음장으로 라벨 */
+    .footer-bottom-action-bar {
+      position: relative;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      width: 100%;
+      min-height: 46px;
+      padding: 0 6px;
+    }
+
+    .carousel-dots {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .dot.active {
+      width: 46px;
+      height: 16px;
+      border-radius: 9999px;
+      background: #facc15;
+      box-shadow: 0 0 14px #facc15;
+    }
+
+    .swipe-action-text {
+      font-size: 34px; /* 확대: 30px -> 34px */
+      font-weight: 900;
+      color: #facc15;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-image-layer"></div>
+  <div class="bg-overlay-gradient"></div>
+
+  <div class="container">
+    <!-- 상단 방송형 브랜딩 헤더 (MBC 뉴스 스타일) -->
+    <header class="broadcast-header">
+      <div class="broadcast-brand-title">
+        <div class="brand-line-1">THEPT</div>
+        <div class="brand-line-2">NEWS</div>
+      </div>
+      <div class="broadcast-date">{{DATE_TEXT}}</div>
+      <div class="broadcast-subtitle">{{BROADCAST_SUBTITLE}}</div>
+      <div class="broadcast-divider"></div>
+    </header>
+
+    <!-- 중앙 본문 슬라이드 -->
+    <main class="main-body">
+      {{BODY_CONTENT}}
+    </main>
+
+    <!-- 하단 네비게이션 및 채널 3종 바 -->
+    <footer class="bottom-nav">
+      <!-- 1행: 채널 3종 바 -->
+      <div class="footer-channels-bar">
+        <!-- 인스타그램 -->
+        <div class="footer-channel-badge">
+          <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #f43f5e;">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+          <span>@teamthept</span>
+        </div>
+        <!-- 유튜브 -->
+        <div class="footer-channel-badge">
+          <svg class="footer-icon-svg" viewBox="0 0 24 24" style="color: #ef4444;">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+          <span>더피티THEPT</span>
+        </div>
+        <!-- 홈페이지 -->
+        <div class="footer-channel-badge">
+          <svg class="footer-icon-stroke" viewBox="0 0 24 24" style="color: #38bdf8;">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          <span>thept.co.kr</span>
+        </div>
+      </div>
+
+      <!-- 2행: 최하단 인디케이터 점들과 다음장으로 라벨 -->
+      <div class="footer-bottom-action-bar">
+        <div class="carousel-dots">
+          {{CAROUSEL_DOTS}}
+        </div>
+        <div class="swipe-action-text">
+          <span>{{SWIPE_LABEL}}</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

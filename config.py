@@ -14,9 +14,10 @@ TEMPLATES_DIR = BASE_DIR / "templates"
 OUTPUT_DIR = BASE_DIR / "output"
 ASSETS_DIR = BASE_DIR / "assets"
 
-# 템플릿, 로고 및 배경 파일 경로
+# 표준 템플릿 경로 (4:5 인스타그램 피드 & 9:16 유튜브 쇼츠)
 TEMPLATE_4X5 = TEMPLATES_DIR / "card_4x5.html"
-TEMPLATE_9X16 = TEMPLATES_DIR / "card_9x16.html"
+TEMPLATE_9X16 = TEMPLATES_DIR / "card_9x16_broadcast.html"
+TEMPLATE_9X16_BROADCAST = TEMPLATE_9X16
 LOGO_PATH = TEMPLATES_DIR / "logo_thept_transparent.png"
 if not LOGO_PATH.exists():
     LOGO_PATH = TEMPLATES_DIR / "logo_thept.png"
@@ -24,6 +25,7 @@ if not LOGO_PATH.exists():
 BACKGROUNDS_DIR = ASSETS_DIR / "backgrounds"
 DEFAULT_BG_PATH = BACKGROUNDS_DIR / "pt_clinic_bg.jpg"
 AI_TECH_BG_PATH = BACKGROUNDS_DIR / "ai_rehab_bg.jpg"
+OUTRO_IMG_PATH = ASSETS_DIR / "outro_thept_team.jpg"
 
 # 이미지 및 비디오 규격
 CARD_WIDTH = 1080
@@ -32,9 +34,11 @@ CARD_HEIGHT = 1350   # 4:5 인스타그램 피드 최적 해상도
 VIDEO_WIDTH = 1080
 VIDEO_HEIGHT = 1920  # 9:16 쇼츠/릴스 세로형 해상도
 
-# TTS 음성 설정 (빠른 템포: 약 1분 이내 압축 나레이션)
-TTS_VOICE = "ko-KR-SunHiNeural"  # 또는 "ko-KR-InJoonNeural"
-TTS_RATE = "+22%"                # 1분 미만 쇼츠에 최적화된 빠른 호흡
+# TTS 음성 설정 (빠른 템포: 약 55초 이내 남녀 듀오 나레이션)
+TTS_VOICE_FEMALE = "ko-KR-SunHiNeural"  # 여성 아나운서 톤 (오프닝, 뉴스2, 광고)
+TTS_VOICE_MALE = "ko-KR-InJoonNeural"    # 남성 앵커 톤 (뉴스1, 뉴스3, 아웃트로)
+TTS_VOICE = TTS_VOICE_FEMALE
+TTS_RATE = "+20%"                       # 1분 미만(55초) 쇼츠에 최적화된 빠른 호흡 (+20%)
 TTS_VOLUME = "+0%"
 
 # 네이버 API 설정 (환경변수 또는 None)
@@ -47,17 +51,33 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 # 5번째 슬라이드: 광고/프로모션 페이지 기본 설정 (언제든 수정 가능)
 DEFAULT_AD_CONFIG = {
-    "badge": "THEPT RECOMMENDED",
-    "title": "물리치료사 맞춤<br><span class=\"hl-yellow\">AI차팅 & 센터창업 전자책</span>",
-    "subtitle": "차팅 부담은 줄이고, 독립 센터 창업 노하우를 한 번에!",
-    "bullets": [
-        "방문재활 AI 음성 차팅: SOAP·라포 차팅 자동화 (4thept.com)",
-        "크몽 전자책: 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』",
-        "독립·방문재활 물리치료사를 위한 실전 솔루션 패키지!"
+    "badge": "THEPT SPONSOR",
+    "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+    "sub_badge": "물리치료사 필수 솔루션",
+    "categories": [
+        {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+                "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+                "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+        },
+        {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+                "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+                "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+        }
     ],
-    "cta_button": "",
+    "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
     "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
-    "narration": "물리치료사를 위한 스마트 솔루션! 수기 차팅을 줄여주는 방문재활 AI 음성 차팅 4THEPT와, 크몽 전자책 병원밖 물리치료사 가성비 소규모 센터창업 가이드를 지금 바로 확인해보세요. 상세 링크는 설명란과 첫 댓글에서 확인하실 수 있습니다.",
+    "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
     "link": "https://4thept.com",
     "kmong_link": "https://kmong.com/gig/813101"
 }

@@ -17,9 +17,12 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-sys.path.append(str(Path(__file__).resolve().parent))
-
-from config import OUTPUT_DIR, DEFAULT_BG_PATH, AI_TECH_BG_PATH
+from config import (
+    OUTPUT_DIR, DEFAULT_BG_PATH, AI_TECH_BG_PATH,
+    TEMPLATE_4X5, TEMPLATE_9X16,
+    CARD_WIDTH, CARD_HEIGHT,
+    VIDEO_WIDTH, VIDEO_HEIGHT
+)
 from modules.content_builder import build_daily_curated_package
 from modules.card_renderer import render_cards_to_images
 from modules.tts_synthesizer import synthesize_all_narration
@@ -126,19 +129,31 @@ async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: boo
         total_sec = 0.0
 
         if render_media:
-            # 3. 4:5 카드뉴스 렌더링
-            print(f"  🎨 4:5 고화질 카드뉴스 렌더링 중...")
-            card_paths = await render_cards_to_images(pkg, cards_dir)
+            # 3. 4:5 인스타그램 피드 카드뉴스 렌더링 (1080x1350)
+            print(f"  🎨 4:5 고화질 카드뉴스 렌더링 중 (1080x1350)...")
+            card_paths = await render_cards_to_images(
+                pkg, cards_dir,
+                template_path=TEMPLATE_4X5,
+                width=CARD_WIDTH,
+                height=CARD_HEIGHT
+            )
             print(f"  ✅ 카드뉴스 완성 ({len(card_paths)}장 PNG)")
 
-            # 4. 고품질 TTS 나레이션 합성 (최대 2분 분량 호흡)
-            print(f"  🎙️ TTS 음성 나레이션 합성 중...")
+            # 4. 고품질 남녀 듀오 TTS 나레이션 합성 (총 ~55초 1분 브리핑)
+            print(f"  🎙️ 남녀 듀오 고속 나레이션 합성 중 (SunHi + InJoon, +20%)...")
             audio_results = await synthesize_all_narration(pkg, audio_dir)
             total_sec = sum(a["duration"] for a in audio_results)
 
-            # 5. 9:16 쇼츠 비디오 렌더링
-            print(f"  🎬 9:16 쇼츠 비디오 합성 중...")
-            render_shorts_video(card_paths, audio_results, video_path)
+            # 5. 9:16 쇼츠 비디오 렌더링 (1080x1920 방송형 프레임 캡처 후 인코딩)
+            print(f"  🎬 9:16 쇼츠 방송형 프레임 캡처 및 비디오 합성 중 (1080x1920)...")
+            shorts_frames_dir = day_dir / "shorts_frames_9x16"
+            shorts_frame_paths = await render_cards_to_images(
+                pkg, shorts_frames_dir,
+                template_path=TEMPLATE_9X16,
+                width=VIDEO_WIDTH,
+                height=VIDEO_HEIGHT
+            )
+            render_shorts_video(shorts_frame_paths, audio_results, video_path)
             print(f"  ✅ 쇼츠 완성 ({total_sec:.2f}초, {video_path.stat().st_size / (1024*1024):.2f} MB)")
         else:
             print(f"  ℹ️ [렌더링 가드레일] 카드뉴스/비디오 미디어 파일 렌더링은 대기합니다. (대본 및 패키지 데이터 생성 완료)")

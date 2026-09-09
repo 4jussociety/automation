@@ -8,23 +8,24 @@ import re
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from config import DEFAULT_BG_PATH, AI_TECH_BG_PATH, DEFAULT_AD_CONFIG
+from config import DEFAULT_BG_PATH, AI_TECH_BG_PATH, DEFAULT_AD_CONFIG, OUTRO_IMG_PATH
 
 
 def build_slide_html(slide_type: str, data: dict) -> str:
     """슬라이드 타입에 맞는 HTML 코드를 조립합니다."""
     if slide_type == "cover":
+        items = data.get("items", [])[:3]  # 하루 3개 뉴스 규격
         items_html = "".join([
             f'<div class="cover-item-row"><div class="cover-num-bullet">{i}</div><div>{item}</div></div>'
-            for i, item in enumerate(data.get("items", []), 1)
+            for i, item in enumerate(items, 1)
         ])
+        media_img = data.get("media_image", "")
+        bg_style = f"background-image: url('{media_img}');" if media_img else "background: linear-gradient(135deg, #1e293b, #0f172a);"
         return f"""
-        <div class="cover-tag-box">{data.get('tag', '물리치료 NEWS 주간 브리핑')}</div>
-        <div class="cover-huge-title">{data.get('title', '한눈에 보는 이번 주<br><span class="hl-yellow">물리치료 핵심 뉴스</span>')}</div>
-        <div class="cover-desc-card">
-            <div class="cover-desc-text">{data.get('desc', '한 주간의 주요 물리치료 및 재활 의료 소식을 빠르게 전해드립니다.')}</div>
+        <div class="cover-media-frame">
+            <div class="cover-media-img" style="{bg_style}"></div>
         </div>
-        <div class="cover-item-list">
+        <div class="cover-item-list" style="gap: 14px;">
             {items_html}
         </div>
         """
@@ -34,44 +35,75 @@ def build_slide_html(slide_type: str, data: dict) -> str:
             f'<div class="news-body-bullet">• {b}</div>'
             for b in data.get("bullets", [])
         ])
+        # 방송형 템플릿의 경우 기사 보도사진 프레임 지원 (내부 글씨 없이 순수 사진 노출)
+        media_img = data.get("media_image", "") or data.get("image_path", "")
+        media_frame_html = ""
+        if media_img:
+            media_frame_html = f"""
+            <div class="news-media-frame">
+                <div class="news-media-img" style="background-image: url('{media_img}');"></div>
+            </div>
+            """
+        # 최상단 보도사진 -> 바로 아래 메인 헤드라인 (01 인덱스 뱃지 + 기사제목 + - 출처 인라인 연결) -> 3줄 요약
+        source_val = data.get('source', '').strip()
+        source_html = f'<span class="news-source-inline"> - {source_val}</span>' if source_val else ''
         return f"""
-        <div class="news-top-badge-row">
-            <div class="news-index-badge">{data.get('index', '01')}</div>
-            <div class="news-category-badge">{data.get('category', '심층 분석')}</div>
-            <div class="news-source-badge">{data.get('source', '')}</div>
-        </div>
-        <div class="news-main-headline">{data.get('headline', '')}</div>
+        {media_frame_html}
+        <h2 class="news-main-headline">
+            <span class="news-index-badge">{data.get('index', '01')}</span>{data.get('headline', '')}{source_html}
+        </h2>
         <div class="news-glass-box">
             {bullets_html}
-        </div>
-        <div class="news-action-highlight">
-            {data.get('highlight', '')}
         </div>
         """
 
     elif slide_type == "ad":
-        bullets_html = "".join([
-            f'<div class="ad-check-item">✨ {b}</div>'
-            for b in data.get("bullets", [])
-        ])
-        cta_btn = data.get('cta_button', '').strip()
-        cta_btn_html = f'<div class="ad-cta-btn">{cta_btn}</div>' if cta_btn else ''
-        cta_html = f"""
-        <div class="ad-cta-container">
-            {cta_btn_html}
-            <div class="ad-inquiry-text">{data.get('inquiry_text', '📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com')}</div>
-        </div>
-        """
+        cats = data.get("categories", [])
+        if cats:
+            cat_blocks = []
+            for c in cats:
+                b_html = "".join([f'<p class="ad-cat-bullet">{b}</p>' for b in c.get("bullets", [])])
+                sub_html = f'<span style="font-size: 26px; color: #cbd5e1; font-weight: 700; margin-top: 4px;">{c.get("subname", "")}</span>' if c.get("subname") else ""
+                tag_html = f'<span class="ad-cat-tag">{c.get("tag", "")}</span>' if c.get("tag") else ""
+                cat_blocks.append(f"""
+                <div class="ad-category-block">
+                  <div class="ad-cat-header">
+                    <div class="ad-cat-title-wrap">
+                      <span class="ad-cat-num">{c.get('num', '01')}</span>
+                      <div style="display: flex; flex-direction: column;">
+                        <span class="ad-cat-name">{c.get('name', '')}</span>
+                        {sub_html}
+                      </div>
+                    </div>
+                    {tag_html}
+                  </div>
+                  <div class="ad-cat-bullets">
+                    {b_html}
+                  </div>
+                </div>
+                """)
+            split_html = f'<div class="ad-split-container">{"".join(cat_blocks)}</div>'
+        else:
+            bullets_html = "".join([f'<p class="ad-cat-bullet">✨ {b}</p>' for b in data.get("bullets", [])])
+            split_html = f'<div class="news-glass-box">{bullets_html}</div>'
+
+        cta_text = data.get("cta_text", "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!")
         return f"""
-        <div class="ad-top-tag">{data.get('badge', 'THEPT SPONSOR')}</div>
-        <div class="ad-huge-title">{data.get('title', '방문재활 물리치료사 맞춤<br><span class="hl-yellow">AI음성 차팅</span>')}</div>
-        <div class="ad-summary-card">
-            {data.get('subtitle', '수작업 차팅 부담은 줄이고, 고객과의 소통에 더 집중하세요.')}
+        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+          <div>
+            <div class="ad-top-badge-row">
+              <span class="ad-sponsor-badge">{data.get('badge', 'THEPT SPONSOR')}</span>
+              <span style="font-size: 28px; font-weight: 800; color: #facc15;">{data.get('sub_badge', '물리치료사 필수 솔루션')}</span>
+            </div>
+            <h2 class="news-main-headline" style="font-size: 46px; margin-bottom: 12px; line-height: 1.3;">
+              {data.get('title', '병원 밖 독립을 위한 <span style="color: #facc15;">핵심 솔루션 2가지</span>')}
+            </h2>
+          </div>
+          {split_html}
+          <div class="ad-hot-cta" style="margin-top: 4px; font-size: 32px; padding: 22px 24px;">
+            {cta_text}
+          </div>
         </div>
-        <div class="ad-checklist">
-            {bullets_html}
-        </div>
-        {cta_html}
         """
 
     elif slide_type == "insight":
@@ -91,37 +123,25 @@ def build_slide_html(slide_type: str, data: dict) -> str:
         """
 
     elif slide_type == "outro":
-        is_shorts = data.get("is_shorts", False)
-        sub_text = data.get("sub", "도움이 되셨다면 좋아요를 누르고 동료 치료사와 함께 나눠보세요!")
-        next_notice = f"""<div style="background: rgba(255, 204, 0, 0.15); border: 1px solid #ffcc00; border-radius: 12px; padding: 12px; margin-bottom: 20px; font-size: 20px; color: #ffeb3b; font-weight: 700; text-align: center;">
-            {data.get('notice', '💡 내일 4:5 심층 카드뉴스로 이어집니다!')}
-        </div>""" if is_shorts else ""
-
-        return f"""
-        <div class="outro-card-box">
-            <div class="outro-header-text">{data.get('header', '더 많은 물리치료 소식이<br><span class="hl-yellow">궁금하다면?</span>')}</div>
-            <div class="outro-sub-text">{sub_text}</div>
-            {next_notice}
-            <div class="outro-insta-buttons">
-                <div class="insta-button highlight-save">
-                    <span class="btn-icon">❤️</span>
-                    <span>좋아요 응원</span>
-                </div>
-                <div class="insta-button">
-                    <span class="btn-icon">✈️</span>
-                    <span>동료에게 공유</span>
-                </div>
-                <div class="insta-button">
-                    <span class="btn-icon">💬</span>
-                    <span>댓글과 소통</span>
-                </div>
+        sub_text = data.get("sub", "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!")
+        media_img = data.get("media_image", "") or (str(OUTRO_IMG_PATH) if OUTRO_IMG_PATH.exists() else "")
+        media_frame_html = ""
+        if media_img:
+            media_frame_html = f"""
+            <div class="news-media-frame" style="margin-bottom: 24px;">
+                <div class="news-media-img" style="background-image: url('{media_img}');"></div>
             </div>
-            <div class="channels-card">
-                <div class="channel-link-item">
-                    <span>인스타그램 @teamthept</span>
-                </div>
-                <div class="channel-link-item">
-                    <span>유튜브 더피티THEPT</span>
+            """
+        return f"""
+        <div style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+            <div class="main-body" style="justify-content: flex-start;">
+                {media_frame_html}
+                <h2 class="news-main-headline" style="text-align: center; margin-bottom: 20px;">
+                    {data.get('header', '더 많은 물리치료 소식이<br><span class="hl-yellow">궁금하다면?</span>')}
+                </h2>
+                <div class="news-glass-box" style="text-align: center; align-items: center;">
+                    <p class="news-body-bullet">❤️ {sub_text}</p>
+                    <p class="news-body-bullet">🔔 구독과 알림 설정으로 매일 최신 재활 소식을 가장 빠르게 받아보세요!</p>
                 </div>
             </div>
         </div>
@@ -327,11 +347,7 @@ def build_content_package(
                         "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
                         "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
                     },
-                    "narration": (
-                        "더 자세한 분석과 상세 자료는, 내일 업로드되는 4:5 카드뉴스에서 확인하실 수 있습니다. 좋아요와 동료 공유 부탁드리며, 구독과 알림 설정으로 매주 최신 소식을 받아보세요!"
-                        if content_type == "shorts" else
-                        "도움이 되셨다면 좋아요와 동료 공유 부탁드립니다! 다음 주에도 더욱 알차고 깊이 있는 물리치료 소식으로 찾아오겠습니다."
-                    )
+                    "narration": "오늘 전해드린 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
                 }
             ]
         }
@@ -402,9 +418,10 @@ def build_daily_curated_package(
                 "tag": tag_text,
                 "title": f"<span class=\"hl-yellow\">{day_name} {category_title}</span>",
                 "desc": f"오늘 꼭 살펴봐야 할 {category_title} 주요 뉴스 {num_arts}가지를 전해드립니다.",
-                "items": cover_items
+                "items": cover_items,
+                "media_image": cover_bg
             },
-            "narration": f"오직 물리치료사를 위한 커뮤니티, THEPT입니다. {day_name}에 전해드리는 {category_title} 핵심 뉴스 {num_arts}가지, 지금 바로 시작합니다!"
+            "narration": f"{day_name} 더피티 뉴스 1분 브리핑 시작합니다."
         }
     ]
 
@@ -426,6 +443,7 @@ def build_daily_curated_package(
                 "category": category_title,
                 "source": f"{art.get('source', '뉴스')} ({art.get('pub_date', '')})",
                 "headline": art_headline,
+                "media_image": bg_art,
                 "bullets": comp["bullets"],
                 "highlight": comp["highlight"],
                 "story_summary": comp.get("story_summary", "")
@@ -433,7 +451,7 @@ def build_daily_curated_package(
             "narration": f"{ord_word} 소식입니다. {narration_headline}. {comp['narration_body']}"
         })
 
-    # 슬라이드 5: 광고/프로모션 페이지 (4THEPT 임상차팅 서비스 & 광고문의)
+    # 슬라이드 5: 광고/프로모션 페이지 (4THEPT 임상차팅 서비스 & 창업 전자책)
     from config import DEFAULT_AD_CONFIG
     ad_cfg = DEFAULT_AD_CONFIG.copy()
     ad_bg = str(photo_map.get(2, cover_bg))
@@ -446,19 +464,16 @@ def build_daily_curated_package(
         "narration": ad_cfg["narration"]
     })
 
-    # 슬라이드 6: 아웃트로 슬라이드
+    # 슬라이드 6: 아웃트로 슬라이드 (남녀 듀오 물리치료사 대표 이미지 적용)
     outro_bg = str(photo_map.get(num_arts, cover_bg))
-    outro_narration = (
-        "오늘 전해드린 소식이 도움 되셨다면 좋아요와 공유 부탁드립니다. 다음 주에도 유익하고 알찬 물리치료 소식으로 찾아오겠습니다. 감사합니다!"
-        if day_key == "sat" or day_name == "토요일" else
-        "오늘 전해드린 소식이 도움 되셨다면 좋아요와 공유 부탁드립니다. 내일도 유익하고 알찬 물리치료 소식으로 찾아오겠습니다. 감사합니다!"
-    )
+    outro_narration = "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
     slides.append({
         "type": "outro",
         "header_tag": "THEPT NEWS",
         "swipe_label": "좋아요 & 공유 ❤️",
         "background": outro_bg,
         "data": {
+            "media_image": str(OUTRO_IMG_PATH) if OUTRO_IMG_PATH.exists() else "",
             "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
             "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
         },
