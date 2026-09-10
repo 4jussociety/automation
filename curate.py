@@ -297,11 +297,12 @@ def cmd_upload(args):
             return
         keywords = WEEKDAY_KEYWORD_MAP.get(current_weekday, [])
         today_mmdd = now_kst.strftime("%m%d")
-        matched_today = []
-        for d in day_folders:
-            low = d.name.lower()
-            if today_mmdd in low or any(kw in low for kw in keywords):
-                matched_today.append(d)
+        # 오늘 요일에 해당하는 폴더 1건만 엄격 선별
+        matched_today = [d for d in day_folders if any(kw in d.name.lower() for kw in keywords)]
+        if len(matched_today) > 1:
+            mmdd_filtered = [d for d in matched_today if today_mmdd in d.name]
+            if mmdd_filtered:
+                matched_today = mmdd_filtered
         day_folders = matched_today
         if not day_folders:
             print(f"⚠️ [주의] 오늘 요일({keywords[0].upper()})에 해당하는 콘텐츠 폴더를 찾을 수 없습니다: {weekly_dir}")
