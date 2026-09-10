@@ -150,8 +150,10 @@ class YouTubeShortsUploader:
         if not video_path.exists():
             raise FileNotFoundError(f"업로드할 비디오 파일이 없습니다: {video_path}")
 
-        # 제목 및 태그 정제 (사족 없는 순수 제목 규칙 준수)
-        clean_title = title.strip()[:100]
+        # 제목 및 태그 정제 (#Shorts 태그 보장)
+        clean_title = title.strip()
+        if "#Shorts" not in clean_title and "#shorts" not in clean_title:
+            clean_title = f"{clean_title[:85]} #Shorts"
 
         video_tags = tags or ["물리치료", "재활치료", "도수치료", "Shorts", "THEPT", "더피티"]
 

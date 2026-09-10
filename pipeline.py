@@ -296,7 +296,7 @@ async def run_curated_6days_pipeline(
         s2 = sources[1] if len(sources) > 1 else {"title": "", "source": "", "link": ""}
         s3 = sources[2] if len(sources) > 2 else {"title": "", "source": "", "link": ""}
 
-        clean_title = f"{day_name} THEPT 물리치료 1분 브리핑"
+        clean_title = f"{day_name} THEPT 물리치료 1분 브리핑 #Shorts"
 
         if is_global:
             # 글로벌 기사 전용 유튜브 쇼츠 설명란: 상세 번역 브리핑 전문 수록
@@ -310,7 +310,7 @@ async def run_curated_6days_pipeline(
                 articles_briefing_text += f"  🔗 원문 링크: {s['link']}\n\n"
 
             shorts_caption = (
-                f"📢 {day_name} THEPT 물리치료 1분 브리핑\n\n"
+                f"📢 {day_name} THEPT 물리치료 1분 브리핑 #Shorts\n\n"
                 f"해외 최신 물리치료 임상 가이드라인과 글로벌 트렌드 {len(articles)}가지를 전해드립니다!\n\n"
                 f"⏱️ [타임라인 & 글로벌 뉴스 심층 번역 브리핑]\n"
                 f"{t_intro} 인트로\n"
@@ -327,7 +327,7 @@ async def run_curated_6days_pipeline(
             )
         else:
             shorts_caption = (
-                f"📢 {day_name} THEPT 물리치료 1분 브리핑\n\n"
+                f"📢 {day_name} THEPT 물리치료 1분 브리핑 #Shorts\n\n"
                 f"한 주간 가장 주목할 물리치료 최신 뉴스 {len(articles)}가지를 1분 만에 전해드립니다!\n\n"
                 f"⏱️ [타임라인 & 기사 원문 요약]\n"
                 f"{t_intro} 인트로\n"

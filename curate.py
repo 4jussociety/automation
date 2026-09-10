@@ -388,8 +388,8 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 video_path = shorts_files[0]
-                # 제목 규칙: '{요일} THEPT 물리치료 1분 브리핑' (사족 완전 배제)
-                yt_title = f"{day_label} THEPT 물리치료 1분 브리핑"
+                # 제목 규칙: '{요일} THEPT 물리치료 1분 브리핑 #Shorts'
+                yt_title = f"{day_label} THEPT 물리치료 1분 브리핑 #Shorts"
 
                 # 생성된 전용 유튜브 설명란 파일이 있으면 우선 사용
                 yt_caption_file = folder / "youtube_shorts_caption.txt"
@@ -397,7 +397,7 @@ def cmd_upload(args):
                     yt_desc = yt_caption_file.read_text(encoding="utf-8").strip()
                 else:
                     yt_desc = (
-                        f"📢 {day_label} THEPT 물리치료 1분 브리핑\n\n"
+                        f"📢 {day_label} THEPT 물리치료 1분 브리핑 #Shorts\n\n"
                         f"{caption}\n\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
@@ -406,7 +406,7 @@ def cmd_upload(args):
                         f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
                         f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                        f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티\n"
+                        f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활 #도수치료\n"
                     )
 
                 print(f"   ▶️ [YouTube Shorts] 즉시 공개 업로드 요청 중... (제목: '{yt_title}')")
@@ -414,7 +414,7 @@ def cmd_upload(args):
                     video_path=video_path,
                     title=yt_title,
                     description=yt_desc,
-                    tags=["물리치료", "물리치료사", "Shorts", "쇼츠", "THEPT", "더피티"],
+                    tags=["물리치료", "물리치료사", "Shorts", "쇼츠", "THEPT", "더피티", "재활", "도수치료"],
                     publish_at_rfc3339=None,
                     first_comment=first_comment,
                     dry_run=dry_run
