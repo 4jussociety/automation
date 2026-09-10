@@ -271,9 +271,14 @@ def cmd_upload(args):
         print("   먼저 콘텐츠를 제작하세요: python curate.py build --render")
         return
 
-    # 요일 필터링 (--today-only 또는 --day)
+    # 요일 필터링 (--today-only 또는 --day 또는 --all)
     today_only = getattr(args, "today_only", False)
     target_day_arg = getattr(args, "day", None)
+    all_days = getattr(args, "all", False)
+
+    if not today_only and not target_day_arg and not all_days:
+        print("💡 [안내] 특정 요일(--day)이나 --all 플래그가 지정되지 않아 오늘 요일(--today-only) 모드로 자동 전환합니다.")
+        today_only = True
 
     from modules.sns_scheduler import KST
     now_kst = datetime.now(KST)
@@ -347,18 +352,41 @@ def cmd_upload(args):
         elif "caption" in pkg_data:
             caption = pkg_data["caption"].strip()
 
+        # 첫 댓글 로드 (전용 파일 우선, 없으면 공식 간결 템플릿)
+        from pipeline import FIRST_COMMENT_TEXT
+        first_comment_file = folder / "first_comment.txt"
+        if first_comment_file.exists():
+            first_comment = first_comment_file.read_text(encoding="utf-8").strip()
+        else:
+            first_comment = FIRST_COMMENT_TEXT
+
         # 스케줄 계산 (월~토)
         sched = get_schedule_for_day(folder_name)
-        if today_only:
-            sched["unix_timestamp"] = None
-            sched["rfc3339"] = None
-            sched["is_immediate"] = True
-            sched["formatted_kst"] = f"[즉시 업로드] (당일 실시간 공개 발행)"
+        # 매일 아침 08:00 KST에 GitHub Actions 또는 수동 발행 시 즉시 공개 발행
+        # 미래 예약 업로드는 YouTube 댓글 권한 에러(403) 및 이중 예약 문제를 유발하므로 항상 즉시 업로드로 통일
+        sched["unix_timestamp"] = None
+        sched["rfc3339"] = None
+        sched["is_immediate"] = True
+        sched["formatted_kst"] = "[즉시 업로드] (실시간 공개 발행)"
 
         day_label = pkg_data.get("day_name", folder_name)
         cat_title = pkg_data.get("category_title", folder_name)
 
-        print(f"\n📅 [{day_label}] {cat_title} ({folder_name})")
+        # 요일 한글 정규화 (예: '목', 'Thu', '0910_Thu_Tech' -> '목요일')
+        korean_day = day_label
+        low_day = (day_label or "").lower()
+        if "mon" in low_day or "월" in low_day: korean_day = "월요일"
+        elif "tue" in low_day or "화" in low_day: korean_day = "화요일"
+        elif "wed" in low_day or "수" in low_day: korean_day = "수요일"
+        elif "thu" in low_day or "목" in low_day: korean_day = "목요일"
+        elif "fri" in low_day or "금" in low_day: korean_day = "금요일"
+        elif "sat" in low_day or "토" in low_day: korean_day = "토요일"
+
+        # 제목 표준화 규칙: "{요일} THEPT 물리치료 1분 브리핑"
+        yt_title = f"{korean_day} THEPT 물리치료 1분 브리핑"
+
+        print(f"\n📅 [{korean_day}] {cat_title} ({folder_name})")
+        print(f"   📌 제목: {yt_title}")
         print(f"   ⏰ 발행 모드: {sched['formatted_kst']}")
 
         # 1. YouTube Shorts 업로드
@@ -368,9 +396,6 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 video_path = shorts_files[0]
-                raw_title = pkg_data.get("title", f"{day_label} 물리치료 브리핑")
-                clean_title = re.sub(r"<[^>]+>", "", raw_title).strip()
-                yt_title = f"[{day_label}] {clean_title} #Shorts"[:95]
 
                 # 생성된 전용 유튜브 설명란 파일이 있으면 우선 사용
                 yt_caption_file = folder / "youtube_shorts_caption.txt"
@@ -378,31 +403,18 @@ def cmd_upload(args):
                     yt_desc = yt_caption_file.read_text(encoding="utf-8").strip()
                 else:
                     yt_desc = (
-                        f"📢 [{day_label}] {clean_title} #Shorts\n\n"
+                        f"📢 {yt_title}\n\n"
                         f"{caption}\n\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
-                        f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
-                        f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
+                        f"📌 바로가기 안내\n"
+                        f"• 방문재활 AI 음성차팅 무료체험: https://4thept.com\n"
+                        f"• 센터창업 가이드 전자책: https://kmong.com/gig/813101\n"
                         f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
-                        f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                        f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활"
+                        f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티"
                     )
 
-                first_comment = (
-                    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
-                    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
-                    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
-                    "👉 바로가기: https://4thept.com\n\n"
-                    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
-                    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
-                    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
-                    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
-                    "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
-                )
-
-                yt_mode = "예약 업로드" if sched["rfc3339"] else "즉시 업로드"
+                yt_mode = "즉시 업로드"
                 print(f"   ▶️ [YouTube Shorts] {yt_mode} 요청 중...")
                 res_yt = upload_youtube_short(
                     video_path=video_path,
@@ -427,19 +439,8 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 image_urls = [get_github_raw_url(p) for p in card_images]
-                ig_mode = "예약 업로드" if sched["unix_timestamp"] else "즉시 업로드"
+                ig_mode = "즉시 업로드"
                 print(f"   📸 [Instagram 캐러셀] {ig_mode} 요청 중... (총 {len(card_images)}장)")
-                first_comment = (
-                    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
-                    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
-                    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
-                    "👉 바로가기: https://4thept.com\n\n"
-                    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
-                    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
-                    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
-                    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
-                    "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
-                )
                 res_ig = upload_instagram_carousel(
                     image_urls=image_urls,
                     caption=caption,
@@ -460,19 +461,8 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 video_url = get_github_raw_url(shorts_files[0])
-                reel_mode = "예약 업로드" if sched["unix_timestamp"] else "즉시 업로드"
+                reel_mode = "즉시 업로드"
                 print(f"   🎥 [Instagram 릴스] {reel_mode} 요청 중...")
-                first_comment = (
-                    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
-                    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
-                    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
-                    "👉 바로가기: https://4thept.com\n\n"
-                    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
-                    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
-                    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
-                    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
-                    "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
-                )
                 res_reel = upload_instagram_reel(
                     video_url=video_url,
                     caption=caption,
@@ -623,6 +613,7 @@ def main():
     p_upload.add_argument("--type", type=str, default="all", choices=["all", "carousel", "shorts", "video"], help="대상 콘텐츠 유형 (all, carousel, shorts)")
     p_upload.add_argument("--today-only", action="store_true", default=False, help="오늘 요일(KST 기준)에 해당하는 콘텐츠 1건만 즉시 발행")
     p_upload.add_argument("--day", type=str, default=None, help="특정 요일 지정 발행 (예: mon, tue, wed, thu, fri, sat 또는 01, 02 등)")
+    p_upload.add_argument("--all", action="store_true", default=False, help="주 6일 전체 일괄 즉시 발행")
     p_upload.add_argument("--dry-run", action="store_true", default=False, help="실제 API 호출 없이 예약 스케줄 및 업로드 매핑 시뮬레이션")
 
     # 5. sync
