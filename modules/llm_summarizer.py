@@ -29,14 +29,16 @@ def _save_cache(cache_data: dict):
 
 
 def _get_article_key(article: dict) -> str:
-    """기사 고유 식별 키 생성 (ID 우선, 없으면 URL 또는 제목 해시)"""
+    """기사 고유 식별 키 생성 (기사 링크 + 제목 해시 기반 고유 키 생성)"""
+    link = (article.get("link") or "").strip()
+    title = (article.get("title") or "").strip()
+    if link or title:
+        raw = f"{link}_{title}"
+        return hashlib.md5(raw.encode("utf-8")).hexdigest()
     art_id = article.get("id")
     if art_id:
         return str(art_id)
-    link = article.get("link", "")
-    title = article.get("title", "")
-    raw = f"{link}_{title}"
-    return hashlib.md5(raw.encode("utf-8")).hexdigest()
+    return "unknown_article"
 
 
 def build_system_prompt(is_global: bool = False) -> str:

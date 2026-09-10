@@ -8,7 +8,28 @@ import re
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
-from config import DEFAULT_BG_PATH, AI_TECH_BG_PATH, DEFAULT_AD_CONFIG, OUTRO_IMG_PATH
+import base64
+
+from config import DEFAULT_BG_PATH, AI_TECH_BG_PATH, DEFAULT_AD_CONFIG, OUTRO_IMG_PATH, get_day_intro_image
+
+
+def get_image_data_uri(img_path) -> str:
+    """이미지 파일 경로를 받아 base64 Data URI로 변환합니다."""
+    if not img_path:
+        return ""
+    if str(img_path).startswith("data:"):
+        return str(img_path)
+    p = Path(img_path) if isinstance(img_path, (str, Path)) else None
+    if not p or not p.exists():
+        return ""
+    suffix = p.suffix.lower().replace(".", "")
+    mime = "jpeg" if suffix in ["jpg", "jpeg"] else "png"
+    try:
+        raw = p.read_bytes()
+        encoded = base64.b64encode(raw).decode("utf-8")
+        return f"data:image/{mime};base64,{encoded}"
+    except Exception:
+        return ""
 
 
 def build_slide_html(slide_type: str, data: dict) -> str:
@@ -20,7 +41,8 @@ def build_slide_html(slide_type: str, data: dict) -> str:
             for i, item in enumerate(items, 1)
         ])
         media_img = data.get("media_image", "")
-        bg_style = f"background-image: url('{media_img}');" if media_img else "background: linear-gradient(135deg, #1e293b, #0f172a);"
+        media_uri = get_image_data_uri(media_img)
+        bg_style = f"background-image: url('{media_uri}');" if media_uri else "background: linear-gradient(135deg, #1e293b, #0f172a);"
         return f"""
         <div class="cover-media-frame">
             <div class="cover-media-img" style="{bg_style}"></div>
@@ -35,18 +57,20 @@ def build_slide_html(slide_type: str, data: dict) -> str:
             f'<div class="news-body-bullet">• {b}</div>'
             for b in data.get("bullets", [])
         ])
-        # 방송형 템플릿의 경우 기사 보도사진 프레임 지원 (내부 글씨 없이 순수 사진 노출)
+        # 방송형 템플릿의 경우 기사 보도사진 프레임 지원 (중앙 프레임 내 선명한 사진 노출)
         media_img = data.get("media_image", "") or data.get("image_path", "")
         media_frame_html = ""
         if media_img:
-            media_frame_html = f"""
-            <div class="news-media-frame">
-                <div class="news-media-img" style="background-image: url('{media_img}');"></div>
-            </div>
-            """
-        # 최상단 보도사진 -> 바로 아래 메인 헤드라인 (01 인덱스 뱃지 + 기사제목 + - 출처 인라인 연결) -> 3줄 요약
+            media_uri = get_image_data_uri(media_img)
+            if media_uri:
+                media_frame_html = f"""
+                <div class="news-media-frame">
+                    <div class="news-media-img" style="background-image: url('{media_uri}');"></div>
+                </div>
+                """
+        # 최상단 보도사진 -> 바로 아래 메인 헤드라인 (01 인덱스 뱃지 + 기사제목 + 출처 태그) -> 3줄 요약
         source_val = data.get('source', '').strip()
-        source_html = f'<span class="news-source-inline"> - {source_val}</span>' if source_val else ''
+        source_html = f'<span class="news-source-inline">{source_val}</span>' if source_val else ''
         return f"""
         {media_frame_html}
         <h2 class="news-main-headline">
@@ -406,8 +430,12 @@ def build_daily_curated_package(
     tag_text = f"THEPT WEEKLY | {day_name} 브리핑"
 
     # 5. 슬라이드 목록 조립
-    # 슬라이드 1: 표지
-    cover_bg = str(photo_map.get(1, default_bg))
+    # 슬라이드 1: 표지 (요일별 전용 시그니처 인트로 사진 우선 적용)
+    day_intro_img = get_day_intro_image(day_name)
+    if day_intro_img and day_intro_img.exists():
+        cover_bg = str(day_intro_img)
+    else:
+        cover_bg = str(photo_map.get(1, default_bg))
     slides = [
         {
             "type": "cover",

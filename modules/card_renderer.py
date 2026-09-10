@@ -13,15 +13,23 @@ from config import TEMPLATE_4X5, CARD_WIDTH, CARD_HEIGHT, LOGO_PATH, DEFAULT_BG_
 from modules.content_builder import build_slide_html
 
 
-def get_image_data_uri(img_path: Path) -> str:
+def get_image_data_uri(img_path) -> str:
     """이미지 파일을 읽어 base64 Data URI로 변환합니다."""
-    if not img_path or not img_path.exists():
+    if not img_path:
         return ""
-    suffix = img_path.suffix.lower().replace(".", "")
+    if str(img_path).startswith("data:"):
+        return str(img_path)
+    p = Path(img_path) if isinstance(img_path, (str, Path)) else None
+    if not p or not p.exists():
+        return ""
+    suffix = p.suffix.lower().replace(".", "")
     mime = "jpeg" if suffix in ["jpg", "jpeg"] else "png"
-    raw = img_path.read_bytes()
-    encoded = base64.b64encode(raw).decode("utf-8")
-    return f"data:image/{mime};base64,{encoded}"
+    try:
+        raw = p.read_bytes()
+        encoded = base64.b64encode(raw).decode("utf-8")
+        return f"data:image/{mime};base64,{encoded}"
+    except Exception:
+        return ""
 
 
 def get_logo_data_uri() -> str:
@@ -90,7 +98,12 @@ async def render_cards_to_images(
             swipe_label = slide.get("swipe_label", "밀어서 보기 👉")
             date_text = slide.get("date_text", package.get("date_text", default_date_text))
             broadcast_sub = slide.get("broadcast_subtitle", "오늘의 물리치료 뉴스")
-            body_html = build_slide_html(slide_type, slide["data"])
+
+            # slide data의 media_image를 Data URI로 변환하여 Chromium 렌더링 보장
+            slide_data = dict(slide.get("data", {}))
+            if "media_image" in slide_data and slide_data["media_image"]:
+                slide_data["media_image"] = get_image_data_uri(slide_data["media_image"])
+            body_html = build_slide_html(slide_type, slide_data)
             dots_html = generate_dots_html(total_slides, idx)
 
             # 슬라이드별 배경 이미지 로드
@@ -98,8 +111,13 @@ async def render_cards_to_images(
             bg_path = Path(bg_path_str) if bg_path_str else DEFAULT_BG_PATH
             bg_data_uri = get_image_data_uri(bg_path)
 
+            # 푸터 THEPT 로고 노출 조건: 1, 5, 6페이지(표지, 광고, 아웃트로)에만 표시하고 뉴스페이지(2, 3, 4페이지)는 제외
+            is_logo_page = slide_type != "news" and (idx == 0 or idx >= total_slides - 2 or slide_type in ["cover", "ad", "outro"])
+            footer_style = "" if is_logo_page else "display: none;"
+
             # 템플릿 변수 치환
             rendered_html = template_content
+            rendered_html = rendered_html.replace("{{FOOTER_STYLE}}", footer_style)
             rendered_html = rendered_html.replace("{{LOGO_DATA}}", get_logo_data_uri())
             rendered_html = rendered_html.replace("{{BACKGROUND_IMAGE_DATA}}", bg_data_uri)
             rendered_html = rendered_html.replace("{{HEADER_TAG}}", header_tag)

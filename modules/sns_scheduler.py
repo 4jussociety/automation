@@ -39,7 +39,23 @@ def get_schedule_for_day(
     now_kst = datetime.now(KST)
     base = base_date if base_date else now_kst
 
-    target_weekday = DAY_MAP.get(day_name_or_folder, 0)
+    target_weekday = DAY_MAP.get(day_name_or_folder)
+    if target_weekday is None:
+        low = day_name_or_folder.lower()
+        if "mon" in low or "월" in low:
+            target_weekday = 0
+        elif "tue" in low or "화" in low:
+            target_weekday = 1
+        elif "wed" in low or "수" in low:
+            target_weekday = 2
+        elif "thu" in low or "목" in low:
+            target_weekday = 3
+        elif "fri" in low or "금" in low:
+            target_weekday = 4
+        elif "sat" in low or "토" in low:
+            target_weekday = 5
+        else:
+            target_weekday = 0
     current_weekday = base.weekday()
 
     if current_weekday == 6:

@@ -27,6 +27,52 @@ DEFAULT_BG_PATH = BACKGROUNDS_DIR / "pt_clinic_bg.jpg"
 AI_TECH_BG_PATH = BACKGROUNDS_DIR / "ai_rehab_bg.jpg"
 OUTRO_IMG_PATH = ASSETS_DIR / "outro_thept_team.jpg"
 
+# 요일별 시그니처 인트로(표지) 이미지 설정
+INTRO_DIR = ASSETS_DIR / "intro"
+DAY_INTRO_FILES = {
+    "mon": "mon_intro.jpeg",
+    "tue": "tue_intro.jpeg",
+    "wed": "wed_intro.jpeg",
+    "thu": "thu_intro.jpeg",
+    "fri": "fri_intro.jpeg",
+    "sat": "sat_intro.jpeg",
+    "월": "mon_intro.jpeg",
+    "화": "tue_intro.jpeg",
+    "수": "wed_intro.jpeg",
+    "목": "thu_intro.jpeg",
+    "금": "fri_intro.jpeg",
+    "토": "sat_intro.jpeg",
+    "월요일": "mon_intro.jpeg",
+    "화요일": "tue_intro.jpeg",
+    "수요일": "wed_intro.jpeg",
+    "목요일": "thu_intro.jpeg",
+    "금요일": "fri_intro.jpeg",
+    "토요일": "sat_intro.jpeg",
+    "mon_policy": "mon_intro.jpeg",
+    "tue_clinical": "tue_intro.jpeg",
+    "wed_sports": "wed_intro.jpeg",
+    "thu_tech": "thu_intro.jpeg",
+    "fri_celeb": "fri_intro.jpeg",
+    "sat_global": "sat_intro.jpeg",
+}
+
+
+def get_day_intro_image(day_key_or_name: str) -> Path | None:
+    """요일별 전용 인트로(표지) 이미지 경로를 반환합니다."""
+    if not day_key_or_name:
+        return None
+    k = str(day_key_or_name).strip().lower()
+    fname = DAY_INTRO_FILES.get(k)
+    if fname:
+        p = INTRO_DIR / fname
+        if p.exists():
+            return p
+        # templates 폴더 직접 검사
+        p_tmpl = TEMPLATES_DIR / f"{k}.jpeg"
+        if p_tmpl.exists():
+            return p_tmpl
+    return None
+
 # 이미지 및 비디오 규격
 CARD_WIDTH = 1080
 CARD_HEIGHT = 1350   # 4:5 인스타그램 피드 최적 해상도
@@ -97,16 +143,4 @@ GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "main")
 # SNS 발행 기본 시각 (오전 8시 KST)
 PUBLISH_HOUR_KST = int(os.getenv("PUBLISH_HOUR_KST", "8"))
 
-# 금요일: 운동/재활 추천 유튜브 채널 설정 파일 경로
-YOUTUBE_CHANNELS_FILE = BASE_DIR / "data" / "youtube_channels.json"
-
-# 기본 추천 유튜브 채널 목록 (언제든 data/youtube_channels.json 파일에서 채널 추가/삭제 가능)
-DEFAULT_YOUTUBE_CHANNELS = [
-    {"name": "피지컬갤러리", "query": "피지컬갤러리", "enabled": True},
-    {"name": "라이프에이드", "query": "라이프에이드", "enabled": True},
-    {"name": "자세요정", "query": "자세요정", "enabled": True},
-    {"name": "핏블리", "query": "핏블리 재활", "enabled": True},
-    {"name": "물리치료사 이과장", "query": "물리치료사 이과장", "enabled": True},
-    {"name": "문교석 교수", "query": "문교석 물리치료", "enabled": True}
-]
 

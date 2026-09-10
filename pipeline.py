@@ -4,7 +4,7 @@
 import sys
 from pathlib import Path
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import re
 import shutil
@@ -47,14 +47,87 @@ FIRST_COMMENT_TEXT = (
 
 
 # ==============================================================================
-# 주 6일 큐레이션 통합 파이프라인 (월~토 매일 쇼츠 + 카드뉴스 동시 생성)
-# ==============================================================================
+def match_day_filter(query: str, cat_key: str, day_name: str, folder_name: str) -> bool:
+    """
+    요일 검색어(query)가 특정 요일과 일치하는지 유연하게 판정합니다.
+    - 날짜: '0910', '9/10', '9-10', '10', '10일' 등
+    - 영문: 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'
+    - 한글: '월', '화', '수', '목', '금', '토', '월요일', '목요일' 등
+    - 번호: '1', '2', '3', '4', '5', '6', '01', '02', '03', '04', '05', '06'
+    - 폴더/카테고리명: '0910_Thu_Tech', '04_Thu_Tech', 'thu_tech', 'sports' 등
+    """
+    if not query:
+        return True
+    raw_q = query.strip().lower()
 
-async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: bool = True, target_dir: Path = None) -> dict:
+    # 쉼표(,) 구분자로 복수 요일 지정 지원 (예: 'thu,fri,sat', '목,금,토', '10,11,12')
+    if "," in raw_q:
+        return any(
+            match_day_filter(part.strip(), cat_key, day_name, folder_name)
+            for part in raw_q.split(",")
+            if part.strip()
+        )
+
+    # 날짜 정규화 ('9/10', '09-10' -> '0910', '10일' -> '10')
+    q = raw_q.replace("일", "").strip()
+    m_date = re.match(r"^(\d{1,2})[/.-](\d{1,2})$", q)
+    if m_date:
+        q = f"{int(m_date.group(1)):02d}{int(m_date.group(2)):02d}"
+
+    # 1. 4자리 MMDD 날짜 매칭 (예: '0910')
+    if len(q) == 4 and q.isdigit():
+        if q in folder_name.lower():
+            return True
+
+    # 2. 1~2자리 일(Day) 매칭 (예: '10' -> '0910_Thu_Tech'의 10일)
+    if q.isdigit() and len(q) <= 2:
+        m_folder_day = re.match(r"^\d{2}(\d{2})_", folder_name)
+        if m_folder_day and int(m_folder_day.group(1)) == int(q):
+            return True
+
+    # 3. 요일별 키워드 매핑 테이블
+    alias_map = {
+        "mon_policy": ["mon", "월", "월요일", "1", "01", "policy", "정책", "수가"],
+        "tue_clinical": ["tue", "화", "화요일", "2", "02", "clinical", "임상", "도수", "creator"],
+        "wed_sports": ["wed", "수", "수요일", "3", "03", "sports", "스포츠", "운동"],
+        "thu_tech": ["thu", "목", "목요일", "4", "04", "tech", "기술", "ai", "로봇"],
+        "fri_celeb": ["fri", "금", "금요일", "5", "05", "celeb", "셀럽", "스타", "youtube", "유튜브"],
+        "sat_global": ["sat", "토", "토요일", "6", "06", "global", "글로벌", "해외"],
+    }
+
+    # cat_key 기준 별칭 검사
+    for key, aliases in alias_map.items():
+        if key in cat_key or cat_key in key:
+            if q in aliases or any(q == a for a in aliases):
+                return True
+
+    # 폴더명(0910_Thu_Tech) 등 문자열 포함 검사
+    folder_low = folder_name.lower()
+    day_low = day_name.lower()
+    cat_low = cat_key.lower()
+
+    if q in folder_low or q in day_low or q in cat_low:
+        return True
+
+    # 한글 요일 축약 매칭 (예: '목' in '목요일')
+    for d_char in ["월", "화", "수", "목", "금", "토"]:
+        if q == d_char and d_char in day_name:
+            return True
+
+    return False
+
+
+async def run_curated_6days_pipeline(
+    daily_articles_map: dict,
+    render_media: bool = True,
+    target_dir: Path = None,
+    day_filter: str = None
+) -> dict:
     """
     큐레이션된 6대 카테고리(월~토) 기사(각 2~3건)를 바탕으로,
     매일 [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션]을 동시 생성하여 요일별 6개 폴더에 저장합니다.
     (render_media=False 시 이미지/비디오 인코딩을 건너뛰고 대본, 요약, 패키지 메타데이터만 고속 생성합니다.)
+    day_filter 지정 시 해당 요일(예: 'thu', '목요일')만 단독 실행합니다.
     """
     today_str = datetime.now().strftime("%Y-%m-%d")
     weekly_dir = Path(target_dir) if target_dir else (OUTPUT_DIR / f"{today_str}_curated_weekly")
@@ -70,28 +143,47 @@ async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: boo
         shutil.copy(AI_TECH_BG_PATH, bg_dir / "ai_rehab_bg.jpg")
 
     print("=" * 70)
-    print(f"🚀 [THEPT] 주 6일 큐레이션 기반 통합 콘텐츠 자동 생성 ({today_str})")
-    print(f"   📅 월~토 매일: [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션] 동시 조립 (미디어 렌더링: {'ON' if render_media else '대기 (패키지만 생성)'})")
+    print(f"🚀 [THEPT] 주간 큐레이션 기반 통합 콘텐츠 자동 생성 ({today_str})")
+    if day_filter:
+        print(f"   🎯 [지정 요일 모드] '{day_filter}' 필터와 일치하는 요일만 단독 실행합니다.")
+    print(f"   📅 제작 모드: [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션] (미디어 렌더링: {'ON' if render_media else '대기 (패키지만 생성)'})")
     print("=" * 70)
 
-    # 요일별 폴더 및 카테고리 정의
-    day_configs = [
-        ("mon_policy", "월요일", "01_Mon_Policy", "국내 정책·제도·수가·실손보험", False),
-        ("tue_clinical", "화요일", "02_Tue_Clinical", "임상 실무·질환별 재활 프로토콜", False),
-        ("wed_sports", "수요일", "03_Wed_Sports", "운동·스포츠 재활", False),
-        ("thu_tech", "목요일", "04_Thu_Tech", "첨단 재활 기술·AI·로봇", False),
-        ("fri_youtube", "금요일", "05_Fri_YouTube", "운동/재활 유튜버 소식", False),
-        ("sat_global", "토요일", "06_Sat_Global", "해외 글로벌 트렌드", True),
+    # 주간 기준 시작 날짜(월요일) 계산 (weekly_dir 폴더명의 날짜로부터 해당 주의 실제 월요일을 정확히 역산)
+    m_dir_date = re.search(r"(\d{4})-(\d{2})-(\d{2})", weekly_dir.name)
+    if m_dir_date:
+        parsed_dt = datetime(int(m_dir_date.group(1)), int(m_dir_date.group(2)), int(m_dir_date.group(3)))
+        base_monday = parsed_dt - timedelta(days=parsed_dt.weekday())
+    else:
+        now_dt = datetime.now()
+        base_monday = now_dt - timedelta(days=now_dt.weekday())
+
+    # 요일별 폴더 및 카테고리 정의 (MMDD_요일_카테고리: 예: 0907_Mon_Policy, 0910_Thu_Tech)
+    base_day_defs = [
+        ("mon_policy", "월요일", "Mon_Policy", "국내 정책·제도·수가·실손보험", False),
+        ("tue_clinical", "화요일", "Tue_Clinical", "임상 실무·질환별 재활 프로토콜", False),
+        ("wed_sports", "수요일", "Wed_Sports", "운동·스포츠 재활", False),
+        ("thu_tech", "목요일", "Thu_Tech", "첨단 재활 기술·AI·로봇", False),
+        ("fri_celeb", "금요일", "Fri_Celeb", "셀럽 스타 치료 & 건강 가십", False),
+        ("sat_global", "토요일", "Sat_Global", "해외 글로벌 트렌드", True),
     ]
+    day_configs = []
+    for i, (cat_key, day_name, suffix, cat_title, is_global) in enumerate(base_day_defs):
+        day_date = base_monday + timedelta(days=i)
+        mmdd = day_date.strftime("%m%d")
+        folder_name = f"{mmdd}_{suffix}"
+        weekday_kr = ["월", "화", "수", "목", "금", "토", "일"][day_date.weekday()]
+        date_text = f"{day_date.strftime('%y')}년 {day_date.month}월 {day_date.day}일 ({weekday_kr})"
+        day_configs.append((cat_key, day_name, folder_name, cat_title, is_global, date_text, day_date))
 
     results_by_day = []
 
-    for cat_key, day_name, folder_name, cat_title, is_global in day_configs:
+    for cat_key, day_name, folder_name, cat_title, is_global, date_text, day_date in day_configs:
+        # 요일 필터가 지정된 경우 일치하지 않는 요일은 건너뜀
+        if day_filter and not match_day_filter(day_filter, cat_key, day_name, folder_name):
+            continue
+
         articles = daily_articles_map.get(cat_key, [])
-        if not articles and cat_key == "tue_clinical":
-            articles = daily_articles_map.get("tue_creator", [])
-        if not articles and cat_key == "fri_youtube":
-            articles = daily_articles_map.get("fri_celeb", [])
 
         if not articles:
             print(f"\n⚠️ [{day_name}] 선택된 기사가 없어 건너뜁니다.")
@@ -118,6 +210,8 @@ async def run_curated_6days_pipeline(daily_articles_map: dict, render_media: boo
             article_photos=day_photos,
             is_global=is_global
         )
+        pkg["date_text"] = date_text
+        pkg["target_date"] = day_date.strftime("%Y-%m-%d")
 
         (day_dir / "package_data.json").write_text(
             json.dumps(pkg, ensure_ascii=False, indent=2),

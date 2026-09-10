@@ -1,0 +1,165 @@
+{
+  "day_name": "금요일",
+  "category_title": "셀럽 스타 치료 & 건강 가십",
+  "title": "금요일 물리치료 브리핑 | <span class=\"hl-yellow\">셀럽 스타 치료 & 건강 가십</span>",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "신미래, '미스트롯 포유' 특별 무대 출연",
+      "source": "네이버 뉴스",
+      "link": "https://www.topstarnews.net/news/articleView.html?idxno=16182556",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "정형외과 vs 재활의학과, 선택은?",
+      "source": "네이버 뉴스",
+      "link": "http://www.ikoreanspirit.com/news/articleView.html?idxno=87190",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "오타니, 투타겸업 중단…부상 악재",
+      "source": "네이버 뉴스",
+      "link": "https://www.cbci.co.kr/news/articleView.html?idxno=605196",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\fri_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 금요일 브리핑",
+        "title": "<span class=\"hl-yellow\">금요일 셀럽 스타 치료 & 건강 가십</span>",
+        "desc": "오늘 꼭 살펴봐야 할 셀럽 스타 치료 & 건강 가십 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "신미래, '미스트롯 포유' 특별 무대 출연",
+          "정형외과 vs 재활의학과, 선택은?",
+          "오타니, 투타겸업 중단…부상 악재"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\fri_intro.jpeg"
+      },
+      "narration": "금요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 09월 03일 22:48)",
+        "headline": "신미래, '미스트롯 포유' 특별 무대 출연",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_01_photo_01.jpg",
+        "bullets": [
+          "트로트 가수 신미래가 TV조선 '미스트롯 포유'에 출연한다고 발표했다.",
+          "신미래는 물리치료사 경력을 가진 14년 차 트로트 가수로, 독특한 음색으로 주목받고 있다.",
+          "이번 무대에서 TOP7 멤버와 듀엣을 통해 색다른 음색 조합을 선보이며 기대를 모은다."
+        ],
+        "highlight": "💡 포인트: 신미래의 무대에서 독특한 음색을 활용한 치료적 접근을 고려해 보세요.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 신미래, '미스트롯 포유' 특별 무대 출연. 트로트 가수 신미래가 TV조선 '미스트롯 포유'에 출연합니다. 그녀는 물리치료사 경력을 바탕으로 독특한 음색을 선보이며, 팬들과의 소통을 이어가고 있습니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 09월 09일 15:18)",
+        "headline": "정형외과 vs 재활의학과, 선택은?",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+        "bullets": [
+          "정형외과는 구조적 손상 진단 및 치료에 중점을 두고 있습니다.",
+          "재활의학과는 통증 완화와 기능 회복을 위한 지속적인 치료에 집중합니다.",
+          "환자의 생활 패턴에 맞춘 진료 환경 선택이 치료 연속성에 중요합니다."
+        ],
+        "highlight": "💡 포인트: 환자는 자신의 일정에 맞춰 치료를 받을 수 있는 병원을 선택해야 합니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 정형외과 대 재활의학과, 선택은. 정형외과와 재활의학과는 근골격계 문제를 다루지만, 접근 방식이 다릅니다. 환자는 자신의 생활 패턴에 맞는 진료 환경을 선택하여 지속적인 치료를 이어가는 것이 중요합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 09월 09일 13:08)",
+        "headline": "오타니, 투타겸업 중단…부상 악재",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+        "bullets": [
+          "오타니 쇼헤이는 부상으로 투수 등판을 중단하고 타자로만 집중하기로 결정했다.",
+          "왼쪽 무릎 통증과 오른팔 이두근 부상으로 복귀가 지연되며 부상자 명단 등재 가능성이 제기되었다.",
+          "부상으로 인해 타격 성적이 저조해지며, 물리치료와 재활이 필요한 상황이다."
+        ],
+        "highlight": "💡 포인트: 오타니의 부상 관리와 재활에 대한 철저한 계획이 필요하다.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 오타니, 투타겸업 중단부상 악재. 오타니 쇼헤이는 부상으로 인해 투수로서의 경기를 중단하고 타자로만 집중하기로 했습니다. 그의 부상 관리와 재활이 향후 시즌에 중요한 영향을 미칠 것으로 보입니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-07_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 금요일]\n금요일 물리치료 브리핑: 셀럽 스타 치료 & 건강 가십\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 신미래, '미스트롯 포유' 특별 무대 출연 (네이버 뉴스)\n   🔗 https://www.topstarnews.net/news/articleView.html?idxno=16182556\n\n02. 정형외과 vs 재활의학과, 선택은? (네이버 뉴스)\n   🔗 http://www.ikoreanspirit.com/news/articleView.html?idxno=87190\n\n03. 오타니, 투타겸업 중단…부상 악재 (네이버 뉴스)\n   🔗 https://www.cbci.co.kr/news/articleView.html?idxno=605196\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#셀럽_스타_치료_&_건강_가십 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 9월 11일 (금)",
+  "target_date": "2026-09-11"
+}

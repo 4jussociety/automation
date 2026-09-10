@@ -8,7 +8,7 @@ import asyncio
 import json
 import re
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # 윈도우 UTF-8 출력 보장
 if sys.platform == "win32":
@@ -40,9 +40,12 @@ from modules.article_image_fetcher import fetch_article_images
 def get_weekly_dir(date_str: str = None, create: bool = True) -> Path:
     """
     주간 큐레이션 통합 작업 디렉토리(output/{YYYY-MM-DD}_curated_weekly) 경로를 반환합니다.
+    주간 기준 날짜가 전달되지 않으면, 현재 주의 '월요일'을 기본 날짜로 통일합니다.
     """
     if not date_str:
-        date_str = datetime.now().strftime("%Y-%m-%d")
+        now_dt = datetime.now()
+        monday_dt = now_dt - timedelta(days=now_dt.weekday())
+        date_str = monday_dt.strftime("%Y-%m-%d")
     weekly_dir = OUTPUT_DIR / f"{date_str}_curated_weekly"
     if create:
         weekly_dir.mkdir(parents=True, exist_ok=True)
@@ -53,15 +56,15 @@ def find_active_weekly_dir(date_str: str = None) -> Path:
     """
     작업할 주간 디렉토리를 결정합니다.
     - 날짜가 지정되면 해당 날짜 디렉토리 반환
-    - 오늘 디렉토리가 있으면 오늘 디렉토리 반환
+    - 이번 주(월요일 기준) 디렉토리가 있으면 반환
     - 없으면 가장 최근 생성된 *_curated_weekly 디렉토리 반환
     """
     if date_str:
         return get_weekly_dir(date_str, create=True)
 
-    today_dir = get_weekly_dir(create=False)
-    if today_dir.exists():
-        return today_dir
+    this_week_dir = get_weekly_dir(create=False)
+    if this_week_dir.exists():
+        return this_week_dir
 
     if OUTPUT_DIR.exists():
         weekly_dirs = sorted(
@@ -208,17 +211,28 @@ def cmd_build(args):
 
     # 렌더링 파이프라인 구동
     do_render = getattr(args, "render", False)
-    if do_render:
-        print("\n🎬 주 6일 통합 콘텐츠(쇼츠 비디오 + 4:5 카드뉴스 + 4THEPT 광고 + SNS 캡션) 일괄 렌더링을 시작합니다...")
+    day_arg = getattr(args, "day", None)
+    if day_arg:
+        mode_prefix = f"[{day_arg} 단독 모드]"
     else:
-        print("\n📝 주 6일 통합 콘텐츠 패키지(OpenAI LLM 요약 + 쇼츠 대본 + 4THEPT 광고 + SNS 캡션) 생성을 시작합니다...")
+        mode_prefix = "주 6일 통합 콘텐츠"
+
+    if do_render:
+        print(f"\n🎬 {mode_prefix} (쇼츠 비디오 + 4:5 카드뉴스 + 4THEPT 광고 + SNS 캡션) 일괄 렌더링을 시작합니다...")
+    else:
+        print(f"\n📝 {mode_prefix} 패키지(OpenAI LLM 요약 + 쇼츠 대본 + 4THEPT 광고 + SNS 캡션) 생성을 시작합니다...")
         print("   (※ 카드뉴스 이미지/비디오 렌더링은 --render 옵션 사용 시 수행됩니다.)")
 
     from pipeline import run_curated_6days_pipeline
-    results = asyncio.run(run_curated_6days_pipeline(rebalanced_by_cat, render_media=do_render, target_dir=weekly_dir))
+    results = asyncio.run(run_curated_6days_pipeline(
+        rebalanced_by_cat,
+        render_media=do_render,
+        target_dir=weekly_dir,
+        day_filter=day_arg
+    ))
 
     print("\n" + "=" * 70)
-    print("🎉 [제작 성공] 주간 6일 연계 콘텐츠 생성이 모두 완료되었습니다!")
+    print("🎉 [제작 성공] 콘텐츠 생성이 모두 완료되었습니다!")
     print(f"👉 마스터 저장 폴더: {results.get('weekly_dir', weekly_dir)}")
     print("=" * 70)
 
@@ -246,9 +260,9 @@ def cmd_upload(args):
     print(f"👉 대상 플랫폼: {platform.upper()} | 대상 콘텐츠: {content_type.upper()}")
     print("=" * 70)
 
-    # 요일 폴더 탐색 (01_Mon_Policy, 02_Tue_Creator, ...)
+    # 요일 폴더 탐색 (0907_Mon_Policy, 01_Mon_Policy 등 MMDD 또는 순번 프리픽스 지원)
     day_folders = sorted(
-        [d for d in weekly_dir.iterdir() if d.is_dir() and re.match(r"^\d{2}_", d.name)],
+        [d for d in weekly_dir.iterdir() if d.is_dir() and re.match(r"^\d{2,4}_", d.name)],
         key=lambda x: x.name
     )
 
@@ -265,29 +279,39 @@ def cmd_upload(args):
     now_kst = datetime.now(KST)
     current_weekday = now_kst.weekday()  # 0:월, 1:화, 2:수, 3:목, 4:금, 5:토, 6:일
 
-    WEEKDAY_PREFIX_MAP = {
-        0: "01_Mon",
-        1: "02_Tue",
-        2: "03_Wed",
-        3: "04_Thu",
-        4: "05_Fri",
-        5: "06_Sat",
+    WEEKDAY_KEYWORD_MAP = {
+        0: ["mon", "월"],
+        1: ["tue", "화"],
+        2: ["wed", "수"],
+        3: ["thu", "목"],
+        4: ["fri", "금"],
+        5: ["sat", "토"],
     }
 
     if today_only:
         if current_weekday == 6:
             print("ℹ️ [스킵] 오늘은 일요일입니다. 주 6일(월~토) 정기 발행 대상 요일이 아니므로 안전하게 종료합니다.")
             return
-        target_prefix = WEEKDAY_PREFIX_MAP.get(current_weekday)
-        day_folders = [d for d in day_folders if d.name.startswith(target_prefix)]
+        keywords = WEEKDAY_KEYWORD_MAP.get(current_weekday, [])
+        today_mmdd = now_kst.strftime("%m%d")
+        matched_today = []
+        for d in day_folders:
+            low = d.name.lower()
+            if today_mmdd in low or any(kw in low for kw in keywords):
+                matched_today.append(d)
+        day_folders = matched_today
         if not day_folders:
-            print(f"⚠️ [주의] 오늘 요일({target_prefix})에 해당하는 콘텐츠 폴더를 찾을 수 없습니다: {weekly_dir}")
+            print(f"⚠️ [주의] 오늘 요일({keywords[0].upper()})에 해당하는 콘텐츠 폴더를 찾을 수 없습니다: {weekly_dir}")
             return
-        print(f"🎯 [당일 전용 모드 (--today-only)] 오늘 요일({target_prefix}) 콘텐츠만 선별하여 즉시 발행합니다.")
+        print(f"🎯 [당일 전용 모드 (--today-only)] 오늘 요일 콘텐츠만 선별하여 즉시 발행합니다: {[d.name for d in day_folders]}")
 
     elif target_day_arg:
-        day_arg = target_day_arg.strip().lower()
-        day_folders = [d for d in day_folders if day_arg in d.name.lower()]
+        from pipeline import match_day_filter
+        matched_folders = []
+        for d in day_folders:
+            if match_day_filter(target_day_arg, d.name.lower(), "", d.name):
+                matched_folders.append(d)
+        day_folders = matched_folders
         if not day_folders:
             print(f"⚠️ [주의] 지정하신 요일 키워드('{target_day_arg}')와 일치하는 폴더를 찾을 수 없습니다.")
             return
@@ -325,10 +349,11 @@ def cmd_upload(args):
 
         # 스케줄 계산 (월~토)
         sched = get_schedule_for_day(folder_name)
-        if today_only or target_day_arg:
+        if today_only:
             sched["unix_timestamp"] = None
+            sched["rfc3339"] = None
             sched["is_immediate"] = True
-            sched["formatted_kst"] = f"[즉시 업로드] (당일 선별 발행)"
+            sched["formatted_kst"] = f"[즉시 업로드] (당일 실시간 공개 발행)"
 
         day_label = pkg_data.get("day_name", folder_name)
         cat_title = pkg_data.get("category_title", folder_name)
@@ -523,6 +548,41 @@ def cmd_stats(args):
     print("=" * 50)
 
 
+def cmd_export_yt_secrets(args):
+    """GitHub Actions Secrets 등록용 Base64 환경 변수 문자열을 출력합니다."""
+    import base64
+    from config import YOUTUBE_TOKEN_FILE, YOUTUBE_CLIENT_SECRET_FILE
+
+    token_path = Path(YOUTUBE_TOKEN_FILE)
+    cs_path = Path(YOUTUBE_CLIENT_SECRET_FILE)
+
+    print("\n" + "=" * 70)
+    print("🔐 [YouTube GitHub Secrets] 설정 도우미")
+    print("GitHub 저장소 -> Settings -> Secrets and variables -> Actions 로 이동 후")
+    print("아래 2개의 Secret을 새로 등록해 주세요:")
+    print("=" * 70)
+
+    if token_path.exists():
+        t_b64 = base64.b64encode(token_path.read_bytes()).decode("utf-8")
+        print("\n1️⃣ Secret Name: YOUTUBE_TOKEN_BASE64")
+        print("   Value (아래 한 줄 전체 복사):")
+        print(t_b64)
+    else:
+        print("\n❌ token.pickle 파일이 없습니다. 먼저 python curate.py auth-yt 를 실행하세요.")
+
+    if cs_path.exists():
+        c_b64 = base64.b64encode(cs_path.read_bytes()).decode("utf-8")
+        print("\n2️⃣ Secret Name: YOUTUBE_CLIENT_SECRET_BASE64")
+        print("   Value (아래 한 줄 전체 복사):")
+        print(c_b64)
+    else:
+        print("\n⚠️ client_secret.json 파일이 없습니다.")
+
+    print("\n" + "=" * 70)
+    print("✅ 등록 후 매일 아침 08:00 KST에 GitHub Actions가 유튜브와 인스타그램을 자동 발행합니다.")
+    print("=" * 70 + "\n")
+
+
 def cmd_sync(args):
     """GitHub 저장소와 주간 큐레이션 미디어를 동기화하고 최근 4주치 롤링 보관을 적용합니다."""
     from modules.git_sync_manager import sync_weekly_output_to_github
@@ -550,6 +610,7 @@ def main():
 
     # 3. build
     p_build = subparsers.add_parser("build", help="3단계: 최종 선택 기사 확정, 이유 저장 및 주 6일 콘텐츠 일괄 제작")
+    p_build.add_argument("--day", type=str, default=None, help="특정 요일만 단독 빌드/렌더링 (예: mon, tue, wed, thu, fri, sat, 목요일, 04 등)")
     p_build.add_argument("--render", action="store_true", default=False, help="카드뉴스 PNG 및 쇼츠 MP4 미디어 렌더링까지 즉시 수행")
     p_build.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
     p_build.add_argument("--upload", action="store_true", default=False, help="콘텐츠 제작 완료 후 유튜브/인스타 자동 예약 업로드 연계 실행")
@@ -580,6 +641,9 @@ def main():
     # 8. stats
     p_stats = subparsers.add_parser("stats", help="누적된 큐레이션 데이터셋 통계 확인")
 
+    # 9. export-yt-secrets
+    p_secrets = subparsers.add_parser("export-yt-secrets", help="GitHub Actions Secrets 등록용 YouTube 토큰 Base64 출력 도우미")
+
     args = parser.parse_args()
 
     if args.command == "fetch":
@@ -598,6 +662,8 @@ def main():
         cmd_test_insta(args)
     elif args.command == "stats":
         cmd_stats(args)
+    elif args.command == "export-yt-secrets":
+        cmd_export_yt_secrets(args)
     else:
         parser.print_help()
 

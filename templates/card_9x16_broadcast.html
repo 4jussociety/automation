@@ -242,10 +242,10 @@
       display: flex;
       align-items: center;
       gap: 20px;
-      font-size: 34px; /* 확대: 30px -> 34px */
+      font-size: 38px;
       font-weight: 800;
       color: #ffffff;
-      line-height: 1.36;
+      line-height: 1.35;
       word-break: keep-all;
       backdrop-filter: blur(16px);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
@@ -254,13 +254,13 @@
     .cover-num-bullet {
       background: #facc15;
       color: #000000;
-      width: 50px; /* 확대: 44px -> 50px */
-      height: 50px;
+      width: 54px;
+      height: 54px;
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px; /* 확대: 26px -> 30px */
+      font-size: 32px;
       font-weight: 900;
       flex-shrink: 0;
     }
@@ -286,13 +286,14 @@
     }
 
     .news-main-headline {
-      font-size: 48px; /* 가독성 강화: 48px */
+      font-size: 42px;
       font-weight: 900;
-      line-height: 1.36;
-      letter-spacing: -1.5px;
+      line-height: 1.38;
+      letter-spacing: -1.2px;
       color: #ffffff;
       margin-bottom: 20px;
       word-break: keep-all;
+      overflow-wrap: break-word;
       text-shadow: 0 4px 20px rgba(0, 0, 0, 0.75);
     }
 
@@ -304,21 +305,29 @@
       color: #000000;
       font-family: 'Outfit', sans-serif;
       font-weight: 900;
-      font-size: 32px;
-      padding: 4px 18px;
-      border-radius: 12px;
-      margin-right: 14px;
-      vertical-align: 4px;
+      font-size: 28px;
+      padding: 3px 14px;
+      border-radius: 10px;
+      margin-right: 12px;
+      vertical-align: 3px;
       box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
     }
 
     .news-source-inline {
-      font-size: 32px;
-      font-weight: 700;
-      color: #cbd5e1;
+      font-size: 28px;
+      font-weight: 600;
+      color: #94a3b8;
       margin-left: 10px;
       white-space: nowrap;
+      display: inline-block;
+      vertical-align: 2px;
       text-shadow: none;
+    }
+
+    .news-source-inline::before {
+      content: "· ";
+      color: #64748b;
+      margin-right: 4px;
     }
 
     .news-glass-box {
@@ -331,8 +340,8 @@
     }
 
     .news-body-bullet {
-      font-size: 34px; /* 확대: 34px로 3줄 요약 가독성 극대화 */
-      line-height: 1.55;
+      font-size: 38px;
+      line-height: 1.52;
       color: #f1f5f9;
       font-weight: 600;
       margin-bottom: 16px;
@@ -512,7 +521,7 @@
       font-weight: 900;
       color: #0f172a;
       text-align: center;
-      margin-top: 18px;
+      margin-top: 14px;
       box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
       letter-spacing: -0.5px;
     }

@@ -8,20 +8,37 @@ import shutil
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
+from PIL import Image
+
 from config import VIDEO_WIDTH, VIDEO_HEIGHT, CARD_WIDTH, CARD_HEIGHT
+
+
+def get_video_filter(img_path: Path) -> str:
+    """
+    입력 이미지가 이미 9:16 세로형(1080x1920)인 경우 상하 왜곡 및 축소 없이 1:1 풀화면으로 직통 인코딩하고,
+    4:5 비율(1080x1350)인 경우에만 센터 오버레이 + 블러 배경 처리를 적용합니다.
+    """
+    try:
+        with Image.open(img_path) as im:
+            w, h = im.size
+            if h >= w * 1.6:  # 9:16 방송형 풀스크린 이미지 (예: 1080x1920)
+                return f"[0:v]scale={VIDEO_WIDTH}:{VIDEO_HEIGHT},setsar=1[v]"
+    except Exception:
+        pass
+
+    return (
+        f"[0:v]scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
+        f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},boxblur=28:6,setsar=1[bg];"
+        f"[0:v]scale={CARD_WIDTH}:{CARD_HEIGHT}[fg];"
+        f"[bg][fg]overlay=(W-w)/2:(H-h)/2[v]"
+    )
 
 
 def render_slide_segment(image_path: Path, audio_path: Path, duration: float, output_segment: Path) -> Path:
     """단일 슬라이드 이미지와 오디오를 9:16 세그먼트 영상으로 렌더링합니다."""
     output_segment.parent.mkdir(parents=True, exist_ok=True)
 
-    # 4:5 이미지를 중앙에 배치하고, 배경은 동일 이미지를 블러 처리하여 1080x1920으로 채우는 필터
-    filter_complex = (
-        f"[0:v]scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
-        f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},boxblur=28:6,setsar=1[bg];"
-        f"[0:v]scale={CARD_WIDTH}:{CARD_HEIGHT}[fg];"
-        f"[bg][fg]overlay=(W-w)/2:(H-h)/2[v]"
-    )
+    filter_complex = get_video_filter(image_path)
 
     cmd = [
         "ffmpeg", "-y",
@@ -75,12 +92,7 @@ def render_multi_photo_slide_segment(image_paths: list[Path], audio_path: Path, 
 
     for i, img in enumerate(valid_paths):
         sub_seg = temp_dir / f"sub_{output_segment.stem}_{i:02d}.mp4"
-        filter_complex = (
-            f"[0:v]scale={VIDEO_WIDTH}:{VIDEO_HEIGHT}:force_original_aspect_ratio=increase,"
-            f"crop={VIDEO_WIDTH}:{VIDEO_HEIGHT},boxblur=28:6,setsar=1[bg];"
-            f"[0:v]scale={CARD_WIDTH}:{CARD_HEIGHT}[fg];"
-            f"[bg][fg]overlay=(W-w)/2:(H-h)/2[v]"
-        )
+        filter_complex = get_video_filter(img)
         cmd = [
             "ffmpeg", "-y",
             "-loop", "1",

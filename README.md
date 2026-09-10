@@ -61,12 +61,12 @@ automatic/
 └── output/
     └── YYYY-MM-DD_curated_weekly/   # 주간 통합 마스터 폴더
         ├── backgrounds/             # 크롤링된 실제 보도 사진 및 유튜브 썸네일 풀
-        ├── 01_Mon_Policy/           # 월요일 정책/제도 카드뉴스 + 쇼츠
-        ├── 02_Tue_Clinical/         # 화요일 임상 실무 카드뉴스 + 쇼츠
-        ├── 03_Wed_Sports/           # 수요일 스포츠 재활 카드뉴스 + 쇼츠
-        ├── 04_Thu_Tech/             # 목요일 첨단 로봇/AI 카드뉴스 + 쇼츠
-        ├── 05_Fri_YouTube/          # 금요일 유튜버 소식 카드뉴스 + 쇼츠
-        └── 06_Sat_Global/           # 토요일 해외 글로벌 트렌드 카드뉴스 + 쇼츠
+        ├── MMDD_Mon_Policy/         # 월요일 정책/제도 카드뉴스 + 쇼츠 (예: 0907_Mon_Policy)
+        ├── MMDD_Tue_Clinical/       # 화요일 임상 실무 카드뉴스 + 쇼츠 (예: 0908_Tue_Clinical)
+        ├── MMDD_Wed_Sports/         # 수요일 스포츠 재활 카드뉴스 + 쇼츠 (예: 0909_Wed_Sports)
+        ├── MMDD_Thu_Tech/           # 목요일 첨단 로봇/AI 카드뉴스 + 쇼츠 (예: 0910_Thu_Tech)
+        ├── MMDD_Fri_Celeb/          # 금요일 셀럽/스타 재활 카드뉴스 + 쇼츠 (예: 0911_Fri_Celeb)
+        └── MMDD_Sat_Global/         # 토요일 해외 글로벌 트렌드 카드뉴스 + 쇼츠 (예: 0912_Sat_Global)
 ```
 
 ---
@@ -81,6 +81,8 @@ NAVER_CLIENT_SECRET=your_client_secret
 ```
 
 ### 2. 주간 마크다운 큐레이션 워크플로 (`curate.py`)
+> 💡 전체 데이터 흐름과 상세 구조는 [**파이프라인 마스터 가이드 (PIPELINE_GUIDE.md)**](file:///c:/Users/myrea/OneDrive/바탕%20화면/개발/자동화에이전트/PIPELINE_GUIDE.md)를 참고하세요.
+
 ```bash
 # 1단계: 6대 카테고리 기사 대량 수집 및 제목 스크리닝 파일 생성
 python curate.py fetch
@@ -92,9 +94,11 @@ python curate.py review
 
 # [중간 작업] candidates_detail.md를 에디터로 열어 최종 기사 확정 [x] 표시
 
-# 3단계: 주 6일 콘텐츠 일괄 제작 및 미디어 렌더링 (원스톱 업로드 가능)
-python curate.py build --render
-# (빌드와 동시에 업로드 예약까지 원스톱 실행: python curate.py build --render --upload)
+# 3단계: 주 6일 콘텐츠 일괄 제작 (또는 --day thu로 특정 요일만 제작)
+python curate.py build
+
+# 4단계: 미디어 렌더링 (목요일만: --day thu --render / 전체: --render)
+python curate.py build --day thu --render
 ```
 
 ---

@@ -387,13 +387,14 @@
 
     /* 헤드라인 스타일 */
     .news-main-headline {
-      font-size: 48px;
+      font-size: 42px;
       font-weight: 900;
       color: #ffffff;
-      line-height: 1.36;
+      line-height: 1.38;
       letter-spacing: -1.2px;
       margin-bottom: 20px;
       word-break: keep-all;
+      overflow-wrap: break-word;
       text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
     }
 
@@ -403,22 +404,31 @@
       justify-content: center;
       background: #facc15;
       color: #0f172a;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 900;
       padding: 3px 14px;
-      border-radius: 8px;
+      border-radius: 10px;
       margin-right: 12px;
-      vertical-align: middle;
+      vertical-align: 3px;
       line-height: 1.15;
       box-shadow: 0 3px 10px rgba(250, 204, 21, 0.4);
     }
 
     .news-source-inline {
-      font-size: 32px;
-      font-weight: 700;
-      color: #cbd5e1;
-      margin-left: 8px;
-      opacity: 0.9;
+      font-size: 26px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-left: 10px;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: 2px;
+      text-shadow: none;
+    }
+
+    .news-source-inline::before {
+      content: "· ";
+      color: #64748b;
+      margin-right: 4px;
     }
 
     /* 글래스모피즘 3줄 요약 박스 */
@@ -435,8 +445,8 @@
     }
 
     .news-body-bullet {
-      font-size: 34px;
-      line-height: 1.55;
+      font-size: 38px;
+      line-height: 1.52;
       color: #f1f5f9;
       font-weight: 600;
       word-break: keep-all;
@@ -466,14 +476,14 @@
     .cover-num-bullet {
       background: #facc15;
       color: #0f172a;
-      width: 44px;
-      height: 44px;
+      width: 54px;
+      height: 54px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      font-size: 26px;
+      font-size: 32px;
       flex-shrink: 0;
       box-shadow: 0 4px 12px rgba(250, 204, 21, 0.35);
     }
@@ -503,7 +513,7 @@
       font-weight: 900;
       color: #0f172a;
       text-align: center;
-      margin-top: 18px;
+      margin-top: 14px;
       box-shadow: 0 8px 25px rgba(245, 158, 11, 0.45);
       letter-spacing: -0.5px;
     }
@@ -789,15 +799,15 @@
               <div class="cover-item-list">
                 <div class="cover-item-row">
                   <span class="cover-num-bullet">1</span>
-                  <span style="font-size: 34px; font-weight: 800; line-height: 1.36;">"방문재활 건보 수가 신설 추진"··복지부 실무협의체 가동</span>
+                  <span style="font-size: 38px; font-weight: 800; line-height: 1.35;">"방문재활 건보 수가 신설 추진"··복지부 실무협의체 가동</span>
                 </div>
                 <div class="cover-item-row">
                   <span class="cover-num-bullet">2</span>
-                  <span style="font-size: 34px; font-weight: 800; line-height: 1.36;">초음파 바이오피드백 도수재활 치료, 어깨 가동성 30% 개선</span>
+                  <span style="font-size: 38px; font-weight: 800; line-height: 1.35;">초음파 바이오피드백 도수재활 치료, 어깨 가동성 30% 개선</span>
                 </div>
                 <div class="cover-item-row">
                   <span class="cover-num-bullet">3</span>
-                  <span style="font-size: 34px; font-weight: 800; line-height: 1.36;">병원 밖 독립 물리치료사를 위한 AI 음성 차팅 솔루션 도입 확산</span>
+                  <span style="font-size: 38px; font-weight: 800; line-height: 1.35;">병원 밖 독립 물리치료사를 위한 AI 음성 차팅 솔루션 도입 확산</span>
                 </div>
               </div>
             </div>
