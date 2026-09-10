@@ -271,13 +271,11 @@ def cmd_upload(args):
         print("   먼저 콘텐츠를 제작하세요: python curate.py build --render")
         return
 
-    # 요일 필터링 (--today-only 또는 --day 또는 --all)
+    # 요일 필터링 (--today-only 또는 --day, 미지정 시 안전하게 오늘 요일 기본값 적용)
     today_only = getattr(args, "today_only", False)
     target_day_arg = getattr(args, "day", None)
-    all_days = getattr(args, "all", False)
-
-    if not today_only and not target_day_arg and not all_days:
-        print("💡 [안내] 특정 요일(--day)이나 --all 플래그가 지정되지 않아 오늘 요일(--today-only) 모드로 자동 전환합니다.")
+    if not target_day_arg and not today_only:
+        # 미래 콘텐츠가 불필요하게 사전 예약되는 것을 방지하고 매일 08:00 GitHub Actions 무인 발행과 일치시킴
         today_only = True
 
     from modules.sns_scheduler import KST
@@ -308,7 +306,7 @@ def cmd_upload(args):
         if not day_folders:
             print(f"⚠️ [주의] 오늘 요일({keywords[0].upper()})에 해당하는 콘텐츠 폴더를 찾을 수 없습니다: {weekly_dir}")
             return
-        print(f"🎯 [당일 전용 모드 (--today-only)] 오늘 요일 콘텐츠만 선별하여 즉시 발행합니다: {[d.name for d in day_folders]}")
+        print(f"🎯 [당일 발행 모드] 오늘 요일 콘텐츠를 즉시 공개 발행합니다: {[d.name for d in day_folders]}")
 
     elif target_day_arg:
         from pipeline import match_day_filter
@@ -322,7 +320,7 @@ def cmd_upload(args):
             return
         print(f"🎯 [지정 요일 모드 (--day)] 대상 폴더: {[d.name for d in day_folders]}")
 
-    from modules.sns_scheduler import get_schedule_for_day, get_github_raw_url
+    from modules.sns_scheduler import get_github_raw_url
     from modules.youtube_uploader import upload_youtube_short
     from modules.instagram_uploader import upload_instagram_carousel, upload_instagram_reel
 
@@ -352,42 +350,31 @@ def cmd_upload(args):
         elif "caption" in pkg_data:
             caption = pkg_data["caption"].strip()
 
-        # 첫 댓글 로드 (전용 파일 우선, 없으면 공식 간결 템플릿)
-        from pipeline import FIRST_COMMENT_TEXT
-        first_comment_file = folder / "first_comment.txt"
-        if first_comment_file.exists():
-            first_comment = first_comment_file.read_text(encoding="utf-8").strip()
-        else:
-            first_comment = FIRST_COMMENT_TEXT
-
-        # 스케줄 계산 (월~토)
-        sched = get_schedule_for_day(folder_name)
-        # 매일 아침 08:00 KST에 GitHub Actions 또는 수동 발행 시 즉시 공개 발행
-        # 미래 예약 업로드는 YouTube 댓글 권한 에러(403) 및 이중 예약 문제를 유발하므로 항상 즉시 업로드로 통일
-        sched["unix_timestamp"] = None
-        sched["rfc3339"] = None
-        sched["is_immediate"] = True
-        sched["formatted_kst"] = "[즉시 업로드] (실시간 공개 발행)"
-
         day_label = pkg_data.get("day_name", folder_name)
         cat_title = pkg_data.get("category_title", folder_name)
 
-        # 요일 한글 정규화 (예: '목', 'Thu', '0910_Thu_Tech' -> '목요일')
-        korean_day = day_label
-        low_day = (day_label or "").lower()
-        if "mon" in low_day or "월" in low_day: korean_day = "월요일"
-        elif "tue" in low_day or "화" in low_day: korean_day = "화요일"
-        elif "wed" in low_day or "수" in low_day: korean_day = "수요일"
-        elif "thu" in low_day or "목" in low_day: korean_day = "목요일"
-        elif "fri" in low_day or "금" in low_day: korean_day = "금요일"
-        elif "sat" in low_day or "토" in low_day: korean_day = "토요일"
+        # 모든 발행은 [즉시 공개 업로드]로 일원화 (매일 08:00 GitHub Actions가 당일 정시 즉시 공개 및 첫 댓글 자동 등록)
+        sched = {
+            "unix_timestamp": None,
+            "rfc3339": None,
+            "is_immediate": True,
+            "formatted_kst": "[즉시 공개 업로드] (실시간 발행 및 첫 댓글 자동 등록)"
+        }
 
-        # 제목 표준화 규칙: "{요일} THEPT 물리치료 1분 브리핑"
-        yt_title = f"{korean_day} THEPT 물리치료 1분 브리핑"
-
-        print(f"\n📅 [{korean_day}] {cat_title} ({folder_name})")
-        print(f"   📌 제목: {yt_title}")
+        print(f"\n📅 [{day_label}] {cat_title} ({folder_name})")
         print(f"   ⏰ 발행 모드: {sched['formatted_kst']}")
+
+        # 사족 없는 공식 첫 댓글 로드
+        comment_file = folder / "first_comment.txt"
+        if comment_file.exists():
+            first_comment = comment_file.read_text(encoding="utf-8").strip()
+        else:
+            first_comment = (
+                "📌 바로가기 안내\n"
+                "• 방문재활 AI 음성차팅 무료체험: https://4thept.com\n"
+                "• 센터창업 가이드 전자책: https://kmong.com/gig/813101\n"
+                "• THEPT 공식 커뮤니티: https://thept.co.kr"
+            )
 
         # 1. YouTube Shorts 업로드
         if platform in ("all", "youtube") and content_type in ("all", "shorts", "video"):
@@ -396,6 +383,8 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 video_path = shorts_files[0]
+                # 제목 규칙: '{요일} THEPT 물리치료 1분 브리핑' (사족 완전 배제)
+                yt_title = f"{day_label} THEPT 물리치료 1분 브리핑"
 
                 # 생성된 전용 유튜브 설명란 파일이 있으면 우선 사용
                 yt_caption_file = folder / "youtube_shorts_caption.txt"
@@ -403,7 +392,7 @@ def cmd_upload(args):
                     yt_desc = yt_caption_file.read_text(encoding="utf-8").strip()
                 else:
                     yt_desc = (
-                        f"📢 {yt_title}\n\n"
+                        f"📢 {day_label} THEPT 물리치료 1분 브리핑\n\n"
                         f"{caption}\n\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                         f"📌 바로가기 안내\n"
@@ -411,17 +400,16 @@ def cmd_upload(args):
                         f"• 센터창업 가이드 전자책: https://kmong.com/gig/813101\n"
                         f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                        f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티"
+                        f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티\n"
                     )
 
-                yt_mode = "즉시 업로드"
-                print(f"   ▶️ [YouTube Shorts] {yt_mode} 요청 중...")
+                print(f"   ▶️ [YouTube Shorts] 즉시 공개 업로드 요청 중... (제목: '{yt_title}')")
                 res_yt = upload_youtube_short(
                     video_path=video_path,
                     title=yt_title,
                     description=yt_desc,
-                    tags=["물리치료", "물리치료사", "Shorts", "쇼츠", "재활", "THEPT", "4THEPT"],
-                    publish_at_rfc3339=sched["rfc3339"],
+                    tags=["물리치료", "물리치료사", "Shorts", "쇼츠", "THEPT", "더피티"],
+                    publish_at_rfc3339=None,
                     first_comment=first_comment,
                     dry_run=dry_run
                 )
@@ -439,12 +427,11 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 image_urls = [get_github_raw_url(p) for p in card_images]
-                ig_mode = "즉시 업로드"
-                print(f"   📸 [Instagram 캐러셀] {ig_mode} 요청 중... (총 {len(card_images)}장)")
+                print(f"   📸 [Instagram 캐러셀] 즉시 공개 업로드 요청 중... (총 {len(card_images)}장)")
                 res_ig = upload_instagram_carousel(
                     image_urls=image_urls,
                     caption=caption,
-                    scheduled_timestamp=sched["unix_timestamp"],
+                    scheduled_timestamp=None,
                     first_comment=first_comment,
                     dry_run=dry_run
                 )
@@ -461,12 +448,11 @@ def cmd_upload(args):
             else:
                 total_tasks += 1
                 video_url = get_github_raw_url(shorts_files[0])
-                reel_mode = "즉시 업로드"
-                print(f"   🎥 [Instagram 릴스] {reel_mode} 요청 중...")
+                print(f"   🎥 [Instagram 릴스] 즉시 공개 업로드 요청 중...")
                 res_reel = upload_instagram_reel(
                     video_url=video_url,
                     caption=caption,
-                    scheduled_timestamp=sched["unix_timestamp"],
+                    scheduled_timestamp=None,
                     first_comment=first_comment,
                     dry_run=dry_run
                 )
@@ -613,7 +599,6 @@ def main():
     p_upload.add_argument("--type", type=str, default="all", choices=["all", "carousel", "shorts", "video"], help="대상 콘텐츠 유형 (all, carousel, shorts)")
     p_upload.add_argument("--today-only", action="store_true", default=False, help="오늘 요일(KST 기준)에 해당하는 콘텐츠 1건만 즉시 발행")
     p_upload.add_argument("--day", type=str, default=None, help="특정 요일 지정 발행 (예: mon, tue, wed, thu, fri, sat 또는 01, 02 등)")
-    p_upload.add_argument("--all", action="store_true", default=False, help="주 6일 전체 일괄 즉시 발행")
     p_upload.add_argument("--dry-run", action="store_true", default=False, help="실제 API 호출 없이 예약 스케줄 및 업로드 매핑 시뮬레이션")
 
     # 5. sync

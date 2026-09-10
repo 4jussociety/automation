@@ -294,16 +294,19 @@ async def run_curated_6days_pipeline(
         clean_title = f"{day_name} THEPT 물리치료 1분 브리핑"
 
         if is_global:
-            # 글로벌 기사 전용 유튜브 쇼츠 설명란
+            # 글로벌 기사 전용 유튜브 쇼츠 설명란: 상세 번역 브리핑 전문 수록
             articles_briefing_text = ""
             for idx, s in enumerate(sources, 1):
                 t_stamp = timestamps[idx] if idx < len(timestamps) else f"00:{idx*15:02d}"
+                summ = s.get("story_summary", "")
                 articles_briefing_text += f"{t_stamp} [{idx}] {s['title']} ({s['source']})\n"
-                articles_briefing_text += f"  🔗 {s['link']}\n\n"
+                if summ:
+                    articles_briefing_text += f"  • 상세 번역 브리핑:\n    {summ}\n"
+                articles_briefing_text += f"  🔗 원문 링크: {s['link']}\n\n"
 
             shorts_caption = (
-                f"📢 {clean_title}\n\n"
-                f"⏱️ [타임라인 & 기사 원문]\n"
+                f"📢 {day_name} THEPT 물리치료 1분 브리핑\n\n"
+                f"⏱️ [타임라인 & 글로벌 뉴스 심층 번역 브리핑]\n"
                 f"{t_intro} 인트로\n"
                 f"{articles_briefing_text}"
                 f"{t_outro} 아웃트로\n\n"
@@ -313,11 +316,11 @@ async def run_curated_6days_pipeline(
                 f"• 센터창업 가이드 전자책: https://kmong.com/gig/813101\n"
                 f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                f"#물리치료 #물리치료사 #THEPT #더피티 #쇼츠 #Shorts #해외물리치료\n"
+                f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티\n"
             )
         else:
             shorts_caption = (
-                f"📢 {clean_title}\n\n"
+                f"📢 {day_name} THEPT 물리치료 1분 브리핑\n\n"
                 f"⏱️ [타임라인 & 기사 원문]\n"
                 f"{t_intro} 인트로\n"
                 f"{t_n1} [1] {s1['title']} ({s1['source']})\n"
@@ -333,7 +336,7 @@ async def run_curated_6days_pipeline(
                 f"• 센터창업 가이드 전자책: https://kmong.com/gig/813101\n"
                 f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                f"#물리치료 #물리치료사 #THEPT #더피티 #쇼츠 #Shorts\n"
+                f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티\n"
             )
         (day_dir / "youtube_shorts_caption.txt").write_text(shorts_caption, encoding="utf-8")
         (day_dir / "first_comment.txt").write_text(FIRST_COMMENT_TEXT, encoding="utf-8")
