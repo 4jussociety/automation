@@ -543,15 +543,20 @@ def build_daily_curated_package(
         while summary_limit >= 150:
             sources_text = build_global_sources_block(summary_limit)
             caption_text = (
-                f"📋 {day_name} THEPT 물리치료 1분 브리핑\n\n"
+                f"📋 [THEPT 글로벌 주간 브리핑 - {day_name}]\n"
+                f"{day_name} THEPT 물리치료 1분 브리핑\n\n"
+                f"해외 최신 임상 가이드라인과 재활 연구 등 주요 뉴스 {num_arts}가지의 상세 번역 브리핑을 전해드립니다.\n"
+                f"카드뉴스를 넘겨보신 후 아래 상세 내용을 확인해보세요! 👉\n\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
                 f"🌐 [글로벌 뉴스 심층 번역 브리핑 & 원문 출처]\n\n"
                 f"{sources_text}"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                f"📌 바로가기 안내\n"
-                f"• 방문재활 AI 음성차팅 무료체험: https://4thept.com\n"
-                f"• 센터창업 가이드 전자책: https://kmong.com/gig/813101\n"
-                f"• THEPT 공식 커뮤니티: https://thept.co.kr\n\n"
+                f"💬 더 많은 글로벌 임상 연구 자료와 동료 치료사들의 토론은\n"
+                f"'THEPT 커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
+                f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+                f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
+                f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
+                f"도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
                 f"{tags_line}\n"
             )
             if len(caption_text) <= 2150:
@@ -563,15 +568,20 @@ def build_daily_curated_package(
             sources_text += f"{s['index']}. {s['title']} ({s['source']})\n   🔗 {s['link']}\n\n"
 
         caption_text = (
-            f"📋 {day_name} THEPT 물리치료 1분 브리핑\n\n"
+            f"📋 [THEPT 주간 브리핑 - {day_name}]\n"
+            f"{day_name} THEPT 물리치료 1분 브리핑\n\n"
+            f"주요 핵심 뉴스 {num_arts}가지의 상세 카드뉴스입니다.\n"
+            f"슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"📰 [기사 원문 출처 및 링크]\n"
             f"{sources_text}"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"📌 바로가기 안내\n"
-            f"• 방문재활 AI 음성차팅 무료체험: https://4thept.com\n"
-            f"• 센터창업 가이드 전자책: https://kmong.com/gig/813101\n"
-            f"• THEPT 공식 커뮤니티: https://thept.co.kr\n\n"
+            f"💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n"
+            f"'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
+            f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
+            f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
+            f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
+            f"도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
             f"{tags_line}\n"
         )
 
