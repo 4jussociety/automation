@@ -13,3 +13,4 @@ output/**/*.tmp
 venv/
 .venv/
 .pytest_cache/
+/Final_Bulletin.mp3

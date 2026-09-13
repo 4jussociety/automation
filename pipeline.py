@@ -21,7 +21,8 @@ from config import (
     OUTPUT_DIR, DEFAULT_BG_PATH, AI_TECH_BG_PATH,
     TEMPLATE_4X5, TEMPLATE_9X16,
     CARD_WIDTH, CARD_HEIGHT,
-    VIDEO_WIDTH, VIDEO_HEIGHT
+    VIDEO_WIDTH, VIDEO_HEIGHT,
+    get_youtube_category_id
 )
 from modules.content_builder import build_daily_curated_package
 from modules.card_renderer import render_cards_to_images
@@ -202,21 +203,35 @@ async def run_curated_6days_pipeline(
         day_photos = await fetch_article_images(articles, bg_dir, prefix=prefix)
 
         # 2. 일별 통합 패키지 조립 (LLM 요약 및 TTS 정밀 정제 반영)
-        pkg = build_daily_curated_package(
-            day_name=day_name,
-            category_title=cat_title,
-            articles=articles,
-            bg_dir=bg_dir,
-            article_photos=day_photos,
-            is_global=is_global
-        )
-        pkg["date_text"] = date_text
-        pkg["target_date"] = day_date.strftime("%Y-%m-%d")
+        pkg_file = day_dir / "package_data.json"
+        pkg = None
+        if pkg_file.exists():
+            try:
+                pkg = json.loads(pkg_file.read_text(encoding="utf-8"))
+                if not pkg.get("youtube_category_id"):
+                    pkg["youtube_category_id"] = get_youtube_category_id(cat_key)
+                    pkg_file.write_text(json.dumps(pkg, ensure_ascii=False, indent=2), encoding="utf-8")
+                print(f"  📄 기존 패키지 데이터 로드 완료: {pkg_file.name}")
+            except Exception:
+                pkg = None
 
-        (day_dir / "package_data.json").write_text(
-            json.dumps(pkg, ensure_ascii=False, indent=2),
-            encoding="utf-8"
-        )
+        if not pkg:
+            pkg = build_daily_curated_package(
+                day_name=day_name,
+                category_title=cat_title,
+                articles=articles,
+                bg_dir=bg_dir,
+                article_photos=day_photos,
+                is_global=is_global
+            )
+            pkg["date_text"] = date_text
+            pkg["target_date"] = day_date.strftime("%Y-%m-%d")
+            pkg["youtube_category_id"] = get_youtube_category_id(cat_key)
+
+            pkg_file.write_text(
+                json.dumps(pkg, ensure_ascii=False, indent=2),
+                encoding="utf-8"
+            )
 
         card_paths = []
         audio_results = []
