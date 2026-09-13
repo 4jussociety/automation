@@ -1,0 +1,166 @@
+{
+  "day_name": "토요일",
+  "category_title": "해외 글로벌 트렌드",
+  "title": "토요일 THEPT 물리치료 1분 브리핑",
+  "is_global": true,
+  "sources": [
+    {
+      "index": "01",
+      "title": "퇴역 군인을 위한 원격 물리 치료",
+      "source": "VA News",
+      "link": "https://news.google.com/rss/articles/CBMieEFVX3lxTE9Sd0tTZlQybU1yVlZqY2cxVmpnUm5CNjVTcjI5bTFyblJ5ZlllWVEzVkRldnNWZ0Q2M2Z3MnBEWHRWOFFJTVQ2VEt2NHV3VE5tTU9talFOUy1vMTFIUTlaeXpEY0ZpRW9iY3VTb1B6TEExUXdwa1lXbA?oc=5",
+      "story_summary": "VA의 원격 물리 치료는 퇴역 군인들에게 집에서 편리하게 치료를 받을 수 있는 기회를 제공합니다. Navy Veteran Joan Utley는 VA의 TelePhysical Therapy를 통해 집에서 물리 치료를 받고 있으며, 이는 이동 시간을 절약하고 스트레스를 줄이는 데 큰 도움이 됩니다. VA의 물리 치료사들은 원격 치료가 퇴역 군인들에게 효과적이라는 점을 강조하고 있으며, 특히 골반 건강 문제에 대한 교육과 홈 운동 지도가 중요한 역할을 합니다. 이러한 접근법은 치료 접근성을 높이고, 퇴역 군인들이 지속적으로 고품질의 치료를 받을 수 있도록 지원합니다."
+    },
+    {
+      "index": "02",
+      "title": "니트로, 새로운 스냅 피트니스 헬스장 오픈!",
+      "source": "Charleston Gazette-Mail",
+      "link": "https://news.google.com/rss/articles/CBMihAJBVV95cUxOMnhCRmJfM2w4ZFN5RW1hVGltZWlBZUVtUTh2Y09paEhLd2taS1JYeGxBX2lMNlljRUpyeGZzY0JOQ1dMbnAwNGdwbExaRTdWNG5VUENyQ3o0N1hza0s1bVNCMDhZbWZRWWlIajdEckFUTTlHdjYxUXlueVZnTFl4SGdtYVpBVmZxWVlQQ25qSm5CLU12eUZHWVFla3kzR1VKcktySjgyTTVUOVc0RFF0SWJjQ3ppVWhfOUpUV2NmOFY0bXNFb1gtZ3dERWtGSUJoMmZpR0ZianhkdnlTWXAzcWFSQnpidUprZVcxNzFiVFNqdXZsOWpkU3VmV3IySjBURkpseA?oc=5",
+      "story_summary": "타르 패밀리가 찰스턴 가제트-메일과 협력하여 새로운 스냅 피트니스 헬스장을 오픈했습니다. 이 헬스장은 최신 피트니스 기구와 프로그램을 제공하여 지역 주민들의 건강 증진에 기여할 것으로 기대됩니다. 물리치료사들은 헬스장과 협력하여 환자들에게 맞춤형 운동 치료를 제공할 수 있는 기회를 가지게 됩니다. 이는 물리치료 임상 실무에 긍정적인 영향을 미칠 것으로 보입니다."
+    },
+    {
+      "index": "03",
+      "title": "AI, 물리치료 워크플로에 깊이 침투하다",
+      "source": "DirectorsTalk Interviews",
+      "link": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOODVCNmNTTGd6a1FwVnJ6WGVDeEV0U1lac1hvMjRtMFJOM240azdlSFI1d1JiM29TX281MFczSlBRTDhKVTZGRVNfQlllTnJjV0NSZlhVLXBROGNTd0NKTEUxOXBtVkw0Z3FWZkZweGpYQW9rV24yN084Y2lTa01sOExkVlZKdGtFLS1IdWNaUUktVVRSbUVlalFZUS1tZHpRaVo1bnRCWE5XUk0?oc=5",
+      "story_summary": "Physitrack은 인공지능을 물리치료 워크플로에 통합하여 임상 효율성을 높이고 있습니다. AI 운동 검색 도구는 치료사가 원하는 운동을 신속하게 찾을 수 있도록 지원하며, 문서화 및 원격 모니터링과 같은 반복적인 작업을 자동화하여 치료사의 시간을 절약합니다. 이러한 방식은 치료사의 임상적 판단을 존중하며, AI의 활용이 치료의 질을 높이는 데 기여할 것으로 기대됩니다. 따라서 물리치료사들은 AI 도구를 활용하여 보다 효과적인 치료를 제공할 수 있는 기회를 가지게 됩니다."
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT GLOBAL",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\sat_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 토요일 브리핑",
+        "title": "<span class=\"hl-yellow\">토요일 해외 글로벌 트렌드</span>",
+        "desc": "오늘 꼭 살펴봐야 할 해외 글로벌 트렌드 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "퇴역 군인을 위한 원격 물리 치료",
+          "니트로, 새로운 스냅 피트니스 헬스장 오픈!",
+          "AI, 물리치료 워크플로에 깊이 침투하다"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\sat_intro.jpeg"
+      },
+      "narration": "토요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "해외 글로벌 트렌드",
+        "source": "VA News (2026년 09월 10일 23:30)",
+        "headline": "퇴역 군인을 위한 원격 물리 치료",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_01_photo_01.jpg",
+        "bullets": [
+          "VA의 원격 물리 치료는 퇴역 군인에게 집에서 치료를 제공합니다.",
+          "화상 진료를 통해 퇴역 군인은 60~90분의 이동 시간을 절약할 수 있습니다.",
+          "이 접근법은 치료 접근성을 높이고, 스트레스를 줄이며, 고품질의 지속적인 치료를 보장합니다."
+        ],
+        "highlight": "💡 포인트: 원격 치료를 통해 퇴역 군인들은 편리하게 치료를 받고, 이동에 소요되는 시간을 절약할 수 있습니다.",
+        "story_summary": "VA의 원격 물리 치료는 퇴역 군인들에게 집에서 편리하게 치료를 받을 수 있는 기회를 제공합니다. Navy Veteran Joan Utley는 VA의 TelePhysical Therapy를 통해 집에서 물리 치료를 받고 있으며, 이는 이동 시간을 절약하고 스트레스를 줄이는 데 큰 도움이 됩니다. VA의 물리 치료사들은 원격 치료가 퇴역 군인들에게 효과적이라는 점을 강조하고 있으며, 특히 골반 건강 문제에 대한 교육과 홈 운동 지도가 중요한 역할을 합니다. 이러한 접근법은 치료 접근성을 높이고, 퇴역 군인들이 지속적으로 고품질의 치료를 받을 수 있도록 지원합니다."
+      },
+      "narration": "첫 번째 소식입니다. 퇴역 군인을 위한 원격 물리 치료. VA의 원격 물리 치료는 퇴역 군인들에게 집에서 편리하게 치료를 받을 수 있는 기회를 제공합니다. 화상 진료를 통해 퇴역 군인들은 이동 시간을 60~90분 절약할 수 있으며, 이는 치료 접근성을 높이는 데 기여합니다. 이러한 원격 치료는 스트레스를 줄이고, 고품질의 지속적인 치료를 제공하는 효과적인 방법으로 자리잡고 있습니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "해외 글로벌 트렌드",
+        "source": "Charleston Gazette-Mail (2026년 09월 09일 19:00)",
+        "headline": "니트로, 새로운 스냅 피트니스 헬스장 오픈!",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_02_photo_01.jpg",
+        "bullets": [
+          "타르 패밀리가 찰스턴 가제트-메일과 협력하여 헬스장을 개설합니다.",
+          "이번 헬스장은 최신 피트니스 기구와 프로그램을 제공하여 지역 주민의 건강을 지원합니다.",
+          "물리치료사들은 헬스장과 협력하여 환자의 재활 및 운동 치료 접근성을 높일 수 있습니다."
+        ],
+        "highlight": "💡 포인트: 헬스장 개설로 물리치료사들은 환자 맞춤형 운동 프로그램을 제공할 수 있습니다.",
+        "story_summary": "타르 패밀리가 찰스턴 가제트-메일과 협력하여 새로운 스냅 피트니스 헬스장을 오픈했습니다. 이 헬스장은 최신 피트니스 기구와 프로그램을 제공하여 지역 주민들의 건강 증진에 기여할 것으로 기대됩니다. 물리치료사들은 헬스장과 협력하여 환자들에게 맞춤형 운동 치료를 제공할 수 있는 기회를 가지게 됩니다. 이는 물리치료 임상 실무에 긍정적인 영향을 미칠 것으로 보입니다."
+      },
+      "narration": "두 번째 소식입니다. 니트로, 새로운 스냅 피트니스 헬스장 오픈. 타르 패밀리가 찰스턴 가제트-메일과 협력하여 새로운 스냅 피트니스 헬스장을 오픈했습니다. 이 헬스장은 최신 피트니스 기구와 다양한 프로그램을 통해 지역 주민의 건강을 지원합니다. 물리치료사들은 이 헬스장과의 협력을 통해 환자들에게 맞춤형 운동 치료를 제공할 수 있는 기회를 가지게 됩니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "해외 글로벌 트렌드",
+        "source": "DirectorsTalk Interviews (2026년 09월 09일 00:42)",
+        "headline": "AI, 물리치료 워크플로에 깊이 침투하다",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_03_photo_01.jpg",
+        "bullets": [
+          "Physitrack은 AI를 물리치료 워크플로에 통합하여 임상 효율성을 높입니다.",
+          "AI 운동 검색 도구는 치료사에게 적합한 운동을 빠르게 찾을 수 있도록 지원합니다.",
+          "AI는 문서화, 원격 모니터링 등 반복 작업을 자동화하여 치료사의 시간을 절약합니다."
+        ],
+        "highlight": "💡 포인트: AI 도구를 활용해 반복적인 업무를 줄이고, 치료사에게 더 많은 임상적 판단 시간을 제공합니다.",
+        "story_summary": "Physitrack은 인공지능을 물리치료 워크플로에 통합하여 임상 효율성을 높이고 있습니다. AI 운동 검색 도구는 치료사가 원하는 운동을 신속하게 찾을 수 있도록 지원하며, 문서화 및 원격 모니터링과 같은 반복적인 작업을 자동화하여 치료사의 시간을 절약합니다. 이러한 방식은 치료사의 임상적 판단을 존중하며, AI의 활용이 치료의 질을 높이는 데 기여할 것으로 기대됩니다. 따라서 물리치료사들은 AI 도구를 활용하여 보다 효과적인 치료를 제공할 수 있는 기회를 가지게 됩니다."
+      },
+      "narration": "세 번째 소식입니다. 에이아이, 물리치료 워크플로에 깊이 침투하다. Physitrack은 인공지능을 물리치료 워크플로에 깊이 통합하여 임상 효율성을 높이고 있습니다. AI 운동 검색 도구는 치료사가 필요한 운동을 신속하게 찾을 수 있도록 돕고, 문서화 및 원격 모니터링 등 반복적인 작업을 자동화하여 치료사의 시간을 절약합니다. 이러한 접근은 치료사의 임상적 판단을 존중하며, AI의 활용이 치료의 질을 높이는 데 기여할 것으로 기대됩니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\sat_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 글로벌 주간 브리핑 - 토요일]\n토요일 THEPT 물리치료 1분 브리핑\n\n해외 최신 임상 가이드라인과 재활 연구 등 주요 뉴스 3가지의 상세 번역 브리핑을 전해드립니다.\n카드뉴스를 넘겨보신 후 아래 상세 내용을 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🌐 [글로벌 뉴스 심층 번역 브리핑 & 원문 출처]\n\n🌐 [01] 퇴역 군인을 위한 원격 물리 치료 (VA News)\n• 상세 번역 브리핑:\n  VA의 원격 물리 치료는 퇴역 군인들에게 집에서 편리하게 치료를 받을 수 있는 기회를 제공합니다. Navy Veteran Joan Utley는 VA의 TelePhysical Therapy를 통해 집에서 물리 치료를 받고 있으며, 이는 이동 시간을 절약하고 스트레스를 줄이는 데 큰 도움이 됩니다. VA의 물리 치료사들은 원격 치료가 퇴역 군인들에게 효과적이라는 점을 강조하고 있으며, 특히 골반 건강 문제에 대한 교육과 홈 운동 지도가 중요한 역할을 합니다. 이러한 접근법은 치료 접근성을 높이고, 퇴역 군인들이 지속적으로 고품질의 치료를 받을 수 있도록 지원합니다.\n🔗 원문 출처: VA News (상세 링크는 유튜브 설명란 참조)\n\n🌐 [02] 니트로, 새로운 스냅 피트니스 헬스장 오픈! (Charleston Gazette-Mail)\n• 상세 번역 브리핑:\n  타르 패밀리가 찰스턴 가제트-메일과 협력하여 새로운 스냅 피트니스 헬스장을 오픈했습니다. 이 헬스장은 최신 피트니스 기구와 프로그램을 제공하여 지역 주민들의 건강 증진에 기여할 것으로 기대됩니다. 물리치료사들은 헬스장과 협력하여 환자들에게 맞춤형 운동 치료를 제공할 수 있는 기회를 가지게 됩니다. 이는 물리치료 임상 실무에 긍정적인 영향을 미칠 것으로 보입니다.\n🔗 원문 출처: Charleston Gazette-Mail (상세 링크는 유튜브 설명란 참조)\n\n🌐 [03] AI, 물리치료 워크플로에 깊이 침투하다 (DirectorsTalk Interviews)\n• 상세 번역 브리핑:\n  Physitrack은 인공지능을 물리치료 워크플로에 통합하여 임상 효율성을 높이고 있습니다. AI 운동 검색 도구는 치료사가 원하는 운동을 신속하게 찾을 수 있도록 지원하며, 문서화 및 원격 모니터링과 같은 반복적인 작업을 자동화하여 치료사의 시간을 절약합니다. 이러한 방식은 치료사의 임상적 판단을 존중하며, AI의 활용이 치료의 질을 높이는 데 기여할 것으로 기대됩니다. 따라서 물리치료사들은 AI 도구를 활용하여 보다 효과적인 치료를 제공할 수 있는 기회를 가지게 됩니다.\n🔗 원문 출처: DirectorsTalk Interviews (상세 링크는 유튜브 설명란 참조)\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 글로벌 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT 커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#해외_글로벌_트렌드 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 9월 19일 (토)",
+  "target_date": "2026-09-19",
+  "youtube_category_id": "25"
+}

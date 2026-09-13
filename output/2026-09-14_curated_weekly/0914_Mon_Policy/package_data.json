@@ -1,0 +1,166 @@
+{
+  "day_name": "월요일",
+  "category_title": "국내 정책·제도·수가·실손보험",
+  "title": "월요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "한의사 레이저 사용, 적법성 논란!",
+      "source": "네이버 뉴스",
+      "link": "https://www.newsmap.co.kr/news/articleView.html?idxno=3097",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "도수치료 청구액 78% 급감, 실손보험료 인하 기대",
+      "source": "네이버 뉴스",
+      "link": "https://www.straightnews.co.kr/news/articleView.html?idxno=310745",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "도수치료 규제, 병원과 환자 모두 '우회로' 모색",
+      "source": "네이버 뉴스",
+      "link": "https://www.ebn.co.kr/news/articleView.html?idxno=1723342",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\mon_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 월요일 브리핑",
+        "title": "<span class=\"hl-yellow\">월요일 국내 정책·제도·수가·실손보험</span>",
+        "desc": "오늘 꼭 살펴봐야 할 국내 정책·제도·수가·실손보험 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "한의사 레이저 사용, 적법성 논란!",
+          "도수치료 청구액 78% 급감, 실손보험료 인하 기대",
+          "도수치료 규제, 병원과 환자 모두 '우회로' 모색"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\mon_intro.jpeg"
+      },
+      "narration": "월요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "국내 정책·제도·수가·실손보험",
+        "source": "네이버 뉴스 (2026년 09월 11일 08:02)",
+        "headline": "한의사 레이저 사용, 적법성 논란!",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_01_photo_01.jpg",
+        "bullets": [
+          "서울특별시한의사회는 한의사의 레이저 사용을 적법하다고 주장하며 의사 비난을 반박했습니다.",
+          "한의대 교육과정에는 레이저 관련 교육이 포함되어 있으며, 안전한 사용법을 체계적으로 교육하고 있습니다.",
+          "이번 논란은 의료 공백 문제를 간과하고 직역 간 비난을 중단해야 한다는 시사점을 제공합니다."
+        ],
+        "highlight": "💡 포인트: 한의사의 레이저 사용에 대한 올바른 이해와 협력적 접근이 필요합니다.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 한의사 레이저 사용, 적법성 논란. 서울특별시한의사회는 한의사의 레이저 사용이 적법하다고 주장하며, 의사들의 비난에 반박했습니다. 한의대에서는 레이저 관련 교육이 체계적으로 이루어지고 있으며, 의료 공백 문제를 간과한 비난은 중단되어야 합니다. 이번 사건은 직역 간 협력과 이해의 필요성을 강조합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "국내 정책·제도·수가·실손보험",
+        "source": "네이버 뉴스 (2026년 09월 09일 11:46)",
+        "headline": "도수치료 청구액 78% 급감, 실손보험료 인하 기대",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_02_photo_01.jpg",
+        "bullets": [
+          "도수치료 관리급여 시행 후 보험금 청구액이 77.8% 감소했다.",
+          "삼성화재 하루 평균 청구액이 4억5000만원에서 1억원으로 줄었다.",
+          "보험사 손해율 안정화 기대에도 실손보험료는 평균 7.8% 인상됐다."
+        ],
+        "highlight": "💡 포인트: 도수치료 관리급여 시행에 따라 환자 접근성이 줄어들 수 있다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 도수치료 청구액 78 퍼센트 급감, 실손보험료 인하 기대. 도수치료 관리급여 시행 이후 보험금 청구액이 78% 급감했습니다. 삼성화재의 하루 평균 청구액은 4억5000만원에서 1억원으로 줄어들었고, 이는 손해율 안정화에 기여할 것으로 보입니다. 하지만 실손보험료는 평균 7.8% 인상되어 환자들의 부담이 커질 전망입니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "국내 정책·제도·수가·실손보험",
+        "source": "네이버 뉴스 (2026년 09월 09일 06:00)",
+        "headline": "도수치료 규제, 병원과 환자 모두 '우회로' 모색",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_03_photo_01.jpg",
+        "bullets": [
+          "7월 1일부터 도수치료 실손보험 보장 제한이 시행되며 환자 수가 급감하고 있다.",
+          "도수치료 환자 수가 절반으로 줄어들며 병원은 체외충격파 등 대체 치료를 권장하고 있다.",
+          "물리치료사들은 도수치료 대신 다른 비급여 치료를 활용하며 새로운 청구 방식을 모색하고 있다."
+        ],
+        "highlight": "💡 포인트: 도수치료 규제에 대응하기 위해 대체 치료법을 적극적으로 활용하세요.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 도수치료 규제, 병원과 환자 모두 '우회로' 모색. 7월 1일부터 도수치료에 대한 실손보험 보장 제한이 시행되었습니다. 이로 인해 환자 수가 절반으로 줄어들며 병원들은 체외충격파와 같은 대체 치료를 권장하고 있습니다. 물리치료사들은 새로운 청구 방식을 모색하며, 규제에 적응하기 위한 다양한 전략을 세우고 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\mon_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 월요일]\n월요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 한의사 레이저 사용, 적법성 논란! (네이버 뉴스)\n   🔗 https://www.newsmap.co.kr/news/articleView.html?idxno=3097\n\n02. 도수치료 청구액 78% 급감, 실손보험료 인하 기대 (네이버 뉴스)\n   🔗 https://www.straightnews.co.kr/news/articleView.html?idxno=310745\n\n03. 도수치료 규제, 병원과 환자 모두 '우회로' 모색 (네이버 뉴스)\n   🔗 https://www.ebn.co.kr/news/articleView.html?idxno=1723342\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#국내_정책제도수가실손보험 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 9월 14일 (월)",
+  "target_date": "2026-09-14",
+  "youtube_category_id": "25"
+}

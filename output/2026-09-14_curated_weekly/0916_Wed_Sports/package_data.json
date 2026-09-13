@@ -1,0 +1,166 @@
+{
+  "day_name": "수요일",
+  "category_title": "운동·스포츠 재활",
+  "title": "수요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "허리 통증 완화, 걷기가 답이다!",
+      "source": "조선일보",
+      "link": "https://health.chosun.com/site/data/html_dir/2026/09/10/2026091002142.html",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "NC 다이노스, 클레빈저 선발 확정!",
+      "source": "네이버 뉴스",
+      "link": "https://mhnse.com/news/articleView.html?idxno=1541475",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "이강인, 아틀레티코의 핵심으로 부상!",
+      "source": "조선일보",
+      "link": "https://www.sportschosun.com/football/2026-09-13/202609130100085970005627",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\wed_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 수요일 브리핑",
+        "title": "<span class=\"hl-yellow\">수요일 운동·스포츠 재활</span>",
+        "desc": "오늘 꼭 살펴봐야 할 운동·스포츠 재활 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "허리 통증 완화, 걷기가 답이다!",
+          "NC 다이노스, 클레빈저 선발 확정!",
+          "이강인, 아틀레티코의 핵심으로 부상!"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\wed_intro.jpeg"
+      },
+      "narration": "수요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "운동·스포츠 재활",
+        "source": "조선일보 (2026년 09월 11일 09:16)",
+        "headline": "허리 통증 완화, 걷기가 답이다!",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_01_photo_01.jpg",
+        "bullets": [
+          "걷기는 비특이성 요통 환자의 통증과 기능 개선에 효과적입니다.",
+          "걷기와 관련 교육을 병행한 환자는 요통 재발 기간이 두 배 길어졌습니다.",
+          "물리치료사들은 걷기를 통해 허리 근육과 관절을 활성화할 것을 권장합니다."
+        ],
+        "highlight": "💡 포인트: 통증이 심하지 않은 범위에서 걷기를 시작하고 점진적으로 늘리세요.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 허리 통증 완화, 걷기가 답이다. 최근 연구에 따르면 걷기는 비특이성 요통 환자에게 통증 완화와 신체 기능 개선에 효과적입니다. 걷기와 교육을 병행한 환자는 요통 재발 기간이 두 배로 늘어났습니다. 물리치료사들은 걷기를 통해 허리 근육과 관절을 활성화할 것을 권장합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "운동·스포츠 재활",
+        "source": "네이버 뉴스 (2026년 09월 13일 11:56)",
+        "headline": "NC 다이노스, 클레빈저 선발 확정!",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_02_photo_01.jpg",
+        "bullets": [
+          "NC 다이노스가 클레빈저를 선발 투수로 확정했습니다. 16일 LG전에서 첫 등판을 예정하고 있습니다.",
+          "클레빈저는 개인 훈련을 통해 80구 이상 던질 수 있는 몸 상태를 갖추었습니다. 이는 팀의 큰 희소식입니다.",
+          "클레빈저의 선발 등판으로 NC는 불펜 운영의 부담을 줄일 수 있습니다. 송명기의 활용도 또한 증가할 전망입니다."
+        ],
+        "highlight": "💡 포인트: 클레빈저의 선발 등판으로 NC의 마운드 운영이 안정될 것으로 기대됩니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. NC 다이노스, 클레빈저 선발 확정. NC 다이노스가 클레빈저를 선발 투수로 확정했습니다. 클레빈저는 개인 훈련을 통해 80구 이상 던질 수 있는 몸 상태를 갖추었으며, 이는 팀에 큰 희소식입니다. 그의 선발 등판은 불펜 운영의 부담을 줄이고 송명기의 활용도를 높일 것으로 기대됩니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "운동·스포츠 재활",
+        "source": "조선일보 (2026년 09월 13일 09:46)",
+        "headline": "이강인, 아틀레티코의 핵심으로 부상!",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_03_photo_01.jpg",
+        "bullets": [
+          "디에고 시메오네 감독은 이강인의 교체에 대한 불만이 커지고 있다고 밝혔다.",
+          "이강인은 올 시즌 4경기와 UCL 1경기를 소화했지만, 단 한 번도 풀타임을 뛰지 않았다.",
+          "부상으로 이탈한 바리오스의 공백 속에서 이강인의 활약이 더욱 중요해졌다."
+        ],
+        "highlight": "💡 포인트: 이강인은 경기 내내 좋은 활약을 통해 선발 출전 기회를 늘려야 한다.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 이강인, 아틀레티코의 핵심으로 부상. 디에고 시메오네 감독은 이강인의 교체에 대한 불만이 커지고 있다고 전했습니다. 이강인은 올 시즌 4경기와 UCL 1경기를 소화했지만, 단 한 번도 풀타임을 뛰지 않았습니다. 부상으로 이탈한 바리오스의 공백 속에서 이강인의 활약이 더욱 중요해지고 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-14_curated_weekly\\backgrounds\\wed_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 수요일]\n수요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 허리 통증 완화, 걷기가 답이다! (조선일보)\n   🔗 https://health.chosun.com/site/data/html_dir/2026/09/10/2026091002142.html\n\n02. NC 다이노스, 클레빈저 선발 확정! (네이버 뉴스)\n   🔗 https://mhnse.com/news/articleView.html?idxno=1541475\n\n03. 이강인, 아틀레티코의 핵심으로 부상! (조선일보)\n   🔗 https://www.sportschosun.com/football/2026-09-13/202609130100085970005627\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#운동스포츠_재활 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 9월 16일 (수)",
+  "target_date": "2026-09-16",
+  "youtube_category_id": "17"
+}
