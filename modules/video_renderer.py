@@ -10,7 +10,10 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from PIL import Image
 
-from config import VIDEO_WIDTH, VIDEO_HEIGHT, CARD_WIDTH, CARD_HEIGHT
+from config import (
+    VIDEO_WIDTH, VIDEO_HEIGHT, CARD_WIDTH, CARD_HEIGHT,
+    DEFAULT_BGM_PATH, BGM_VOLUME
+)
 
 
 def get_video_filter(img_path: Path) -> str:
@@ -172,6 +175,70 @@ def concatenate_segments(segment_paths: list[Path], final_output: Path) -> Path:
     return final_output
 
 
+def mix_bgm_to_video(
+    video_path: Path,
+    bgm_path: Path = None,
+    bgm_volume: float = BGM_VOLUME,
+    output_path: Path = None
+) -> Path:
+    """
+    완성된 영상 비디오(TTS 음성 포함)에 BGM 배경음악을 적정 볼륨(기본 10%)으로 합성하고,
+    영상 종료 1.5초 전에 서서히 페이드아웃(afade out)을 적용합니다.
+    """
+    target_bgm = Path(bgm_path) if bgm_path else Path(DEFAULT_BGM_PATH)
+    if not target_bgm or not target_bgm.exists():
+        return video_path
+
+    out_file = output_path or video_path.parent / f"bgm_mixed_{video_path.name}"
+
+    try:
+        cmd_dur = [
+            "ffprobe", "-v", "error",
+            "-show_entries", "format=duration",
+            "-of", "default=noprint_wrappers=1:nokey=1",
+            str(video_path)
+        ]
+        res = subprocess.run(cmd_dur, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        total_dur = float(res.stdout.strip())
+    except Exception:
+        total_dur = 60.0
+
+    fade_st = max(0.0, total_dur - 1.5)
+
+    # filter: BGM 볼륨 조절 및 페이드아웃 후, 기존 나레이션과 amix 합성
+    filter_expr = (
+        f"[1:a]volume={bgm_volume:.3f},afade=t=out:st={fade_st:.2f}:d=1.5[bgm];"
+        f"[0:a][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]"
+    )
+
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", str(video_path),
+        "-stream_loop", "-1",  # BGM이 영상보다 짧아도 자동 루프
+        "-i", str(target_bgm),
+        "-filter_complex", filter_expr,
+        "-map", "0:v",
+        "-map", "[aout]",
+        "-c:v", "copy",
+        "-c:a", "aac",
+        "-b:a", "192k",
+        "-shortest",
+        str(out_file)
+    ]
+
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
+    if res.returncode == 0 and out_file.exists() and out_file.stat().st_size > 0:
+        if output_path is None:
+            # 원본 파일 교체
+            video_path.unlink()
+            shutil.move(str(out_file), str(video_path))
+            return video_path
+        return out_file
+    else:
+        print(f"⚠️ [BGM 믹싱 경고] 배경음악 합성 실패, 원본 유지: {res.stderr}")
+        return video_path
+
+
 def render_shorts_video(card_image_paths: list[Path], audio_info_list: list[dict], output_video_path: Path) -> Path:
     """
     모든 카드뉴스 이미지와 TTS 오디오를 매칭하여 9:16 완성형 쇼츠 비디오(shorts.mp4)를 렌더링합니다.
@@ -202,6 +269,11 @@ def render_shorts_video(card_image_paths: list[Path], audio_info_list: list[dict
 
     # 임시 세그먼트 디렉토리 정리
     shutil.rmtree(temp_segment_dir, ignore_errors=True)
+
+    # BGM 배경음악 자동 믹싱 (등록된 BGM이 있는 경우)
+    if DEFAULT_BGM_PATH and Path(DEFAULT_BGM_PATH).exists():
+        print(f"🎵 [BGM 합성] 배경음악 자동 믹싱 중: {Path(DEFAULT_BGM_PATH).name} (볼륨: {int(BGM_VOLUME * 100)}%)...")
+        mix_bgm_to_video(output_video_path, DEFAULT_BGM_PATH, BGM_VOLUME)
 
     print(f"[비디오 완성] 쇼츠 영상 생성 성공: {output_video_path} (크기: {output_video_path.stat().st_size / (1024*1024):.2f} MB)")
     return output_video_path

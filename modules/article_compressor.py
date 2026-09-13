@@ -472,21 +472,20 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
     # 7. 하이라이트 문장 결정
     highlight = theme_highlight_map.get(theme, theme_highlight_map["general_clinical"])
 
-    # 8. 쇼츠 나레이션용 본문 요약 (1분 이상 ~ 2분 미만 시간 준수)
-    spoken_fact = to_spoken_polite(bullet_1)
-    if len(spoken_fact) > 70:
-        parts = re.split(r'[,;]\s*', spoken_fact)
-        if len(parts) >= 2 and len(parts[0]) >= 20:
-            spoken_fact = to_spoken_polite(parts[0].strip())
+    # 8. 쇼츠 나레이션용 본문 요약 (충실한 3문장 브리핑)
+    spoken_fact_1 = to_spoken_polite(bullet_1)
+    if not spoken_fact_1.endswith(('.', '!', '?')):
+        spoken_fact_1 += '.'
 
-    if not spoken_fact.endswith(('.', '!', '?')):
-        spoken_fact += '.'
+    spoken_fact_2 = to_spoken_polite(bullet_2)
+    if not spoken_fact_2.endswith(('.', '!', '?')):
+        spoken_fact_2 += '.'
 
-    theme_impact = to_spoken_polite(theme_bullet_3_map.get(theme, "현장 치료사들의 관심과 실천이 필요합니다."))
+    theme_impact = to_spoken_polite(theme_bullet_3_map.get(theme, "현장 치료사들의 지속적인 관심과 실천이 필요합니다."))
     if not theme_impact.endswith(('.', '!', '?')):
         theme_impact += '.'
 
-    narration_body = refine_text_for_tts(f"{spoken_fact} {theme_impact}")
+    narration_body = refine_text_for_tts(f"{spoken_fact_1} {spoken_fact_2} {theme_impact}")
 
     story_summary = ""
     if is_global:

@@ -106,7 +106,7 @@ def sync_weekly_output_to_github(
 
     # 3. 변경 사항 확인
     status_cmd = ["git", "status", "--porcelain"]
-    status_res = subprocess.run(status_cmd, cwd=str(BASE_DIR), capture_output=True, text=True)
+    status_res = subprocess.run(status_cmd, cwd=str(BASE_DIR), capture_output=True, text=True, encoding="utf-8", errors="replace")
     if not status_res.stdout.strip():
         print("ℹ️ [알림] GitHub에 반영할 새로운 변경 사항이 없습니다. (이미 최신 상태)")
         return True
@@ -120,7 +120,7 @@ def sync_weekly_output_to_github(
         print(f"   [DRY-RUN] 실행 예정: {' '.join(commit_cmd)}")
     else:
         try:
-            res_c = subprocess.run(commit_cmd, cwd=str(BASE_DIR), capture_output=True, text=True, check=True)
+            res_c = subprocess.run(commit_cmd, cwd=str(BASE_DIR), capture_output=True, text=True, encoding="utf-8", errors="replace", check=True)
             print("   ✅ 커밋 완료")
         except Exception as e:
             print(f"   ❌ Git commit 실패: {e}")

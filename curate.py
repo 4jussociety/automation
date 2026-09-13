@@ -40,11 +40,15 @@ from modules.article_image_fetcher import fetch_article_images
 def get_weekly_dir(date_str: str = None, create: bool = True) -> Path:
     """
     주간 큐레이션 통합 작업 디렉토리(output/{YYYY-MM-DD}_curated_weekly) 경로를 반환합니다.
-    주간 기준 날짜가 전달되지 않으면, 현재 주의 '월요일'을 기본 날짜로 통일합니다.
+    주간 기준 날짜가 전달되지 않으면, 일요일 실행 시에는 내일(월요일), 평일에는 해당 주의 월요일을 기본 날짜로 통일합니다.
     """
     if not date_str:
         now_dt = datetime.now()
-        monday_dt = now_dt - timedelta(days=now_dt.weekday())
+        if now_dt.weekday() == 6:
+            # 일요일 실행 시: 내일부터 시작하는 다가오는 주간(월~토) 기준
+            monday_dt = now_dt + timedelta(days=1)
+        else:
+            monday_dt = now_dt - timedelta(days=now_dt.weekday())
         date_str = monday_dt.strftime("%Y-%m-%d")
     weekly_dir = OUTPUT_DIR / f"{date_str}_curated_weekly"
     if create:
@@ -236,11 +240,11 @@ def cmd_build(args):
     print(f"👉 마스터 저장 폴더: {results.get('weekly_dir', weekly_dir)}")
     print("=" * 70)
 
-    # 자동 SNS 예약 업로드 연동
-    if getattr(args, "upload", False):
-        print("\n" + "=" * 70)
-        print("🚀 [자동 업로드 옵션 감지] 주간 콘텐츠 SNS 예약 업로드를 연계 실행합니다...")
-        cmd_upload(args)
+    print("📋 [다음 작업 안내]:")
+    print("   주간 콘텐츠 생성이 완료되었습니다. GitHub 원격 저장소에 동기화하여")
+    print("   매일 아침 KST 08:00 GitHub Actions 무인 발행 준비를 완료하세요:")
+    print("   👉 python curate.py sync")
+    print("=" * 70)
 
 
 def cmd_upload(args):
@@ -252,6 +256,22 @@ def cmd_upload(args):
     dry_run = getattr(args, "dry_run", False)
     platform = getattr(args, "platform", "all").lower()
     content_type = getattr(args, "type", "all").lower()
+
+    # [하드 가드레일: 로컬 환경 실제 발행 원천 차단]
+    # 실제 SNS 발행은 매일 08:00 GitHub Actions 환경(GITHUB_ACTIONS=true)에서만 독점적으로 수행됩니다.
+    # 로컬 환경에서는 오직 --dry-run (시뮬레이션) 모드만 허용됩니다.
+    is_github_actions = os.environ.get("GITHUB_ACTIONS") == "true"
+    allow_force_local = getattr(args, "force_local", False)
+
+    if not dry_run and not is_github_actions and not allow_force_local:
+        print("\n" + "🛑" * 35)
+        print("🚨 [보안 차단] 로컬 PC 환경에서는 실제 SNS 발행이 엄격히 금지되어 있습니다!")
+        print("   • 시스템 원칙: 실제 발행은 매일 아침 KST 08:00에 GitHub Actions가 당일 콘텐츠 1건만 자동으로 무인 발행합니다.")
+        print("   • 로컬 환경에서는 시뮬레이션(--dry-run) 모드로만 동작을 검증할 수 있습니다.")
+        print("   👉 안전한 시뮬레이션 실행: python curate.py upload --dry-run")
+        print("   👉 주간 작업 마무리(GitHub 동기화): python curate.py sync")
+        print("🛑" * 35 + "\n")
+        sys.exit(1)
 
     print("\n" + "=" * 70)
     mode_str = "🧪 [시뮬레이션 모드 (DRY-RUN)]" if dry_run else "🚀 [실제 API 업로드 모드]"
@@ -324,6 +344,7 @@ def cmd_upload(args):
     from modules.sns_scheduler import get_github_raw_url
     from modules.youtube_uploader import upload_youtube_short
     from modules.instagram_uploader import upload_instagram_carousel, upload_instagram_reel
+    from config import get_youtube_category_id, YOUTUBE_CATEGORY_NAMES
 
     total_tasks = 0
     success_tasks = 0
@@ -410,12 +431,22 @@ def cmd_upload(args):
                         f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활 #도수치료\n"
                     )
 
-                print(f"   ▶️ [YouTube Shorts] 즉시 공개 업로드 요청 중... (제목: '{yt_title}')")
+                custom_cat_arg = getattr(args, "category", None)
+                yt_category_id = (
+                    custom_cat_arg
+                    or pkg_data.get("youtube_category_id")
+                    or get_youtube_category_id(folder_name)
+                    or get_youtube_category_id(day_label)
+                )
+                cat_name = YOUTUBE_CATEGORY_NAMES.get(str(yt_category_id), f"카테고리 {yt_category_id}")
+
+                print(f"   ▶️ [YouTube Shorts] 즉시 공개 업로드 요청 중... (제목: '{yt_title}', 카테고리: {cat_name})")
                 res_yt = upload_youtube_short(
                     video_path=video_path,
                     title=yt_title,
                     description=yt_desc,
                     tags=["물리치료", "물리치료사", "Shorts", "쇼츠", "THEPT", "더피티", "재활", "도수치료"],
+                    category_id=yt_category_id,
                     publish_at_rfc3339=None,
                     first_comment=first_comment,
                     dry_run=dry_run
@@ -596,8 +627,6 @@ def main():
     p_build.add_argument("--day", type=str, default=None, help="특정 요일만 단독 빌드/렌더링 (예: mon, tue, wed, thu, fri, sat, 목요일, 04 등)")
     p_build.add_argument("--render", action="store_true", default=False, help="카드뉴스 PNG 및 쇼츠 MP4 미디어 렌더링까지 즉시 수행")
     p_build.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
-    p_build.add_argument("--upload", action="store_true", default=False, help="콘텐츠 제작 완료 후 유튜브/인스타 자동 예약 업로드 연계 실행")
-    p_build.add_argument("--dry-run", action="store_true", default=False, help="업로드 연계 시 실제 API 호출 없이 시뮬레이션만 수행")
 
     # 4. upload
     p_upload = subparsers.add_parser("upload", help="주간 콘텐츠(카드뉴스/쇼츠)를 유튜브 및 인스타그램에 자동 예약 업로드")
@@ -606,6 +635,7 @@ def main():
     p_upload.add_argument("--type", type=str, default="all", choices=["all", "carousel", "shorts", "video"], help="대상 콘텐츠 유형 (all, carousel, shorts)")
     p_upload.add_argument("--today-only", action="store_true", default=False, help="오늘 요일(KST 기준)에 해당하는 콘텐츠 1건만 즉시 발행")
     p_upload.add_argument("--day", type=str, default=None, help="특정 요일 지정 발행 (예: mon, tue, wed, thu, fri, sat 또는 01, 02 등)")
+    p_upload.add_argument("--category", "--yt-category", type=str, default=None, help="유튜브 업로드 카테고리 ID 수동 지정 (기본값: 요일별 테마 자동 할당)")
     p_upload.add_argument("--dry-run", action="store_true", default=False, help="실제 API 호출 없이 예약 스케줄 및 업로드 매핑 시뮬레이션")
 
     # 5. sync

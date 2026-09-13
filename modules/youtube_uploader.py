@@ -20,7 +20,14 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from config import BASE_DIR, YOUTUBE_CLIENT_SECRET_FILE, YOUTUBE_TOKEN_FILE
+from config import (
+    BASE_DIR,
+    YOUTUBE_CLIENT_SECRET_FILE,
+    YOUTUBE_TOKEN_FILE,
+    DEFAULT_YOUTUBE_CATEGORY_ID,
+    YOUTUBE_CATEGORY_NAMES,
+    get_youtube_category_id,
+)
 
 # 유튜브 업로드 및 댓글 작성을 위한 OAuth 스코프
 YOUTUBE_SCOPES = [
@@ -137,6 +144,7 @@ class YouTubeShortsUploader:
         title: str,
         description: str,
         tags: Optional[List[str]] = None,
+        category_id: Optional[str] = None,
         publish_at: Optional[str] = None,
         first_comment: Optional[str] = None
     ) -> dict:
@@ -171,18 +179,21 @@ class YouTubeShortsUploader:
                 "selfDeclaredMadeForKids": False
             }
 
+        target_category_id = str(category_id or DEFAULT_YOUTUBE_CATEGORY_ID)
         body = {
             "snippet": {
                 "title": clean_title,
                 "description": description,
                 "tags": video_tags,
-                "categoryId": "27"  # 27 = 교육 (Education) 또는 28 = 과학기술
+                "categoryId": target_category_id
             },
             "status": status_body
         }
 
+        cat_label = YOUTUBE_CATEGORY_NAMES.get(target_category_id, f"카테고리 {target_category_id}")
         print(f"\n🚀 [YouTube] 쇼츠 비디오 업로드 시작: {video_path.name}")
         print(f"   • 제목: {clean_title}")
+        print(f"   • 카테고리: {cat_label} (ID: {target_category_id})")
         if publish_at:
             print(f"   • 예약 발행 시각: {publish_at}")
 
@@ -247,6 +258,7 @@ def upload_youtube_short(
     title: str,
     description: str,
     tags: Optional[List[str]] = None,
+    category_id: Optional[str] = None,
     publish_at_rfc3339: Optional[str] = None,
     first_comment: Optional[str] = None,
     dry_run: bool = False
@@ -255,11 +267,15 @@ def upload_youtube_short(
     YouTube Shorts 비디오를 업로드하고 예약 발행하는 편의 함수입니다.
     dry_run=True 시 실제 API 호출 없이 파라미터 시뮬레이션만 수행합니다.
     """
+    target_category_id = str(category_id or DEFAULT_YOUTUBE_CATEGORY_ID)
+    cat_label = YOUTUBE_CATEGORY_NAMES.get(target_category_id, f"카테고리 {target_category_id}")
+
     if dry_run:
         mode = "예약 업로드" if publish_at_rfc3339 else "즉시 업로드"
         print(f"     🧪 [DRY-RUN 시뮬레이션 - {mode}]")
         print(f"        • 비디오: {Path(video_path).name}")
         print(f"        • 제목: {title}")
+        print(f"        • 카테고리: {cat_label} (ID: {target_category_id})")
         print(f"        • 발행 설정: {publish_at_rfc3339 or '즉시 공개 (Public)'}")
         if first_comment:
             print(f"        • 첫 댓글: {first_comment.splitlines()[0]}...")
@@ -267,6 +283,7 @@ def upload_youtube_short(
             "success": True,
             "video_id": "DRY-RUN-YT-SHORT",
             "video_url": "https://youtube.com/shorts/DRY-RUN-YT-SHORT",
+            "category_id": target_category_id,
             "status": "scheduled (dry-run)" if publish_at_rfc3339 else "published (dry-run)"
         }
 
@@ -277,6 +294,7 @@ def upload_youtube_short(
             title=title,
             description=description,
             tags=tags,
+            category_id=target_category_id,
             publish_at=publish_at_rfc3339,
             first_comment=first_comment
         )
