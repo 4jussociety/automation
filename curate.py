@@ -240,11 +240,17 @@ def cmd_build(args):
     print(f"👉 마스터 저장 폴더: {results.get('weekly_dir', weekly_dir)}")
     print("=" * 70)
 
-    print("📋 [다음 작업 안내]:")
-    print("   주간 콘텐츠 생성이 완료되었습니다. GitHub 원격 저장소에 동기화하여")
-    print("   매일 아침 KST 08:00 GitHub Actions 무인 발행 준비를 완료하세요:")
-    print("   👉 python curate.py sync")
-    print("=" * 70)
+    # GitHub 원격 저장소 자동 동기화 연동 (--sync 옵션 시)
+    if getattr(args, "sync", False):
+        print("\n" + "=" * 70)
+        print("🚀 [--sync 옵션 감지] 주간 콘텐츠를 GitHub 원격 저장소에 즉시 동기화합니다...")
+        cmd_sync(args)
+    else:
+        print("📋 [다음 작업 안내]:")
+        print("   주간 콘텐츠 생성이 완료되었습니다. GitHub 원격 저장소에 동기화하여")
+        print("   매일 아침 KST 08:00 GitHub Actions 무인 발행 준비를 완료하세요:")
+        print("   👉 python curate.py sync")
+        print("=" * 70)
 
 
 def cmd_upload(args):
@@ -626,6 +632,7 @@ def main():
     p_build = subparsers.add_parser("build", help="3단계: 최종 선택 기사 확정, 이유 저장 및 주 6일 콘텐츠 일괄 제작")
     p_build.add_argument("--day", type=str, default=None, help="특정 요일만 단독 빌드/렌더링 (예: mon, tue, wed, thu, fri, sat, 목요일, 04 등)")
     p_build.add_argument("--render", action="store_true", default=False, help="카드뉴스 PNG 및 쇼츠 MP4 미디어 렌더링까지 즉시 수행")
+    p_build.add_argument("--sync", action="store_true", default=False, help="빌드 및 렌더링 완료 후 GitHub 원격 저장소 푸시까지 즉시 연계 실행")
     p_build.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
 
     # 4. upload
