@@ -2,9 +2,9 @@ name: Daily SNS Auto-Publish (Instagram & YouTube)
 
 on:
   schedule:
-    # 매일 UTC 23:00 실행 (한국 시간 KST 오전 08:00)
-    # 일~금 UTC 23:00 = 월~토 KST 08:00 (주 6일 정기 발행)
-    - cron: '0 23 * * 0-5'
+    # 매일 UTC 21:50 실행 (한국 시간 KST 오전 06:50, 큐 지연 감안 시 07:30~08:00 정시 발행)
+    # 일~금 UTC 21:50 = 월~토 KST 06:50 (주 6일 정기 발행)
+    - cron: '50 21 * * 0-5'
 
   # GitHub 웹 화면(Actions 탭)에서 언제든 원클릭 수동 즉시 실행 지원
   workflow_dispatch:

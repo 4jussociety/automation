@@ -12,7 +12,7 @@ THEPT 주간 물리치료 콘텐츠(4:5 카드뉴스 + 9:16 쇼츠 비디오 + S
 | **2단계** | **큐레이팅** | `python curate.py review` | `"리뷰해줘"`<br>`"2단계 진행해"` | `candidates_detail.md` 본문 확인 후 기사 `[x]` 최종 확정 |
 | **3단계** | **제작·동기화** | `python curate.py build --render --sync` | `"3단계 진행해줘"`<br>`"제작하고 깃허브에 올려줘"` | **컴퓨터가 원스톱 완결!** (대본+렌더링+GitHub 푸시 끝) |
 | ── | ── | ── | ── | ── |
-| **무인** | **SNS 자동발행** | *(GitHub Actions 자동 실행)* | *(조작 불필요)* | **매일 아침 KST 08:00 당일 요일 1편 자동 공개** |
+| **무인** | **SNS 자동발행** | *(GitHub Actions 자동 실행)* | *(조작 불필요)* | **매일 아침 KST 06:50 트리거 (07:30~08:00경 자동 공개)** |
 
 ---
 
@@ -71,11 +71,11 @@ THEPT 주간 물리치료 콘텐츠(4:5 카드뉴스 + 9:16 쇼츠 비디오 + S
 
 ---
 
-### 🤖 무인 자동 발행: 매일 아침 KST 08:00 (GitHub Actions)
+### 🤖 무인 자동 발행: 매일 아침 KST 06:50 트리거 (GitHub Actions)
 
 * **동작 원리**:
-  * 3단계에서 GitHub에 푸시된 결과물을 바탕으로, GitHub Actions 클라우드 러너([daily_sns_publish.yml](file:///.github/workflows/daily_sns_publish.yml))가 **매주 월~토 아침 KST 08:00 정시**에 깨어납니다.
-  * 당일 요일에 해당하는 콘텐츠 1건만 자동으로 YouTube Shorts 및 Instagram(피드+릴스)에 공개 발행하고 공식 첫 댓글을 등록합니다.
+  * 3단계에서 GitHub에 푸시된 결과물을 바탕으로, GitHub Actions 클라우드 러너([daily_sns_publish.yml](file:///.github/workflows/daily_sns_publish.yml))가 **매주 월~토 아침 KST 06:50**에 깨어납니다.
+  * GitHub Actions의 러너 대기 큐 지연(약 40분~1시간)을 감안하여 06:50에 시작되므로, **오전 07:30~08:00경 정시**에 당일 요일 콘텐츠 1건이 YouTube Shorts 및 Instagram(피드+릴스)에 자동으로 공개 발행되고 공식 첫 댓글이 등록됩니다.
 * **사용자 조작**: **전혀 필요 없음 (100% 무인 자동)**
 
 ---
