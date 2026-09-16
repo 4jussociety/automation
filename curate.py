@@ -486,7 +486,10 @@ def cmd_upload(args):
                     print(f"     ❌ Instagram 캐러셀 실패: {res_ig.get('error')}")
 
         # 3. Instagram Reels 업로드
-        if platform in ("all", "instagram") and content_type in ("all", "shorts", "video", "reel", "reels"):
+        skip_reels = getattr(args, "skip_reels", False)
+        if skip_reels:
+            print("   ⏩ [Instagram 릴스] --skip-reels 옵션이 활성화되어 릴스 발행을 건너뜁니다.")
+        elif platform in ("all", "instagram") and content_type in ("all", "shorts", "video", "reel", "reels"):
             if not shorts_files:
                 print("   ⚠️ [Instagram 릴스] 비디오 파일(.mp4)이 없어 건너뜁니다.")
             else:
@@ -507,11 +510,18 @@ def cmd_upload(args):
                     print(f"     ❌ Instagram 릴스 실패: {res_reel.get('error')}")
 
     print("\n" + "=" * 70)
+    failed_tasks = total_tasks - success_tasks
     print(f"🏁 [발행 파이프라인 결과] 총 {total_tasks}개 대상 작업 중 {success_tasks}건 완료!")
+    if failed_tasks > 0:
+        print(f"⚠️ [경고] {failed_tasks}건의 업로드 작업이 실패했습니다!")
     if dry_run:
         print("💡 [DRY-RUN 모드 안내] 실제 업로드는 수행되지 않았으며 스케줄과 메타데이터가 정상 검증되었습니다.")
         print("   실제 업로드를 진행하려면 --dry-run 플래그를 제외하고 실행해주세요.")
     print("=" * 70)
+
+    # 실패 건이 있으면 비정상 종료 (GitHub Actions에서 Job 실패로 감지)
+    if not dry_run and failed_tasks > 0:
+        sys.exit(1)
 
 
 def cmd_auth_yt(args):
@@ -643,6 +653,8 @@ def main():
     p_upload.add_argument("--today-only", action="store_true", default=False, help="오늘 요일(KST 기준)에 해당하는 콘텐츠 1건만 즉시 발행")
     p_upload.add_argument("--day", type=str, default=None, help="특정 요일 지정 발행 (예: mon, tue, wed, thu, fri, sat 또는 01, 02 등)")
     p_upload.add_argument("--category", "--yt-category", type=str, default=None, help="유튜브 업로드 카테고리 ID 수동 지정 (기본값: 요일별 테마 자동 할당)")
+    p_upload.add_argument("--skip-reels", action="store_true", default=False, help="인스타그램 릴스 발행을 건너뛰고 캐러셀 피드 및 유튜브 쇼츠만 선별 발행")
+    p_upload.add_argument("--force-local", action="store_true", default=False, help="로컬 개발 환경에서 실제 API 발행을 비상 허용")
     p_upload.add_argument("--dry-run", action="store_true", default=False, help="실제 API 호출 없이 예약 스케줄 및 업로드 매핑 시뮬레이션")
 
     # 5. sync

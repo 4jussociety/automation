@@ -153,6 +153,26 @@ class InstagramGraphUploader:
 
         container_id = c_data["id"]
 
+        # 2.5. Meta 서버의 캐러셀 컨테이너 처리 완료 대기 (최대 1분)
+        print("⏳ [Instagram] Meta 서버에서 캐러셀 이미지 처리 중...")
+        for _ in range(12):  # 최대 12회 × 5초 = 60초
+            time.sleep(5)
+            status_res = requests.get(
+                f"{self.api_base}/{container_id}",
+                params={"fields": "status_code", "access_token": self.access_token},
+                timeout=10
+            )
+            s_data = status_res.json()
+            code = s_data.get("status_code")
+            if code == "FINISHED":
+                print("   ✅ 캐러셀 이미지 처리 완료!")
+                break
+            elif code == "ERROR":
+                raise RuntimeError(f"캐러셀 이미지 처리 오류: {s_data}")
+            print(f"   ...처리 중 (status: {code})")
+        else:
+            raise TimeoutError("캐러셀 이미지 처리 대기 시간 초과 (60초)")
+
         # 3. 최종 발행 (publish)
         print("🚀 [Instagram] 캐러셀 최종 등록(publish) 실행 중...")
         pub_res = requests.post(

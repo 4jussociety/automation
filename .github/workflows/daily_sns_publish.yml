@@ -2,12 +2,41 @@ name: Daily SNS Auto-Publish (Instagram & YouTube)
 
 on:
   schedule:
-    # 매일 UTC 21:50 실행 (한국 시간 KST 오전 06:50, 큐 지연 감안 시 07:30~08:00 정시 발행)
-    # 일~금 UTC 21:50 = 월~토 KST 06:50 (주 6일 정기 발행)
-    - cron: '50 21 * * 0-5'
+    # 매일 UTC 22:00 실행 (한국 시간 KST 오전 07:00 정시 발행)
+    # 일~금 UTC 22:00 = 월~토 KST 07:00 (주 6일 정기 발행)
+    - cron: '0 22 * * 0-5'
 
   # GitHub 웹 화면(Actions 탭)에서 언제든 원클릭 수동 즉시 실행 지원
   workflow_dispatch:
+    inputs:
+      day:
+        description: '발행할 요일 (mon, tue, wed, thu, fri, sat / 미입력 시 당일 콘텐츠)'
+        required: false
+        default: ''
+        type: string
+      platform:
+        description: '대상 플랫폼'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - youtube
+          - instagram
+      type:
+        description: '콘텐츠 유형'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - carousel
+          - shorts
+      skip_reels:
+        description: '인스타그램 릴스 발행 건너뛰기 (수요일처럼 릴스만 이미 발행된 경우 체크)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   publish-sns:
@@ -15,10 +44,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.10'
           cache: 'pip'
@@ -42,9 +71,29 @@ jobs:
             echo "✅ YouTube client_secret.json restored successfully."
           fi
 
-      - name: Publish Today's Content (Instagram + YouTube)
+      - name: Publish Content (Instagram + YouTube)
         env:
           INSTAGRAM_ACCOUNT_ID: ${{ secrets.INSTAGRAM_ACCOUNT_ID }}
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
         run: |
-          python curate.py upload --platform all --today-only
+          CMD_ARGS=""
+          if [ -n "${{ inputs.day }}" ]; then
+            CMD_ARGS="$CMD_ARGS --day ${{ inputs.day }}"
+          else
+            CMD_ARGS="$CMD_ARGS --today-only"
+          fi
+          if [ -n "${{ inputs.platform }}" ]; then
+            CMD_ARGS="$CMD_ARGS --platform ${{ inputs.platform }}"
+          else
+            CMD_ARGS="$CMD_ARGS --platform all"
+          fi
+          if [ -n "${{ inputs.type }}" ]; then
+            CMD_ARGS="$CMD_ARGS --type ${{ inputs.type }}"
+          else
+            CMD_ARGS="$CMD_ARGS --type all"
+          fi
+          if [ "${{ inputs.skip_reels }}" = "true" ]; then
+            CMD_ARGS="$CMD_ARGS --skip-reels"
+          fi
+          echo "🚀 실행 명령어: python curate.py upload $CMD_ARGS"
+          python curate.py upload $CMD_ARGS
