@@ -336,7 +336,7 @@ def cmd_upload(args):
         print(f"🎯 [당일 발행 모드] 오늘 요일 콘텐츠를 즉시 공개 발행합니다: {[d.name for d in day_folders]}")
 
     elif target_day_arg:
-        from pipeline import match_day_filter
+        from modules.day_filter import match_day_filter
         matched_folders = []
         for d in day_folders:
             if match_day_filter(target_day_arg, d.name.lower(), "", d.name):
