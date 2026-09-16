@@ -143,6 +143,7 @@ INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN", "")
 # YouTube Data API v3 OAuth 설정
 YOUTUBE_CLIENT_SECRET_FILE = os.getenv("YOUTUBE_CLIENT_SECRET_FILE", str(BASE_DIR / "client_secret.json"))
 YOUTUBE_TOKEN_FILE = BASE_DIR / "token.pickle"
+YOUTUBE_DEFAULT_PLAYLIST_ID = os.getenv("YOUTUBE_DEFAULT_PLAYLIST_ID", "PLTEYR_IZibwI")  # 기본 재생목록: '뉴스'
 
 # YouTube Data API v3 카테고리 ID 및 요일별 테마 매핑
 # 25: 뉴스/정치 (News & Politics)

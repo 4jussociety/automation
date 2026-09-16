@@ -26,6 +26,7 @@ from config import (
     YOUTUBE_TOKEN_FILE,
     DEFAULT_YOUTUBE_CATEGORY_ID,
     YOUTUBE_CATEGORY_NAMES,
+    YOUTUBE_DEFAULT_PLAYLIST_ID,
     get_youtube_category_id,
 )
 
@@ -146,12 +147,14 @@ class YouTubeShortsUploader:
         tags: Optional[List[str]] = None,
         category_id: Optional[str] = None,
         publish_at: Optional[str] = None,
-        first_comment: Optional[str] = None
+        first_comment: Optional[str] = None,
+        playlist_id: Optional[str] = None
     ) -> dict:
         """
         쇼츠 비디오를 업로드하고 예약 발행 일시를 설정합니다.
         - publish_at: RFC 3339 형식 문자열 (예: 2026-09-08T08:00:00+09:00)
         - 예약 설정 시 YouTube 규정에 따라 privacyStatus는 반드시 'private'여야 함
+        - playlist_id: 비디오가 추가될 대상 재생목록 ID (기본값: YOUTUBE_DEFAULT_PLAYLIST_ID)
         """
         service = self.get_service()
 
@@ -229,11 +232,22 @@ class YouTubeShortsUploader:
             except Exception as e:
                 print(f"⚠️ [YouTube] 첫 댓글 등록 중 경고: {e}")
 
+        # 재생목록에 영상 추가
+        target_playlist_id = playlist_id if playlist_id is not None else YOUTUBE_DEFAULT_PLAYLIST_ID
+        playlist_item_id = None
+        if target_playlist_id and video_id:
+            try:
+                playlist_item_id = self.add_to_playlist(target_playlist_id, video_id)
+                print(f"📑 [YouTube] 재생목록에 추가 완료 (Playlist ID: {target_playlist_id})")
+            except Exception as e:
+                print(f"⚠️ [YouTube] 재생목록 추가 중 경고: {e}")
+
         return {
             "video_id": video_id,
             "video_url": video_url,
             "publish_at": publish_at,
-            "comment_id": comment_id
+            "comment_id": comment_id,
+            "playlist_item_id": playlist_item_id
         }
 
     def add_comment(self, video_id: str, comment_text: str) -> str:
@@ -252,6 +266,21 @@ class YouTubeShortsUploader:
         res = service.commentThreads().insert(part="snippet", body=body).execute()
         return res.get("id")
 
+    def add_to_playlist(self, playlist_id: str, video_id: str) -> str:
+        """업로드된 비디오를 지정된 재생목록에 추가합니다."""
+        service = self.get_service()
+        body = {
+            "snippet": {
+                "playlistId": playlist_id,
+                "resourceId": {
+                    "kind": "youtube#video",
+                    "videoId": video_id
+                }
+            }
+        }
+        res = service.playlistItems().insert(part="snippet", body=body).execute()
+        return res.get("id")
+
 
 def upload_youtube_short(
     video_path: Path,
@@ -261,6 +290,7 @@ def upload_youtube_short(
     category_id: Optional[str] = None,
     publish_at_rfc3339: Optional[str] = None,
     first_comment: Optional[str] = None,
+    playlist_id: Optional[str] = None,
     dry_run: bool = False
 ) -> dict:
     """
@@ -269,6 +299,7 @@ def upload_youtube_short(
     """
     target_category_id = str(category_id or DEFAULT_YOUTUBE_CATEGORY_ID)
     cat_label = YOUTUBE_CATEGORY_NAMES.get(target_category_id, f"카테고리 {target_category_id}")
+    target_playlist_id = playlist_id if playlist_id is not None else YOUTUBE_DEFAULT_PLAYLIST_ID
 
     if dry_run:
         mode = "예약 업로드" if publish_at_rfc3339 else "즉시 업로드"
@@ -276,6 +307,7 @@ def upload_youtube_short(
         print(f"        • 비디오: {Path(video_path).name}")
         print(f"        • 제목: {title}")
         print(f"        • 카테고리: {cat_label} (ID: {target_category_id})")
+        print(f"        • 재생목록: {target_playlist_id or '미지정'}")
         print(f"        • 발행 설정: {publish_at_rfc3339 or '즉시 공개 (Public)'}")
         if first_comment:
             print(f"        • 첫 댓글: {first_comment.splitlines()[0]}...")
@@ -296,7 +328,8 @@ def upload_youtube_short(
             tags=tags,
             category_id=target_category_id,
             publish_at=publish_at_rfc3339,
-            first_comment=first_comment
+            first_comment=first_comment,
+            playlist_id=target_playlist_id
         )
         return {"success": True, **res, "status": "scheduled" if publish_at_rfc3339 else "published"}
     except Exception as e:
@@ -309,7 +342,17 @@ def authenticate_youtube():
     """
     try:
         uploader = YouTubeShortsUploader()
-        return uploader.get_service()
+        service = uploader.get_service()
+        if service:
+            try:
+                ch_res = service.channels().list(part="snippet", mine=True).execute()
+                for ch in ch_res.get("items", []):
+                    title = ch["snippet"]["title"]
+                    handle = ch["snippet"].get("customUrl", ch["id"])
+                    print(f"📺 연동된 YouTube 채널: {title} ({handle})")
+            except Exception:
+                pass
+        return service
     except Exception as e:
         print(f"❌ YouTube 인증 실패: {e}")
         return None
