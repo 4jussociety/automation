@@ -9,8 +9,8 @@ on:
   # GitHub 웹 화면(Actions 탭)에서 언제든 원클릭 수동 즉시 실행 지원
   workflow_dispatch:
     inputs:
-      day:
-        description: '발행할 요일 (mon, tue, wed, thu, fri, sat / 미입력 시 당일 콘텐츠)'
+      date:
+        description: '발행할 월일 (4자리 MMDD 예: 0917 / 미입력 시 당일 콘텐츠)'
         required: false
         default: ''
         type: string
@@ -77,8 +77,8 @@ jobs:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
         run: |
           CMD_ARGS=""
-          if [ -n "${{ inputs.day }}" ]; then
-            CMD_ARGS="$CMD_ARGS --day ${{ inputs.day }}"
+          if [ -n "${{ inputs.date }}" ]; then
+            CMD_ARGS="$CMD_ARGS --day ${{ inputs.date }}"
           else
             CMD_ARGS="$CMD_ARGS --today-only"
           fi

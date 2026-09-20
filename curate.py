@@ -59,11 +59,12 @@ def get_weekly_dir(date_str: str = None, create: bool = True) -> Path:
 def find_active_weekly_dir(date_str: str = None) -> Path:
     """
     작업할 주간 디렉토리를 결정합니다.
-    - 날짜가 지정되면 해당 날짜 디렉토리 반환
+    - 날짜(YYYY-MM-DD)가 지정되면 해당 주간 디렉토리 반환
+    - 4자리 MMDD 등 단축 날짜는 주간 디렉토리가 아닌 개별 날짜 필터이므로 최신 주간 디렉토리 자동 탐색
     - 이번 주(월요일 기준) 디렉토리가 있으면 반환
     - 없으면 가장 최근 생성된 *_curated_weekly 디렉토리 반환
     """
-    if date_str:
+    if date_str and len(date_str) > 7:
         return get_weekly_dir(date_str, create=True)
 
     this_week_dir = get_weekly_dir(create=False)
@@ -215,9 +216,13 @@ def cmd_build(args):
 
     # 렌더링 파이프라인 구동
     do_render = getattr(args, "render", False)
-    day_arg = getattr(args, "day", None)
-    if day_arg:
-        mode_prefix = f"[{day_arg} 단독 모드]"
+    target_date_arg = getattr(args, "day", None)
+    raw_date = getattr(args, "date", None)
+    if raw_date and (len(raw_date) <= 5 or re.match(r"^\d{1,2}[/.-]\d{1,2}$", raw_date)):
+        target_date_arg = raw_date
+
+    if target_date_arg:
+        mode_prefix = f"[{target_date_arg} 단독 모드]"
     else:
         mode_prefix = "주 6일 통합 콘텐츠"
 
@@ -232,7 +237,7 @@ def cmd_build(args):
         rebalanced_by_cat,
         render_media=do_render,
         target_dir=weekly_dir,
-        day_filter=day_arg
+        day_filter=target_date_arg
     ))
 
     print("\n" + "=" * 70)
@@ -297,55 +302,42 @@ def cmd_upload(args):
         print("   먼저 콘텐츠를 제작하세요: python curate.py build --render")
         return
 
-    # 요일 필터링 (--today-only 또는 --day, 미지정 시 안전하게 오늘 요일 기본값 적용)
+    # 날짜 필터링 (--today-only 또는 --day/--date, 미지정 시 안전하게 오늘 날짜 기본값 적용)
     today_only = getattr(args, "today_only", False)
-    target_day_arg = getattr(args, "day", None)
-    if not target_day_arg and not today_only:
-        # 미래 콘텐츠가 불필요하게 사전 예약되는 것을 방지하고 매일 08:00 GitHub Actions 무인 발행과 일치시킴
+    target_date_arg = getattr(args, "day", None)
+    raw_date = getattr(args, "date", None)
+    if raw_date and (len(raw_date) <= 5 or re.match(r"^\d{1,2}[/.-]\d{1,2}$", raw_date)):
+        target_date_arg = raw_date
+
+    if not target_date_arg and not today_only:
+        # 미래 콘텐츠가 불필요하게 사전 예약되는 것을 방지하고 매일 GitHub Actions 무인 발행과 일치시킴
         today_only = True
 
     from modules.sns_scheduler import KST
     now_kst = datetime.now(KST)
-    current_weekday = now_kst.weekday()  # 0:월, 1:화, 2:수, 3:목, 4:금, 5:토, 6:일
-
-    WEEKDAY_KEYWORD_MAP = {
-        0: ["mon", "월"],
-        1: ["tue", "화"],
-        2: ["wed", "수"],
-        3: ["thu", "목"],
-        4: ["fri", "금"],
-        5: ["sat", "토"],
-    }
+    today_mmdd = now_kst.strftime("%m%d")
 
     if today_only:
-        if current_weekday == 6:
+        if now_kst.weekday() == 6:
             print("ℹ️ [스킵] 오늘은 일요일입니다. 주 6일(월~토) 정기 발행 대상 요일이 아니므로 안전하게 종료합니다.")
             return
-        keywords = WEEKDAY_KEYWORD_MAP.get(current_weekday, [])
-        today_mmdd = now_kst.strftime("%m%d")
-        # 오늘 요일에 해당하는 폴더 1건만 엄격 선별
-        matched_today = [d for d in day_folders if any(kw in d.name.lower() for kw in keywords)]
-        if len(matched_today) > 1:
-            mmdd_filtered = [d for d in matched_today if today_mmdd in d.name]
-            if mmdd_filtered:
-                matched_today = mmdd_filtered
-        day_folders = matched_today
-        if not day_folders:
-            print(f"⚠️ [주의] 오늘 요일({keywords[0].upper()})에 해당하는 콘텐츠 폴더를 찾을 수 없습니다: {weekly_dir}")
-            return
-        print(f"🎯 [당일 발행 모드] 오늘 요일 콘텐츠를 즉시 공개 발행합니다: {[d.name for d in day_folders]}")
 
-    elif target_day_arg:
-        from modules.day_filter import match_day_filter
-        matched_folders = []
-        for d in day_folders:
-            if match_day_filter(target_day_arg, d.name.lower(), "", d.name):
-                matched_folders.append(d)
-        day_folders = matched_folders
-        if not day_folders:
-            print(f"⚠️ [주의] 지정하신 요일 키워드('{target_day_arg}')와 일치하는 폴더를 찾을 수 없습니다.")
+        # 오늘 날짜(MMDD) 접두어(예: 0917_)로 폴더 1건 정확 매칭
+        matched_today = [d for d in day_folders if d.name.startswith(f"{today_mmdd}_")]
+        if not matched_today:
+            print(f"⚠️ [주의] 오늘 날짜({today_mmdd})에 해당하는 콘텐츠 폴더를 찾을 수 없습니다: {weekly_dir}")
             return
-        print(f"🎯 [지정 요일 모드 (--day)] 대상 폴더: {[d.name for d in day_folders]}")
+        day_folders = matched_today
+        print(f"🎯 [당일 발행 모드] 오늘 날짜({today_mmdd}) 콘텐츠를 즉시 공개 발행합니다: {[d.name for d in day_folders]}")
+
+    elif target_date_arg:
+        from modules.day_filter import match_day_filter
+        matched_folders = [d for d in day_folders if match_day_filter(target_date_arg, folder_name=d.name)]
+        if not matched_folders:
+            print(f"⚠️ [주의] 지정하신 날짜('{target_date_arg}')와 일치하는 폴더를 찾을 수 없습니다: {weekly_dir}")
+            return
+        day_folders = matched_folders
+        print(f"🎯 [지정 날짜 모드] 대상 폴더: {[d.name for d in day_folders]}")
 
     from modules.sns_scheduler import get_github_raw_url
     from modules.youtube_uploader import upload_youtube_short
@@ -614,13 +606,31 @@ def cmd_export_yt_secrets(args):
 
 
 def cmd_sync(args):
-    """GitHub 저장소와 주간 큐레이션 미디어를 동기화하고 최근 4주치 롤링 보관을 적용합니다."""
+    """GitHub 저장소와 주간 큐레이션 미디어를 동기화하고, Google Drive에 자동 백업합니다."""
     from modules.git_sync_manager import sync_weekly_output_to_github
     weekly_dir = find_active_weekly_dir(getattr(args, "date", None))
     dry_run = getattr(args, "dry_run", False)
     commit_msg = getattr(args, "message", None)
     retain_weeks = getattr(args, "retain", 4)
     sync_weekly_output_to_github(weekly_dir=weekly_dir, commit_msg=commit_msg, retain_weeks=retain_weeks, dry_run=dry_run)
+
+    # Google Drive 자동 백업 업로드
+    skip_gdrive = getattr(args, "skip_gdrive", False)
+    if not skip_gdrive:
+        from modules.gdrive_uploader import sync_weekly_to_gdrive
+        sync_weekly_to_gdrive(weekly_dir=weekly_dir, dry_run=dry_run)
+
+
+def cmd_auth_gdrive(args):
+    """Google Drive API OAuth 최초 1회 브라우저 인증 도우미"""
+    from modules.gdrive_uploader import authenticate_gdrive
+    print("\n🔑 [Google Drive API] OAuth 2.0 사용자 인증을 시작합니다...")
+    service = authenticate_gdrive()
+    if service:
+        print("\n🎉 [인증 완료] Google Drive API 인증이 성공적으로 완료되었습니다!")
+        print("   이제 'python curate.py sync' 실행 시 구글 드라이브로 자동 백업됩니다.")
+    else:
+        print("\n❌ [인증 실패] Google Drive 인증에 실패했습니다. client_secret.json 파일 및 API 활성화 상태를 확인해주세요.")
 
 
 def main():
@@ -640,40 +650,44 @@ def main():
 
     # 3. build
     p_build = subparsers.add_parser("build", help="3단계: 최종 선택 기사 확정, 이유 저장 및 주 6일 콘텐츠 일괄 제작")
-    p_build.add_argument("--day", type=str, default=None, help="특정 요일만 단독 빌드/렌더링 (예: mon, tue, wed, thu, fri, sat, 목요일, 04 등)")
+    p_build.add_argument("--day", "--target-date", type=str, default=None, help="특정 날짜만 단독 빌드/렌더링 (4자리 MMDD 예: 0917, 9/17)")
     p_build.add_argument("--render", action="store_true", default=False, help="카드뉴스 PNG 및 쇼츠 MP4 미디어 렌더링까지 즉시 수행")
     p_build.add_argument("--sync", action="store_true", default=False, help="빌드 및 렌더링 완료 후 GitHub 원격 저장소 푸시까지 즉시 연계 실행")
-    p_build.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
+    p_build.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차 YYYY-MM-DD 또는 단독 날짜 MMDD)")
 
     # 4. upload
     p_upload = subparsers.add_parser("upload", help="주간 콘텐츠(카드뉴스/쇼츠)를 유튜브 및 인스타그램에 자동 예약 업로드")
-    p_upload.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
+    p_upload.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (YYYY-MM-DD) 또는 특정 날짜 (MMDD 예: 0917)")
     p_upload.add_argument("--platform", type=str, default="all", choices=["all", "youtube", "instagram"], help="대상 플랫폼 선택 (all, youtube, instagram)")
     p_upload.add_argument("--type", type=str, default="all", choices=["all", "carousel", "shorts", "video"], help="대상 콘텐츠 유형 (all, carousel, shorts)")
-    p_upload.add_argument("--today-only", action="store_true", default=False, help="오늘 요일(KST 기준)에 해당하는 콘텐츠 1건만 즉시 발행")
-    p_upload.add_argument("--day", type=str, default=None, help="특정 요일 지정 발행 (예: mon, tue, wed, thu, fri, sat 또는 01, 02 등)")
+    p_upload.add_argument("--today-only", action="store_true", default=False, help="오늘 날짜(KST 기준 MMDD)에 해당하는 콘텐츠 1건만 즉시 발행")
+    p_upload.add_argument("--day", "--target-date", type=str, default=None, help="특정 날짜 지정 발행 (4자리 MMDD 예: 0917, 9/17)")
     p_upload.add_argument("--category", "--yt-category", type=str, default=None, help="유튜브 업로드 카테고리 ID 수동 지정 (기본값: 요일별 테마 자동 할당)")
     p_upload.add_argument("--skip-reels", action="store_true", default=False, help="인스타그램 릴스 발행을 건너뛰고 캐러셀 피드 및 유튜브 쇼츠만 선별 발행")
     p_upload.add_argument("--force-local", action="store_true", default=False, help="로컬 개발 환경에서 실제 API 발행을 비상 허용")
     p_upload.add_argument("--dry-run", action="store_true", default=False, help="실제 API 호출 없이 예약 스케줄 및 업로드 매핑 시뮬레이션")
 
     # 5. sync
-    p_sync = subparsers.add_parser("sync", help="GitHub 저장소와 주간 미디어 동기화 및 4주 롤링 슬림화")
+    p_sync = subparsers.add_parser("sync", help="GitHub 저장소와 주간 미디어 동기화, Google Drive 자동 백업 및 4주 롤링 슬림화")
     p_sync.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
     p_sync.add_argument("--message", "-m", type=str, default=None, help="커밋 메시지 직접 지정")
     p_sync.add_argument("--retain", type=int, default=4, help="활성 유지할 주간 폴더 수 (기본 4주)")
-    p_sync.add_argument("--dry-run", action="store_true", default=False, help="실제 Git 커밋/푸시 없이 시뮬레이션만 수행")
+    p_sync.add_argument("--skip-gdrive", action="store_true", default=False, help="Google Drive 자동 업로드를 건너뜁니다.")
+    p_sync.add_argument("--dry-run", action="store_true", default=False, help="실제 Git 커밋/푸시 및 업로드 없이 시뮬레이션만 수행")
 
     # 6. auth-yt
     p_auth_yt = subparsers.add_parser("auth-yt", help="YouTube Data API OAuth 최초 1회 브라우저 인증 도우미")
 
-    # 7. test-insta
+    # 7. auth-gdrive
+    p_auth_gd = subparsers.add_parser("auth-gdrive", help="Google Drive API OAuth 최초 1회 브라우저 인증 도우미")
+
+    # 8. test-insta
     p_test_insta = subparsers.add_parser("test-insta", help="Instagram Graph API 토큰 및 비즈니스 계정 연결 진단 도우미")
 
-    # 8. stats
+    # 9. stats
     p_stats = subparsers.add_parser("stats", help="누적된 큐레이션 데이터셋 통계 확인")
 
-    # 9. export-yt-secrets
+    # 10. export-yt-secrets
     p_secrets = subparsers.add_parser("export-yt-secrets", help="GitHub Actions Secrets 등록용 YouTube 토큰 Base64 출력 도우미")
 
     args = parser.parse_args()
@@ -690,6 +704,8 @@ def main():
         cmd_sync(args)
     elif args.command == "auth-yt":
         cmd_auth_yt(args)
+    elif args.command == "auth-gdrive":
+        cmd_auth_gdrive(args)
     elif args.command == "test-insta":
         cmd_test_insta(args)
     elif args.command == "stats":

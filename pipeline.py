@@ -60,7 +60,7 @@ async def run_curated_6days_pipeline(
     큐레이션된 6대 카테고리(월~토) 기사(각 2~3건)를 바탕으로,
     매일 [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션]을 동시 생성하여 요일별 6개 폴더에 저장합니다.
     (render_media=False 시 이미지/비디오 인코딩을 건너뛰고 대본, 요약, 패키지 메타데이터만 고속 생성합니다.)
-    day_filter 지정 시 해당 요일(예: 'thu', '목요일')만 단독 실행합니다.
+    day_filter 지정 시 해당 날짜(예: '0917', '9/17')만 단독 실행합니다.
     """
     today_str = datetime.now().strftime("%Y-%m-%d")
     weekly_dir = Path(target_dir) if target_dir else (OUTPUT_DIR / f"{today_str}_curated_weekly")
@@ -78,7 +78,7 @@ async def run_curated_6days_pipeline(
     print("=" * 70)
     print(f"🚀 [THEPT] 주간 큐레이션 기반 통합 콘텐츠 자동 생성 ({today_str})")
     if day_filter:
-        print(f"   🎯 [지정 요일 모드] '{day_filter}' 필터와 일치하는 요일만 단독 실행합니다.")
+        print(f"   🎯 [지정 날짜 모드] '{day_filter}' 필터와 일치하는 날짜만 단독 실행합니다.")
     print(f"   📅 제작 모드: [4:5 카드뉴스 + 최대 2분 쇼츠 비디오 + SNS 캡션] (미디어 렌더링: {'ON' if render_media else '대기 (패키지만 생성)'})")
     print("=" * 70)
 
@@ -98,7 +98,7 @@ async def run_curated_6days_pipeline(
         ("wed_sports", "수요일", "Wed_Sports", "운동·스포츠 재활", False),
         ("thu_tech", "목요일", "Thu_Tech", "첨단 재활 기술·AI·로봇", False),
         ("fri_celeb", "금요일", "Fri_Celeb", "셀럽 스타 치료 & 건강 가십", False),
-        ("sat_global", "토요일", "Sat_Global", "해외 글로벌 트렌드", True),
+        ("sat_global", "토요일", "Sat_Global", "해외 글로벌 트렌드", False),
     ]
     day_configs = []
     for i, (cat_key, day_name, suffix, cat_title, is_global) in enumerate(base_day_defs):
@@ -112,7 +112,7 @@ async def run_curated_6days_pipeline(
     results_by_day = []
 
     for cat_key, day_name, folder_name, cat_title, is_global, date_text, day_date in day_configs:
-        # 요일 필터가 지정된 경우 일치하지 않는 요일은 건너뜀
+        # 날짜 필터가 지정된 경우 일치하지 않는 날짜는 건너뜀
         if day_filter and not match_day_filter(day_filter, cat_key, day_name, folder_name):
             continue
 

@@ -439,7 +439,7 @@ def build_daily_curated_package(
     slides = [
         {
             "type": "cover",
-            "header_tag": "THEPT GLOBAL" if is_global else "THEPT WEEKLY",
+            "header_tag": "THEPT GLOBAL" if (is_global or day_name == "토요일" or "글로벌" in category_title) else "THEPT WEEKLY",
             "swipe_label": "밀어서 보기 👉",
             "background": cover_bg,
             "data": {

@@ -435,14 +435,18 @@ SIX_CATEGORIES = {
         "title": "해외 글로벌 트렌드",
         "description": "글로벌 물리치료 연구, APTA/해외 제도, 해외 피지컬 테라피 동향",
         "keywords": [
-            "physical therapy",
-            "physiotherapy clinical",
-            "sports physical therapy",
-            "physical therapy rehabilitation",
-            "physical therapist practice",
-            "rehabilitation exercise physical therapy"
+            "해외 물리치료",
+            "미국 물리치료",
+            "해외 재활치료",
+            "글로벌 물리치료",
+            "해외 도수치료",
+            "선진국 물리치료",
+            "글로벌 재활",
+            "해외 재활로봇",
+            "APTA 물리치료",
+            "해외 재활 연구"
         ],
-        "is_global": True
+        "is_global": False
     }
 }
 
