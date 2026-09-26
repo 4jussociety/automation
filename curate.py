@@ -26,6 +26,7 @@ from modules.curation_manager import (
     save_candidates_cache,
     load_candidates_cache,
     generate_candidates_titles_markdown,
+    generate_candidates_fulltext_markdown,
     parse_candidates_titles_markdown,
     generate_candidates_detail_markdown,
     parse_candidates_detail_markdown,
@@ -84,8 +85,8 @@ def find_active_weekly_dir(date_str: str = None) -> Path:
 
 
 def cmd_fetch(args):
-    """1단계: 6대 카테고리 최대 100건 후보 수집 및 candidates_titles.md 생성"""
-    target_count = args.count if args.count else 17
+    """1단계: 6대 카테고리 요일별 15~30건 후보 수집 및 candidates_titles.md 생성"""
+    target_count = args.count if getattr(args, "count", None) else 25
     weekly_dir = get_weekly_dir(getattr(args, "date", None), create=True)
     titles_md = weekly_dir / "candidates_titles.md"
 
@@ -97,16 +98,19 @@ def cmd_fetch(args):
 
     # 마크다운 생성 (output 주차별 폴더 내)
     generate_candidates_titles_markdown(candidates, titles_md)
+    fulltext_md = weekly_dir / "candidates_fulltext.md"
+    generate_candidates_fulltext_markdown(candidates, fulltext_md)
 
     print("\n" + "=" * 70)
-    print("✅ [완료] 1단계 제목 스크리닝 파일이 생성되었습니다!")
-    print(f"👉 파일 경로: {titles_md.resolve()}")
+    print("✅ [완료] 1단계 제목 스크리닝 및 본문 전문 열람 파일이 생성되었습니다!")
+    print(f"👉 1. 제목 스크리닝 파일: {titles_md.resolve()}")
+    print(f"👉 2. 본문 전문 열람 파일: {fulltext_md.resolve()}")
     print("=" * 70)
     print("📋 [다음 작업 안내]:")
-    print(f" 1. 에디터에서 아래 파일을 엽니다:\n    👉 {titles_md.resolve()}")
-    print(" 2. 관심 있는 기사의 [ ] 를 [x] 로 체크하세요. (요일당 3~5개 권장)")
-    print(" 3. 추가하고 싶은 기사가 있다면 맨 아래 [✍️ 직접 기사 추가]에 URL을 적어주세요.")
-    print(" 4. 저장이 끝나면 아래 명령어를 실행하세요:")
+    print(f" 1. 에디터에서 [candidates_titles.md]를 열어 관심 기사에 [x]를 체크하세요.")
+    print(f"    (기사 전문이 궁금할 땐 [candidates_fulltext.md]에서 Ctrl+F로 바로 확인 가능!)")
+    print(" 2. 추가하고 싶은 기사가 있다면 맨 아래 [✍️ 직접 기사 추가]에 URL을 적어주세요.")
+    print(" 3. 저장이 끝나면 아래 명령어를 실행하세요:")
     print("    👉 python curate.py review")
     print("=" * 70)
 
@@ -640,8 +644,8 @@ def main():
     subparsers = parser.add_subparsers(dest="command", help="실행할 작업 선택")
 
     # 1. fetch
-    p_fetch = subparsers.add_parser("fetch", help="1단계: 6대 카테고리 최대 100건 후보 수집 및 제목 마크다운 생성")
-    p_fetch.add_argument("--count", type=int, default=17, help="카테고리당 수집 건수 (기본 17건, 총 약 100건)")
+    p_fetch = subparsers.add_parser("fetch", help="1단계: 6대 카테고리 요일별 15~30건 후보 수집 및 제목 마크다운 생성")
+    p_fetch.add_argument("--count", type=int, default=25, help="카테고리당 수집 건수 (기본 25건, 15~30건 범위)")
     p_fetch.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 오늘 YYYY-MM-DD)")
 
     # 2. review

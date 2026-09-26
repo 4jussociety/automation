@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 import urllib.parse
 
-from modules.news_collector import SIX_CATEGORIES, parse_custom_url
+from modules.news_collector import SIX_CATEGORIES, parse_custom_url, clean_extracted_body_text
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -73,6 +73,12 @@ def generate_candidates_titles_markdown(candidates: dict, output_path: Path) -> 
             pub_date = art.get("pub_date", "")
 
             lines.append(f"- [ ] [{art_id}] [{title}]({link}) - {source} ({pub_date})")
+            preview = art.get("content_preview") or art.get("description", "")
+            if preview:
+                clean_prev = clean_extracted_body_text(preview).replace("\n", " ").strip()
+                if len(clean_prev) > 220:
+                    clean_prev = clean_prev[:217] + "..."
+                lines.append(f"  > 📝 **내용 요약**: {clean_prev}")
 
         lines.append("")
 
@@ -92,6 +98,65 @@ def generate_candidates_titles_markdown(candidates: dict, output_path: Path) -> 
         "- [ ] [토] ",
         ""
     ])
+
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+    return output_path
+
+
+def generate_candidates_fulltext_markdown(candidates: dict, output_path: Path) -> Path:
+    """
+    1단계 보조: 수집된 6대 카테고리 기사 전체의 원문 본문 전문(Full Text)을 열람할 수 있는 전용 마크다운 문서를 생성합니다.
+    """
+    now = datetime.now()
+    created_at_str = f"{now.year}년 {now.month:02d}월 {now.day:02d}일 {now.hour:02d}:{now.minute:02d} (한국 기준시)"
+    lines = [
+        "# 📖 주간 6대 카테고리 후보 기사 본문 전문 열람집 (Full-Text Viewer)",
+        "",
+        "> **안내사항**:",
+        "> - 이 문서는 `candidates_titles.md`의 기사별 **본문 전문 전체**를 편하게 확인하기 위한 전용 열람 문서입니다.",
+        "> - 에디터 화면을 좌우 분할하여 한쪽에는 `candidates_titles.md`, 다른 쪽에는 이 문서를 열어두고 `Ctrl+F` 검색(`[mon_01]` 등)으로 전문을 빠르게 열람하세요.",
+        "",
+        f"- 생성 일시: {created_at_str}",
+        f"- 등록된 총 기사 수: {candidates.get('total_count', 0)}건",
+        "",
+        "---",
+        ""
+    ]
+
+    for cat_key, meta in SIX_CATEGORIES.items():
+        day_name = meta["day"]
+        cat_title = meta["title"]
+        articles = candidates.get(cat_key, [])
+
+        lines.append(f"# 📅 {day_name}: {cat_title} ({len(articles)}건)")
+        lines.append("")
+
+        if not articles:
+            lines.append("- (수집된 기사가 없습니다.)")
+            lines.append("")
+            continue
+
+        for art in articles:
+            art_id = art.get("id", "")
+            title = art.get("title", "")
+            link = art.get("link", "#")
+            source = art.get("source", "뉴스")
+            pub_date = art.get("pub_date", "")
+            preview = art.get("content_preview") or art.get("description", "")
+            raw_body = (art.get("body_text") or art.get("description") or "본문이 수집되지 않았습니다.").strip()
+            body_full = clean_extracted_body_text(raw_body)
+
+            lines.append(f"## [{art_id}] [{title}]({link})")
+            lines.append(f"- **출처/일시**: {source} ({pub_date})")
+            if preview:
+                clean_prev = clean_extracted_body_text(preview).replace("\n", " ").strip()
+                lines.append(f"- **핵심 요약**: {clean_prev}")
+            lines.append("")
+            lines.append("### 📄 본문 전문")
+            lines.append(f"{body_full}")
+            lines.append("")
+            lines.append("---")
+            lines.append("")
 
     output_path.write_text("\n".join(lines), encoding="utf-8")
     return output_path
