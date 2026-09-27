@@ -1,0 +1,166 @@
+{
+  "day_name": "금요일",
+  "category_title": "셀럽 스타 치료 & 건강 가십",
+  "title": "금요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "방찬, 서울재활병원에 1억원 기부",
+      "source": "중앙일보",
+      "link": "https://www.joongang.co.kr/article/25463733",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "물리치료사에 감사한 금메달리스트",
+      "source": "네이버 뉴스",
+      "link": "https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003270564&CMPT_CD=P0010&utm_source=naver&utm_medium=newsearch&utm_campaign=naver_news",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "장시간 앉기, 엉덩이 기억상실증 주의!",
+      "source": "네이버 뉴스",
+      "link": "https://www.newsis.com/view/NISX20260926_0003803653",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\fri_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 금요일 브리핑",
+        "title": "<span class=\"hl-yellow\">금요일 셀럽 스타 치료 & 건강 가십</span>",
+        "desc": "오늘 꼭 살펴봐야 할 셀럽 스타 치료 & 건강 가십 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "방찬, 서울재활병원에 1억원 기부",
+          "물리치료사에 감사한 금메달리스트",
+          "장시간 앉기, 엉덩이 기억상실증 주의!"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\fri_intro.jpeg"
+      },
+      "narration": "금요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "중앙일보 (2026년 09월 21일 18:20)",
+        "headline": "방찬, 서울재활병원에 1억원 기부",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_01_photo_01.jpg",
+        "bullets": [
+          "스트레이 키즈 방찬이 서울재활병원 새 병원 건립에 1억원을 기부했습니다.",
+          "새 병원은 로봇과 AI 기술을 활용한 맞춤형 재활을 목표로 합니다.",
+          "이 기부는 환자의 회복과 사회 복귀를 지원하는 통합 돌봄 체계 구축에 기여합니다."
+        ],
+        "highlight": "💡 포인트: 방찬의 기부는 재활 치료 환경 개선에 큰 도움이 됩니다.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 방찬, 서울재활병원에 1억원 기부. 스트레이 키즈의 리더 방찬이 서울재활병원 새 병원 건립을 위해 1억원을 기부했습니다. 이 병원은 로봇과 AI 기술을 접목한 맞춤형 재활을 목표로 하며, 환자의 회복과 사회 복귀를 지원하는 통합 돌봄 체계를 구축할 계획입니다. 방찬의 기부는 전문적인 치료 환경을 조성하는 데 큰 도움이 될 것입니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 09월 27일 11:16)",
+        "headline": "물리치료사에 감사한 금메달리스트",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+        "bullets": [
+          "2026 아시안 게임에서 한국팀이 일본을 꺾고 금메달을 획득했습니다.",
+          "최고령 금메달리스트 이광노는 물리치료사에게 감사의 마음을 전했습니다.",
+          "물리치료는 선수들의 훈련과 경기력 향상에 중요한 역할을 했습니다."
+        ],
+        "highlight": "💡 포인트: 물리치료는 선수들의 경기력 향상에 필수적입니다. 꾸준한 관리가 중요합니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 물리치료사에 감사한 금메달리스트. 2026 아시안 게임에서 한국팀이 일본을 상대로 금메달을 획득했습니다. 최고령 금메달리스트 이광노는 물리치료사에게 감사의 마음을 전하며, 물리치료가 훈련과 경기력 향상에 중요한 역할을 했다고 강조했습니다. 선수들은 꾸준한 관리와 치료를 통해 최고의 성과를 이끌어냈습니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 09월 26일 14:01)",
+        "headline": "장시간 앉기, 엉덩이 기억상실증 주의!",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+        "bullets": [
+          "게임 유튜버 우주하마가 '엉덩이 기억상실증'으로 방송을 중단했습니다.",
+          "장시간 앉아 있는 생활이 엉덩이 근육 기능 저하를 초래할 수 있습니다.",
+          "물리치료사들은 정기적인 스트레칭과 운동으로 예방할 것을 권장합니다."
+        ],
+        "highlight": "💡 포인트: 매시간 5~10분씩 일어나 스트레칭을 하세요.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 장시간 앉기, 엉덩이 기억상실증 주의. 게임 유튜버 우주하마가 '엉덩이 기억상실증'으로 방송을 쉬고 있습니다. 이는 장시간 앉아 있어 엉덩이 근육이 제대로 활성화되지 않는 상태를 의미합니다. 전문가들은 정기적인 스트레칭과 운동으로 이를 예방할 것을 권장하고 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-09-28_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 금요일]\n금요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 방찬, 서울재활병원에 1억원 기부 (중앙일보)\n   🔗 https://www.joongang.co.kr/article/25463733\n\n02. 물리치료사에 감사한 금메달리스트 (네이버 뉴스)\n   🔗 https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003270564&CMPT_CD=P0010&utm_source=naver&utm_medium=newsearch&utm_campaign=naver_news\n\n03. 장시간 앉기, 엉덩이 기억상실증 주의! (네이버 뉴스)\n   🔗 https://www.newsis.com/view/NISX20260926_0003803653\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#셀럽_스타_치료_&_건강_가십 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 10월 2일 (금)",
+  "target_date": "2026-10-02",
+  "youtube_category_id": "24"
+}
