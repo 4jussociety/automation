@@ -50,6 +50,33 @@ FIRST_COMMENT_TEXT = (
 from modules.day_filter import match_day_filter
 
 
+def export_cardnews_folder(weekly_dir: Path) -> Path:
+    """
+    주간 폴더 내의 각 요일별 card_images_4x5/*.png 카드뉴스 이미지를
+    weekly_dir / "cardnews" / "{요일폴더명}" 에 날짜/요일별로 깔끔하게 복사 정리합니다.
+    """
+    cardnews_dir = weekly_dir / "cardnews"
+    cardnews_dir.mkdir(parents=True, exist_ok=True)
+
+    day_folders = sorted([
+        d for d in weekly_dir.iterdir()
+        if d.is_dir() and not d.name.startswith(".") and d.name not in ["cardnews", "backgrounds", "tmp", ".cache"]
+    ])
+    total_copied = 0
+    for day_dir in day_folders:
+        src_cards = day_dir / "card_images_4x5"
+        if src_cards.exists():
+            tgt_day = cardnews_dir / day_dir.name
+            tgt_day.mkdir(parents=True, exist_ok=True)
+            for png in sorted(src_cards.glob("*.png")):
+                shutil.copy2(png, tgt_day / png.name)
+                total_copied += 1
+
+    if total_copied > 0:
+        print(f"\n📂 [카드뉴스 모음] 총 {total_copied}장의 카드뉴스 이미지를 '{cardnews_dir.name}' 폴더에 날짜별로 복사 정리했습니다.")
+    return cardnews_dir
+
+
 async def run_curated_6days_pipeline(
     daily_articles_map: dict,
     render_media: bool = True,
@@ -332,17 +359,27 @@ async def run_curated_6days_pipeline(
         )
     summary_path.write_text("\n".join(summary_lines), encoding="utf-8")
 
+    # 카드뉴스 렌더링 시 cardnews/ 전용 모음 폴더 자동 생성 및 복사
+    cardnews_dir = None
+    if render_media:
+        total_cards_rendered = sum(r.get("cards_count", 0) for r in results_by_day)
+        if total_cards_rendered > 0:
+            cardnews_dir = export_cardnews_folder(weekly_dir)
+
     print("\n" + "=" * 70)
     print("🎉 [주간 6일 일괄 제작 성공] 모든 요일의 쇼츠와 카드뉴스가 생성되었습니다!")
     for r in results_by_day:
         print(f"  • [{r['day']}] {r['category']}: 카드뉴스 {r['cards_count']}장 + 쇼츠 {r['video_duration']:.1f}초 ({r['folder'].name})")
     print(f"👉 전체 결과 요약: {summary_path}")
+    if cardnews_dir and cardnews_dir.exists():
+        print(f"👉 카드뉴스 모음 폴더: {cardnews_dir}")
     print("=" * 70)
 
     return {
         "weekly_dir": weekly_dir,
         "results": results_by_day,
-        "summary_file": summary_path
+        "summary_file": summary_path,
+        "cardnews_dir": cardnews_dir
     }
 
 
