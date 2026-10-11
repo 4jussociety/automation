@@ -1,0 +1,166 @@
+{
+  "day_name": "월요일",
+  "category_title": "국내 정책·제도·수가·실손보험",
+  "title": "월요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "대법원, 문신·피어싱 법인 설립 불허",
+      "source": "네이버 뉴스",
+      "link": "http://www.doctorsnews.co.kr/news/articleView.html?idxno=166603",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "비급여 진료, 근거 부족 시 직권 삭제",
+      "source": "네이버 뉴스",
+      "link": "https://www.lawtv.kr/news/articleView.html?idxno=61097",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "중도장애인 전환재활 체계 구축 필요",
+      "source": "네이버 뉴스",
+      "link": "https://www.ablenews.co.kr/news/articleView.html?idxno=233787",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\mon_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 월요일 브리핑",
+        "title": "<span class=\"hl-yellow\">월요일 국내 정책·제도·수가·실손보험</span>",
+        "desc": "오늘 꼭 살펴봐야 할 국내 정책·제도·수가·실손보험 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "대법원, 문신·피어싱 법인 설립 불허",
+          "비급여 진료, 근거 부족 시 직권 삭제",
+          "중도장애인 전환재활 체계 구축 필요"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\mon_intro.jpeg"
+      },
+      "narration": "월요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "국내 정책·제도·수가·실손보험",
+        "source": "네이버 뉴스 (2026년 10월 05일 11:56)",
+        "headline": "대법원, 문신·피어싱 법인 설립 불허",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_01_photo_01.jpg",
+        "bullets": [
+          "대법원이 문신·피어싱 단체의 법인 설립을 불허한 원심을 확정했습니다.",
+          "비의료인 문신·피어싱 시술에 대한 민간자격 신설이 금지된 상황입니다.",
+          "이 판결은 물리치료사 등 의료직종의 자격 규제 강화에 영향을 미칠 것으로 보입니다."
+        ],
+        "highlight": "💡 포인트: 문신·피어싱 관련 법인 설립이 불허됨에 따라, 물리치료사들은 자격증 명칭 사용에 주의해야 합니다.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 대법원, 문신, 피어싱 법인 설립 불허. 대법원이 문신·피어싱 단체의 법인 설립을 불허한 원심을 확정했습니다. 이는 비의료인 시술에 대한 민간자격 신설이 금지된 상황에서 이루어진 판결입니다. 이로 인해 물리치료사 등 의료직종의 자격 규제 강화가 예상되며, 자격증 명칭 사용에 주의가 필요합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "국내 정책·제도·수가·실손보험",
+        "source": "네이버 뉴스 (2026년 10월 07일 17:32)",
+        "headline": "비급여 진료, 근거 부족 시 직권 삭제",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_02_photo_01.jpg",
+        "bullets": [
+          "보건복지부가 근거 없는 비급여 진료를 장관 직권으로 삭제하는 방안을 검토하고 있다.",
+          "의학적 근거가 부족한 비급여 진료의 절반 이상이 퇴출 대상이라는 연구 결과가 제시되었다.",
+          "비급여 관리 강화는 의료 자원의 불균형 해소와 환자 치료 접근성 개선에 기여할 것으로 기대된다."
+        ],
+        "highlight": "💡 포인트: 비급여 진료의 의학적 근거를 철저히 검토하고, 환자에게 필요한 진료만을 제공해야 합니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 비급여 진료, 근거 부족 시 직권 삭제. 보건복지부는 근거가 부족한 비급여 진료를 장관 직권으로 삭제하는 방안을 검토하고 있습니다. 연구에 따르면 비급여 진료의 절반 이상이 의학적 근거가 부족해 퇴출 대상입니다. 이러한 비급여 관리 강화는 의료 자원의 불균형 해소와 환자 치료 접근성 개선에 기여할 것으로 기대됩니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "국내 정책·제도·수가·실손보험",
+        "source": "네이버 뉴스 (2026년 10월 08일 17:58)",
+        "headline": "중도장애인 전환재활 체계 구축 필요",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_03_photo_01.jpg",
+        "bullets": [
+          "중도장애인의 사회복귀를 위한 전환재활 체계가 절실히 요구된다.",
+          "2023년 장애인 실태조사에 따르면 중도장애인은 전체 장애인의 85.3%를 차지한다.",
+          "전환재활 체계 구축은 물리치료사와 의료기관의 협력으로 사회복귀를 지원할 수 있다."
+        ],
+        "highlight": "💡 포인트: 중도장애인을 위한 전환재활 체계 구축에 물리치료사들이 적극 참여해야 합니다.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 중도장애인 전환재활 체계 구축 필요. 중도장애인의 사회복귀를 위한 전환재활 체계 구축이 시급합니다. 2023년 장애인 실태조사에 따르면 중도장애인은 전체 장애인의 85.3%를 차지하는데, 이들을 위한 체계적인 지원이 부족합니다. 물리치료사들은 전환재활 체계에 적극 참여하여 중도장애인의 사회복귀를 도울 수 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\mon_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 월요일]\n월요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 대법원, 문신·피어싱 법인 설립 불허 (네이버 뉴스)\n   🔗 http://www.doctorsnews.co.kr/news/articleView.html?idxno=166603\n\n02. 비급여 진료, 근거 부족 시 직권 삭제 (네이버 뉴스)\n   🔗 https://www.lawtv.kr/news/articleView.html?idxno=61097\n\n03. 중도장애인 전환재활 체계 구축 필요 (네이버 뉴스)\n   🔗 https://www.ablenews.co.kr/news/articleView.html?idxno=233787\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#국내_정책제도수가실손보험 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 10월 12일 (월)",
+  "target_date": "2026-10-12",
+  "youtube_category_id": "25"
+}

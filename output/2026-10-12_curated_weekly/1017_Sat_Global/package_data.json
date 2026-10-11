@@ -1,0 +1,166 @@
+{
+  "day_name": "토요일",
+  "category_title": "해외 글로벌 트렌드",
+  "title": "토요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "BCI 기술, 재활의 미래를 열다",
+      "source": "네이버 뉴스",
+      "link": "http://www.ifs.or.kr/bbs/board.php?bo_table=News&wr_id=56024",
+      "story_summary": "BCI, 즉 뇌-컴퓨터 인터페이스 기술은 뇌 신호를 활용하여 외부 기기를 제어하는 혁신적인 방법으로, 의료 분야에서 신체 마비 및 신경계 손상 환자의 재활에 큰 기여를 할 것으로 기대됩니다. 미국과 중국은 BCI 기술 개발 경쟁을 통해 생명공학 분야에서의 우위를 다투고 있으며, 이는 국가 안보와 경제력에도 영향을 미치고 있습니다. 이러한 기술의 발전은 물리치료사에게 새로운 재활 치료 접근법을 제시하며, 환자의 치료 접근성을 높이는 데 중요한 역할을 할 것입니다."
+    },
+    {
+      "index": "02",
+      "title": "재활로봇의 새로운 시대, 병원과 가정의 경계를 허물다",
+      "source": "네이버 뉴스",
+      "link": "https://www.medipana.com/news/articleView.html?idxno=418747",
+      "story_summary": "프랑스의 로봇기업 원더크래프트가 미국의 엑소 바이오닉스를 인수하여 글로벌 재활로봇 시장을 확대하고 있습니다. 이번 인수는 병원에서 사용하는 보행 재활로봇과 퇴원 후 개인용 외골격을 하나의 제품군으로 묶는 전략으로, 두 회사의 네트워크를 통합하여 치료 접근성을 높이는 데 기여할 것으로 예상됩니다. 특히, 미국에서 개인용 외골격의 보험급여가 가능해지면서, 재활로봇의 시장 경쟁력이 더욱 강화될 전망입니다. 이는 환자의 치료 과정을 병원에서 일상생활로 연결하는 중요한 변화로 주목받고 있습니다."
+    },
+    {
+      "index": "03",
+      "title": "김해의생명, 일본 의료기기 시장 진출!",
+      "source": "네이버 뉴스",
+      "link": "http://www.hansbiz.co.kr/news/articleView.html?idxno=871359",
+      "story_summary": "김해의생명산업진흥원은 일본 도쿄에서 열린 MEDICAL JAPAN TOKYO에 6개 바이오헬스 기업과 함께 참가하여 일본 시장 진출을 지원합니다. 이 전시회는 병원, 클리닉, 헬스케어 등 다양한 분야의 의료기기를 선보이며, B2B 상담을 통해 기업들이 일본 시장의 동향을 파악할 수 있도록 합니다. 참가 기업들은 제품 경쟁력, 가격, 인증 등 진출에 필요한 사항을 확인하고, 후속 미팅과 계약 협의를 통해 실질적인 수출 성과를 기대할 수 있습니다. 이번 전시는 한국 기업의 일본 시장 진출에 중요한 전환점이 될 것입니다."
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT GLOBAL",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\sat_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 토요일 브리핑",
+        "title": "<span class=\"hl-yellow\">토요일 해외 글로벌 트렌드</span>",
+        "desc": "오늘 꼭 살펴봐야 할 해외 글로벌 트렌드 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "BCI 기술, 재활의 미래를 열다",
+          "재활로봇의 새로운 시대, 병원과 가정의 경계를 허물다",
+          "김해의생명, 일본 의료기기 시장 진출!"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\sat_intro.jpeg"
+      },
+      "narration": "토요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "해외 글로벌 트렌드",
+        "source": "네이버 뉴스 (2026년 10월 06일 16:46)",
+        "headline": "BCI 기술, 재활의 미래를 열다",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_01_photo_01.jpg",
+        "bullets": [
+          "BCI 기술은 뇌 신호를 활용하여 외부 기기를 제어하는 혁신적 방법입니다.",
+          "미국과 중국은 BCI 기술 개발 경쟁을 통해 생명공학 분야에서의 우위를 다투고 있습니다.",
+          "BCI 기술은 신경계 손상 환자의 재활 및 의사소통을 획기적으로 개선할 가능성을 지니고 있습니다."
+        ],
+        "highlight": "💡 포인트: BCI 기술의 발전은 물리치료사에게 새로운 재활 치료 접근법을 제시합니다.",
+        "story_summary": "BCI, 즉 뇌-컴퓨터 인터페이스 기술은 뇌 신호를 활용하여 외부 기기를 제어하는 혁신적인 방법으로, 의료 분야에서 신체 마비 및 신경계 손상 환자의 재활에 큰 기여를 할 것으로 기대됩니다. 미국과 중국은 BCI 기술 개발 경쟁을 통해 생명공학 분야에서의 우위를 다투고 있으며, 이는 국가 안보와 경제력에도 영향을 미치고 있습니다. 이러한 기술의 발전은 물리치료사에게 새로운 재활 치료 접근법을 제시하며, 환자의 치료 접근성을 높이는 데 중요한 역할을 할 것입니다."
+      },
+      "narration": "첫 번째 소식입니다. BCI 기술, 재활의 미래를 열다. BCI, 즉 뇌-컴퓨터 인터페이스 기술은 뇌 신호를 통해 외부 기기를 제어하는 혁신적인 방법입니다. 현재 미국과 중국은 이 기술 개발을 통해 생명공학 분야에서의 우위를 다투고 있으며, 이는 신경계 손상 환자의 재활과 의사소통을 획기적으로 개선할 수 있는 가능성을 보여줍니다. 물리치료사들은 이러한 기술을 활용하여 환자 치료 접근 방식을 다양화할 수 있습니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "해외 글로벌 트렌드",
+        "source": "네이버 뉴스 (2026년 10월 05일 11:40)",
+        "headline": "재활로봇의 새로운 시대, 병원과 가정의 경계를 허물다",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_02_photo_01.jpg",
+        "bullets": [
+          "프랑스 원더크래프트가 미국 엑소 바이오닉스를 인수하여 재활로봇 시장을 확대합니다.",
+          "두 회사의 병원용 로봇은 700곳 이상에서 사용되며, FDA와 CE 인증을 보유하고 있습니다.",
+          "이번 인수로 병원 재활에서 개인용 외골격까지 치료 접근성이 향상될 것으로 기대됩니다."
+        ],
+        "highlight": "💡 포인트: 재활로봇의 도입은 환자의 치료 과정을 병원에서 일상으로 연결하는 중요한 변화입니다.",
+        "story_summary": "프랑스의 로봇기업 원더크래프트가 미국의 엑소 바이오닉스를 인수하여 글로벌 재활로봇 시장을 확대하고 있습니다. 이번 인수는 병원에서 사용하는 보행 재활로봇과 퇴원 후 개인용 외골격을 하나의 제품군으로 묶는 전략으로, 두 회사의 네트워크를 통합하여 치료 접근성을 높이는 데 기여할 것으로 예상됩니다. 특히, 미국에서 개인용 외골격의 보험급여가 가능해지면서, 재활로봇의 시장 경쟁력이 더욱 강화될 전망입니다. 이는 환자의 치료 과정을 병원에서 일상생활로 연결하는 중요한 변화로 주목받고 있습니다."
+      },
+      "narration": "두 번째 소식입니다. 재활로봇의 새로운 시대, 병원과 가정의 경계를 허물다. 프랑스의 원더크래프트가 미국의 엑소 바이오닉스를 인수하며 재활로봇 시장의 지각변동을 예고합니다. 두 회사의 병원용 로봇은 700곳 이상의 재활센터에서 사용되고 있으며, 이번 인수로 병원과 개인용 외골격의 경계가 허물어질 것으로 보입니다. 이는 환자의 치료 접근성을 높이고, 재활 과정의 연속성을 강화하는 데 기여할 것입니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "해외 글로벌 트렌드",
+        "source": "네이버 뉴스 (2026년 10월 08일 21:52)",
+        "headline": "김해의생명, 일본 의료기기 시장 진출!",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_03_photo_01.jpg",
+        "bullets": [
+          "김해의생명산업진흥원이 6개 바이오헬스 기업의 일본 진출을 지원합니다.",
+          "MEDICAL JAPAN TOKYO에서 다양한 의료기기와 솔루션을 전시하며 B2B 상담을 진행합니다.",
+          "이번 전시는 한국 기업의 일본 시장 진출을 위한 중요한 기회로 작용할 것입니다."
+        ],
+        "highlight": "💡 포인트: 일본 의료기기 시장 동향을 파악하고, 제품 경쟁력을 높이세요.",
+        "story_summary": "김해의생명산업진흥원은 일본 도쿄에서 열린 MEDICAL JAPAN TOKYO에 6개 바이오헬스 기업과 함께 참가하여 일본 시장 진출을 지원합니다. 이 전시회는 병원, 클리닉, 헬스케어 등 다양한 분야의 의료기기를 선보이며, B2B 상담을 통해 기업들이 일본 시장의 동향을 파악할 수 있도록 합니다. 참가 기업들은 제품 경쟁력, 가격, 인증 등 진출에 필요한 사항을 확인하고, 후속 미팅과 계약 협의를 통해 실질적인 수출 성과를 기대할 수 있습니다. 이번 전시는 한국 기업의 일본 시장 진출에 중요한 전환점이 될 것입니다."
+      },
+      "narration": "세 번째 소식입니다. 김해의생명, 일본 의료기기 시장 진출. 김해의생명산업진흥원이 일본 도쿄에서 열린 MEDICAL JAPAN TOKYO에 6개 바이오헬스 기업과 함께 참가했습니다. 이 전시회는 다양한 의료기기와 솔루션을 선보이며, B2B 상담을 통해 일본 시장 진출을 지원합니다. 물리치료사들은 이번 기회를 통해 일본 의료기기 시장의 동향을 파악하고, 제품 경쟁력을 높일 수 있는 중요한 기회를 갖게 됩니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\sat_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 토요일]\n토요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. BCI 기술, 재활의 미래를 열다 (네이버 뉴스)\n   🔗 http://www.ifs.or.kr/bbs/board.php?bo_table=News&wr_id=56024\n\n02. 재활로봇의 새로운 시대, 병원과 가정의 경계를 허물다 (네이버 뉴스)\n   🔗 https://www.medipana.com/news/articleView.html?idxno=418747\n\n03. 김해의생명, 일본 의료기기 시장 진출! (네이버 뉴스)\n   🔗 http://www.hansbiz.co.kr/news/articleView.html?idxno=871359\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#해외_글로벌_트렌드 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 10월 17일 (토)",
+  "target_date": "2026-10-17",
+  "youtube_category_id": "25"
+}

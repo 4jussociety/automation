@@ -1,0 +1,166 @@
+{
+  "day_name": "목요일",
+  "category_title": "첨단 재활 기술·AI·로봇",
+  "title": "목요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "물리치료사 추천, 아침 스트레칭의 중요성",
+      "source": "조선일보",
+      "link": "https://health.chosun.com/site/data/html_dir/2026/10/08/2026100803303.html",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "부산 온병원, 세계 최초 보행재활로봇 도입",
+      "source": "네이버 뉴스",
+      "link": "https://www.etoday.co.kr/news/view/2632908",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "도수치료 관리, 마사지숍 증가 우려",
+      "source": "네이버 뉴스",
+      "link": "http://www.sisacast.kr/news/articleView.html?idxno=100874",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\thu_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 목요일 브리핑",
+        "title": "<span class=\"hl-yellow\">목요일 첨단 재활 기술·AI·로봇</span>",
+        "desc": "오늘 꼭 살펴봐야 할 첨단 재활 기술·AI·로봇 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "물리치료사 추천, 아침 스트레칭의 중요성",
+          "부산 온병원, 세계 최초 보행재활로봇 도입",
+          "도수치료 관리, 마사지숍 증가 우려"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\thu_intro.jpeg"
+      },
+      "narration": "목요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "첨단 재활 기술·AI·로봇",
+        "source": "조선일보 (2026년 10월 11일 08:01)",
+        "headline": "물리치료사 추천, 아침 스트레칭의 중요성",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_01_photo_01.jpg",
+        "bullets": [
+          "물리치료사들은 아침 스트레칭을 필수 루틴으로 강조합니다.",
+          "10분 정도의 가벼운 스트레칭이 혈액 순환과 근육 이완에 도움을 줍니다.",
+          "아침 스트레칭은 하루를 편안하게 시작하고, 저녁 스트레칭은 숙면에 기여합니다."
+        ],
+        "highlight": "💡 포인트: 아침에 10분 스트레칭으로 하루를 건강하게 시작하세요.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 물리치료사 추천, 아침 스트레칭의 중요성. 많은 물리치료사들이 아침 스트레칭의 중요성을 강조합니다. 10분 정도의 가벼운 스트레칭은 혈액 순환을 촉진하고 근육을 이완시킵니다. 이를 통해 하루를 더욱 편안하게 시작할 수 있으며, 저녁 스트레칭은 숙면에도 큰 도움이 됩니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "첨단 재활 기술·AI·로봇",
+        "source": "네이버 뉴스 (2026년 10월 06일 15:26)",
+        "headline": "부산 온병원, 세계 최초 보행재활로봇 도입",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_02_photo_01.jpg",
+        "bullets": [
+          "부산 온병원이 세계 유일의 보행재활로봇 '워크봇G'를 도입하여 치료를 시작했습니다.",
+          "워크봇G는 1세션당 1000걸음 이상의 훈련을 제공하며, 맞춤형 정밀 치료가 가능합니다.",
+          "로봇재활훈련에 건강보험 급여가 적용되어 환자들의 경제적 부담이 줄어들 것으로 기대됩니다."
+        ],
+        "highlight": "💡 포인트: 워크봇G 도입으로 물리치료사 1명이 1대1 집중 재활 세션을 운영할 수 있습니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 부산 온병원, 세계 최초 보행재활로봇 도입. 부산 온병원이 세계 최초의 보행재활로봇 '워크봇G'를 도입했습니다. 이 로봇은 1세션당 1000걸음 이상의 훈련을 제공하며, 맞춤형 치료가 가능합니다. 물리치료사 1명이 집중 재활 세션을 운영할 수 있어 의료진의 업무 효율도 개선될 것으로 보입니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "첨단 재활 기술·AI·로봇",
+        "source": "네이버 뉴스 (2026년 10월 10일 20:44)",
+        "headline": "도수치료 관리, 마사지숍 증가 우려",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_03_photo_01.jpg",
+        "bullets": [
+          "정부가 도수치료를 관리급여로 지정하여 가격과 이용 기준을 표준화했습니다.",
+          "도수치료는 회당 4만3850원으로 정해졌으며, 연간 최대 15회까지 인정됩니다.",
+          "환자들은 도수치료 이용 제한으로 마사지숍을 찾는 경향이 증가하고 있습니다."
+        ],
+        "highlight": "💡 포인트: 도수치료 관리에 따라 환자들은 대체 치료법을 고려해야 합니다.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 도수치료 관리, 마사지숍 증가 우려. 정부는 도수치료를 관리급여로 지정하여 가격과 이용 기준을 표준화했습니다. 도수치료는 회당 4만3850원으로 정해졌고, 연간 최대 15회까지 이용할 수 있습니다. 이로 인해 환자들은 도수치료 이용 제한으로 마사지숍을 찾는 경향이 증가하고 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-12_curated_weekly\\backgrounds\\thu_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 목요일]\n목요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 물리치료사 추천, 아침 스트레칭의 중요성 (조선일보)\n   🔗 https://health.chosun.com/site/data/html_dir/2026/10/08/2026100803303.html\n\n02. 부산 온병원, 세계 최초 보행재활로봇 도입 (네이버 뉴스)\n   🔗 https://www.etoday.co.kr/news/view/2632908\n\n03. 도수치료 관리, 마사지숍 증가 우려 (네이버 뉴스)\n   🔗 http://www.sisacast.kr/news/articleView.html?idxno=100874\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#첨단_재활_기술AI로봇 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 10월 15일 (목)",
+  "target_date": "2026-10-15",
+  "youtube_category_id": "28"
+}
