@@ -1,0 +1,166 @@
+{
+  "day_name": "금요일",
+  "category_title": "셀럽 스타 치료 & 건강 가십",
+  "title": "금요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "동남보건대, 수원시 대학생 한마음 페스티벌 참여",
+      "source": "네이버 뉴스",
+      "link": "https://www.veritas-a.com/news/articleView.html?idxno=632253",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "광주시, 어르신 돌봄 종사자 65명 표창",
+      "source": "네이버 뉴스",
+      "link": "https://www.shinailbo.co.kr/news/articleView.html?idxno=5071687",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "도수치료 가격 묶자 꼼수 등장",
+      "source": "네이버 뉴스",
+      "link": "https://www.ichannela.com/news/main/news_detailPage.do?publishId=000000555113",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\fri_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 금요일 브리핑",
+        "title": "<span class=\"hl-yellow\">금요일 셀럽 스타 치료 & 건강 가십</span>",
+        "desc": "오늘 꼭 살펴봐야 할 셀럽 스타 치료 & 건강 가십 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "동남보건대, 수원시 대학생 한마음 페스티벌 참여",
+          "광주시, 어르신 돌봄 종사자 65명 표창",
+          "도수치료 가격 묶자 꼼수 등장"
+        ],
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\intro\\fri_intro.jpeg"
+      },
+      "narration": "금요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 10월 16일 16:14)",
+        "headline": "동남보건대, 수원시 대학생 한마음 페스티벌 참여",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_01_photo_01.jpg",
+        "bullets": [
+          "동남보건대는 2026 수페리얼 수원시 대학생 한마음 페스티벌에 참여하여 전공 체험 부스를 운영했습니다.",
+          "치위생학과, 임상병리학과 등 5개 학과가 참여하며 다양한 건강 관련 체험 프로그램을 선보였습니다.",
+          "이번 행사는 학생들이 지역사회와의 연계를 통해 전공 지식을 나누고 교류를 확대하는 기회를 제공합니다."
+        ],
+        "highlight": "💡 포인트: 학생들은 전공 지식을 지역사회에 공유하며 실무 경험을 쌓을 수 있습니다.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 동남보건대, 수원시 대학생 한마음 페스티벌 참여. 동남보건대가 2026 수페리얼 수원시 대학생 한마음 페스티벌에 참여했습니다. 치위생학과와 임상병리학과 등 5개 학과가 전공 체험 부스를 운영하며 다양한 건강 관련 프로그램을 선보였습니다. 이번 행사는 학생들이 지역사회와의 연계를 통해 전공 지식을 나누고 실무 경험을 쌓는 기회를 제공합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 10월 14일 13:34)",
+        "headline": "광주시, 어르신 돌봄 종사자 65명 표창",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+        "bullets": [
+          "광주시가 어르신 돌봄에 기여한 종사자 65명에게 표창을 수여했다.",
+          "이번 행사에서는 시장상 25명, 국회의원상 20명, 의장상 20명이 포함됐다.",
+          "어르신 돌봄 종사자들의 헌신이 복지 환경 개선에 기여할 것으로 기대된다."
+        ],
+        "highlight": "💡 포인트: 어르신 돌봄 종사자들의 전문성과 윤리 의식 향상을 위해 지속적인 교육이 필요합니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 광주시, 어르신 돌봄 종사자 65명 표창. 광주시는 어르신 돌봄에 기여한 종사자 65명에게 표창을 수여했습니다. 이번 행사에서는 시장상, 국회의원상, 의장상이 수여되었으며, 이는 돌봄 서비스 개선에 큰 의미를 갖습니다. 물리치료사와 같은 현장 종사자들의 헌신이 복지 환경을 더욱 향상시킬 것으로 기대됩니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "셀럽 스타 치료 & 건강 가십",
+        "source": "네이버 뉴스 (2026년 10월 14일 19:53)",
+        "headline": "도수치료 가격 묶자 꼼수 등장",
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+        "bullets": [
+          "정부가 도수치료 가격을 4만 원대로 묶자 병원들이 비급여 시술로 환자를 유인했습니다.",
+          "도수치료 관리가 급여로 전환된 이후 신장분사 치료 청구 금액이 두 달 만에 2.3배 증가했습니다.",
+          "이러한 행위는 보험금 지급 보류와 건강보험 재정 악화로 이어질 수 있습니다."
+        ],
+        "highlight": "💡 포인트: 도수치료 관련 법규 준수와 환자에게 정확한 정보 제공이 필수적입니다.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 도수치료 가격 묶자 꼼수 등장. 정부가 도수치료 가격을 4만 원대로 묶자 병원들이 비급여 시술로 환자를 유인하는 꼼수가 발생했습니다. 도수치료가 관리급여로 전환된 이후 신장분사 치료 청구 금액이 두 달 만에 2.3배 증가했습니다. 이러한 행위는 보험금 지급 보류와 건강보험 재정 악화로 이어질 수 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\output\\2026-10-19_curated_weekly\\backgrounds\\fri_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\Users\\myrea\\OneDrive\\바탕 화면\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 금요일]\n금요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 동남보건대, 수원시 대학생 한마음 페스티벌 참여 (네이버 뉴스)\n   🔗 https://www.veritas-a.com/news/articleView.html?idxno=632253\n\n02. 광주시, 어르신 돌봄 종사자 65명 표창 (네이버 뉴스)\n   🔗 https://www.shinailbo.co.kr/news/articleView.html?idxno=5071687\n\n03. 도수치료 가격 묶자 꼼수 등장 (네이버 뉴스)\n   🔗 https://www.ichannela.com/news/main/news_detailPage.do?publishId=000000555113\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#셀럽_스타_치료_&_건강_가십 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 10월 23일 (금)",
+  "target_date": "2026-10-23",
+  "youtube_category_id": "24"
+}
