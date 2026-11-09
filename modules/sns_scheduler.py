@@ -18,7 +18,7 @@ DAY_MAP = {
     "화요일": 1, "02_Tue_Clinical": 1, "02_Tue_Creator": 1,
     "수요일": 2, "03_Wed_Sports": 2,
     "목요일": 3, "04_Thu_Tech": 3,
-    "금요일": 4, "05_Fri_YouTube": 4, "05_Fri_Celeb": 4,
+    "금요일": 4, "05_Fri_YouTube": 4, "05_Fri_Celeb": 4, "05_Fri_Career": 4,
     "토요일": 5, "06_Sat_Global": 5,
 }
 

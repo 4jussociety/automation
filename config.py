@@ -60,6 +60,7 @@ DAY_INTRO_FILES = {
     "tue_clinical": "tue_intro.jpeg",
     "wed_sports": "wed_intro.jpeg",
     "thu_tech": "thu_intro.jpeg",
+    "fri_career": "fri_intro.jpeg",
     "fri_celeb": "fri_intro.jpeg",
     "sat_global": "sat_intro.jpeg",
 }
@@ -162,7 +163,8 @@ DAY_YOUTUBE_CATEGORIES = {
     "tue_clinical": "27", # 화요일: 임상 실무·질환별 재활 프로토콜 -> 교육 (27)
     "wed_sports": "17",   # 수요일: 운동·스포츠 재활 -> 스포츠 (17)
     "thu_tech": "28",     # 목요일: 첨단 재활 기술·AI·로봇 -> 과학기술 (28)
-    "fri_celeb": "24",    # 금요일: 셀럽 스타 치료 & 건강 가십 -> 엔터테인먼트 (24)
+    "fri_career": "27",   # 금요일: 물리치료사 커리어·창업 & 임상 연구(EBP) -> 교육 (27)
+    "fri_celeb": "27",    # 금요일 구버전 호환
     "sat_global": "25",   # 토요일: 해외 글로벌 트렌드 -> 뉴스/정치 (25)
 }
 
@@ -171,7 +173,7 @@ YOUTUBE_CATEGORY_KEYWORD_MAP = {
     "tue": "27", "화": "27", "화요일": "27", "clinical": "27", "임상": "27",
     "wed": "17", "수": "17", "수요일": "17", "sports": "17", "스포츠": "17",
     "thu": "28", "목": "28", "목요일": "28", "tech": "28", "기술": "28", "ai": "28", "로봇": "28",
-    "fri": "24", "금": "24", "금요일": "24", "celeb": "24", "셀럽": "24", "스타": "24",
+    "fri": "27", "금": "27", "금요일": "27", "career": "27", "커리어": "27", "창업": "27", "ebp": "27", "논문": "27", "celeb": "27",
     "sat": "25", "토": "25", "토요일": "25", "global": "25", "글로벌": "25", "해외": "25",
 }
 

@@ -10,6 +10,7 @@ import json
 import asyncio
 import aiohttp
 from bs4 import BeautifulSoup
+import xml.etree.ElementTree as ET
 import sys
 from pathlib import Path
 
@@ -40,6 +41,18 @@ def clean_html(text: str) -> str:
     cleaned = cleaned.replace('…', '').replace('..', '').replace('...', '')
     cleaned = re.sub(r'\s+', ' ', cleaned)
     return cleaned.strip()
+
+
+def clean_article_title(title: str) -> str:
+    """웹페이지 og:title/h1/RSS 제목에서 언론사명 접미사 및 불필요한 태그/노이즈를 제거합니다."""
+    if not title:
+        return ""
+    t = clean_html(title)
+    # 흔한 언론사 웹페이지 구분자 뒤의 언론사명 제거 (예: " - LancasterOnline", " | 한국경제")
+    t = re.sub(r'\s*[\-–—|:]\s*[가-힣a-zA-Z0-9\s]{2,20}$', '', t)
+    t = re.sub(r'\s*<.*$', '', t)
+    t = re.sub(r'\[포토\]|\[단독\]|\[속보\]', '', t)
+    return t.strip()
 
 
 KST = timezone(timedelta(hours=9))
@@ -91,12 +104,14 @@ ADMISSION_SPAM_KEYWORDS = [
 # 3. 물리치료 및 재활 필수 앵커 키워드 (Tier 1 + 2 + 3)
 # 기사 제목 또는 요약에 아래 단어가 최소 1개 이상 반드시 포함되어야 통과
 MANDATORY_PT_KEYWORDS = [
-    # Tier 1: 직접 물리치료 및 치료사
-    "물리치료", "물리치료사", "도수치료", "운동치료", "작업치료",
-    # Tier 2: 임상 재활 및 기능회복
-    "재활", "재활치료", "재활의학", "재활운동", "기능회복", "보행훈련", "신경계 재활", "근골격계 재활", "재활병원",
-    # Tier 3: 치료적 교정 및 전문 재활 장비 (체외충격파 대체: 재활 장비)
-    "체형교정", "자세교정", "도수교정", "재활로봇", "보행로봇", "보행재활", "재활 장비", "재활장비", "슬링치료", "전기치료"
+    # Tier 1: 직접 물리치료 및 치료사, 센터 창업
+    "물리치료", "물리치료사", "도수치료", "운동치료", "작업치료", "방문물리치료", "방문재활",
+    # Tier 2: 임상 재활, 스포츠, 선수 트레이닝 및 기능회복
+    "재활", "재활치료", "재활의학", "재활운동", "기능회복", "보행훈련", "신경계 재활", "근골격계 재활",
+    "선수트레이너", "피지컬코치", "선수 재활", "부상 재활", "스포츠 재활", "스포츠 손상",
+    # Tier 3: 치료적 테크닉, 교정, 전문 장비 및 EBP 논문
+    "체형교정", "자세교정", "도수교정", "재활로봇", "보행로봇", "보행재활", "재활 장비", "재활장비",
+    "슬링치료", "관절가동술", "근에너지기법", "근거중심", "ebp", "전기치료"
 ]
 
 # 4. 글로벌 영문 기사용 필수 앵커 키워드
@@ -240,22 +255,22 @@ def fetch_from_naver(keyword: str, display: int = 100) -> list[dict]:
 
 
 # ==============================================================================
-# 상위 도메인 대분류 키워드 풀 정의 (6대 영역 29개 키워드)
+# 상위 도메인 대분류 키워드 풀 정의 (6대 영역 고도화 키워드)
 # ==============================================================================
 
 BROAD_NAVER_KEYWORDS = [
-    # 1. 치료/임상 일반
-    "물리치료", "물리치료사", "도수치료", "운동치료", "작업치료", "신경계 재활", "근골격계 재활",
-    # 2. 기관/인프라/제도
-    "재활병원", "재활의학과", "방문재활", "방문물리치료", "재활의료기관", "물리치료 수가", "실손보험 도수치료",
-    # 3. 교정/통증/체형
-    "체형교정", "자세교정", "도수교정", "통증치료", "기능회복", "보행훈련",
-    # 4. 첨단 기술/장비 ('체외충격파' 대체 완료)
-    "재활로봇", "보행로봇", "웨어러블 재활", "스마트 재활", "재활 장비",
-    # 5. 스포츠/선수
-    "스포츠 재활", "선수 재활", "부상 재활", "선수 트레이닝",
-    # 6. 글로벌/해외 (네이버 검색 API용 한글 외신 쿼리)
-    "해외 물리치료", "해외 재활", "글로벌 재활", "미국 물리치료", "해외 도수치료"
+    # 1. [월: 국내 정책·제도·수가·실손보험]
+    "물리치료 수가", "실손보험 도수치료", "방문물리치료", "방문재활", "재활의료기관", "물리치료 비급여", "물리치료사 협회",
+    # 2. [화: 임상 실무·도수·재활 프로토콜] - 의사/병원 홍보성 키워드 배제, 물리치료 임상 실무 집중
+    "물리치료", "물리치료사", "도수치료", "운동치료", "도수치료 기법", "관절가동술", "슬링치료", "신경계 재활", "근골격계 재활", "기능회복 운동", "보행훈련",
+    # 3. [수: 운동·스포츠 재활·선수 트레이닝] - 단순 결장 단신 배제용 전문 키워드 대폭 확장
+    "스포츠 물리치료", "선수 재활", "선수 트레이너", "피지컬 코치", "부상 재활 운동", "전방십자인대 재활", "햄스트링 재활", "스포츠 손상 예방", "선수 복귀",
+    # 4. [목: 첨단 재활 기술·AI·로봇] - 실제 임상 적용 스마트 장비
+    "재활로봇", "보행로봇", "웨어러블 재활", "스마트 재활", "재활 장비", "스마트병원 재활", "AI 체형분석",
+    # 5. [금: 물리치료사 커리어·창업 & 임상 연구(EBP)] - 전면 신설
+    "물리치료사 창업", "재활센터 창업", "도수치료 센터", "체형교정 센터", "물리치료사 채용", "물리치료사 연봉", "물리치료 논문", "근거중심 물리치료", "EBP 물리치료",
+    # 6. [토: 글로벌/해외 보조 네이버 쿼리] - (Google News RSS와 시너지)
+    "해외 물리치료", "글로벌 재활", "미국 물리치료", "해외 피지컬테라피"
 ]
 
 
@@ -325,6 +340,145 @@ def fetch_broad_pool_naver(keywords: list[str] = None) -> list[dict]:
 
     print(f"\n🎉 [Pool 수집 완료] 총 {len(pool)}건의 고유한 주간 물리치료/재활 기사 풀 확보 완료!")
     return pool
+
+
+# ==============================================================================
+# 1-2단계: Google News Global RSS 수집 및 LLM 한국어 번역
+# ==============================================================================
+
+def fetch_global_rss_articles(
+    queries: list[str] = None, 
+    max_days: int = 7, 
+    max_items: int = 40
+) -> list[dict]:
+    """
+    Google News Global RSS(영문) 피드에서 최근 7일 이내의 해외 물리치료/재활 전문 기사를 수집합니다.
+    (API 키 불필요, 100% 실시간 영문 기사 풀 확보)
+    """
+    if queries is None:
+        queries = [
+            'physical therapy OR physiotherapy OR "rehabilitation protocol"',
+            '"manual therapy" OR "sports physical therapy" OR "physical therapist"'
+        ]
+
+    rss_articles = []
+    seen_links = set()
+
+    print("\n🌐 [글로벌 RSS 수집기] Google News 영문 물리치료 피드 수집 시작...")
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        )
+    }
+
+    for q in queries:
+        url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q)}&hl=en-US&gl=US&ceid=US:en"
+        try:
+            resp = requests.get(url, headers=headers, timeout=10)
+            if resp.status_code != 200:
+                continue
+            root = ET.fromstring(resp.content)
+            items = root.findall('.//item')
+            for it in items:
+                title_elem = it.find('title')
+                link_elem = it.find('link')
+                pub_elem = it.find('pubDate')
+                source_elem = it.find('source')
+                desc_elem = it.find('description')
+
+                title = title_elem.text if title_elem is not None and title_elem.text else ""
+                link = link_elem.text if link_elem is not None and link_elem.text else ""
+                pub_str = pub_elem.text if pub_elem is not None and pub_elem.text else ""
+                source_name = source_elem.text if source_elem is not None and source_elem.text else "Google News"
+                desc = clean_html(desc_elem.text) if desc_elem is not None and desc_elem.text else ""
+
+                if not title or not link or link in seen_links:
+                    continue
+
+                # 최근 max_days 이내 검증
+                is_recent, pub_formatted = parse_and_validate_pub_date(pub_str, max_days=max_days)
+                if not is_recent:
+                    continue
+
+                # 글로벌 앵커 키워드 검증
+                if not is_valid_pt_article(title, desc, is_global=True):
+                    continue
+
+                seen_links.add(link)
+                clean_t = clean_article_title(title)
+                rss_articles.append({
+                    "title": clean_t,
+                    "original_title": clean_t,
+                    "description": desc or clean_t,
+                    "content_preview": desc or clean_t,
+                    "body_text": desc or clean_t,
+                    "link": link,
+                    "originallink": link,
+                    "pub_date": pub_formatted,
+                    "source": source_name,
+                    "search_keyword": q,
+                    "is_global": True
+                })
+                if len(rss_articles) >= max_items:
+                    break
+        except Exception as e:
+            print(f"  ⚠️ [글로벌 RSS 경고] '{q}' 수집 실패: {e}")
+
+    print(f"  -> 총 {len(rss_articles)}건의 영문 글로벌 물리치료 기사 확보 완료")
+    return rss_articles
+
+
+def translate_and_enrich_global_articles(articles: list[dict], batch_size: int = 10) -> list[dict]:
+    """
+    수집된 글로벌 영문 기사의 제목 및 설명을 OpenAI LLM을 통해
+    대한민국 물리치료 전문 미디어(THEPT) 톤의 자연스러운 한국어로 일괄 번역합니다.
+    """
+    if not articles or not OPENAI_API_KEY:
+        return articles
+
+    print(f"\n🌐 [글로벌 기사 번역기] 영문 기사 {len(articles)}건 전문 한국어 번역 중...")
+    from openai import OpenAI
+    client = OpenAI(api_key=OPENAI_API_KEY)
+
+    system_prompt = """당신은 대한민국 1위 물리치료 전문 미디어 'THEPT'의 글로벌 외신 번역 전문 에디터입니다.
+주어진 영문 기사들의 제목을 물리치료사, 도수치료사, 재활 전문가가 읽기에 자연스럽고 신뢰감 있는 전문 한국어 기사 제목으로 번역해주세요.
+(※ 영문 약어(ROM, MMT, ACL, PT 등)는 임상 표준에 맞게 적절히 유지하거나 병기하십시오.)
+
+[엄격한 반환 규격]
+반드시 다음 JSON 형식으로만 응답하십시오:
+{"translations": [{"idx": 0, "translated_title": "번역된 한글 제목"}]}"""
+
+    for b_start in range(0, len(articles), batch_size):
+        b_items = articles[b_start:b_start + batch_size]
+        payload = [
+            {"idx": idx, "title": art.get("title", "")}
+            for idx, art in enumerate(b_items)
+        ]
+        try:
+            resp = client.chat.completions.create(
+                model=OPENAI_MODEL or "gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}
+                ],
+                response_format={"type": "json_object"},
+                timeout=15
+            )
+            data = json.loads(resp.choices[0].message.content)
+            for item in data.get("translations", []):
+                i = item.get("idx")
+                t_title = item.get("translated_title")
+                if i is not None and i < len(b_items) and t_title:
+                    b_items[i]["original_title"] = b_items[i]["title"]
+                    b_items[i]["title"] = t_title
+                    b_items[i]["description"] = f"[{b_items[i].get('source', '외신')}] {t_title}"
+                    b_items[i]["content_preview"] = b_items[i]["description"]
+        except Exception as e:
+            print(f"  ⚠️ [글로벌 번역 경고 ({b_start}~)]: {e}")
+
+    return articles
 
 
 # ==============================================================================
@@ -515,37 +669,37 @@ SIX_CATEGORIES = {
     "mon_policy": {
         "day": "월요일",
         "title": "국내 정책·제도·수가·실손보험",
-        "description": "보건복지부 정책, 실손보험 도수치료, 물리치료 수가, 협회 및 법안 이슈",
+        "description": "보건복지부 정책, 건강보험/실손보험 도수치료, 물리치료 수가, 협회 및 법안 이슈",
         "is_global": False
     },
     "tue_clinical": {
         "day": "화요일",
         "title": "임상 실무·질환별 재활 프로토콜",
-        "description": "디스크·회전근개·오십견·관절염 등 다빈도 질환의 최신 도수치료 및 운동재활 가이드",
+        "description": "도수치료 기법, 관절가동술, 슬링치료, 디스크/오십견/관절염 실무 평가 및 재활 운동 가이드",
         "is_global": False
     },
     "wed_sports": {
         "day": "수요일",
         "title": "운동·스포츠 재활",
-        "description": "선수 부상 및 재활 복귀, 종목별 기능회복, 스포츠 물리치료 현장",
+        "description": "스포츠 물리치료, 선수트레이너(AT)/피지컬코치, 전방십자인대/햄스트링 재활, 선수 복귀 프로토콜(RTP)",
         "is_global": False
     },
     "thu_tech": {
         "day": "목요일",
         "title": "첨단 재활 기술·AI·로봇",
-        "description": "보행 보조 로봇, 스마트 헬스케어 기기, AI 진단/재활 시스템, 재활 장비",
+        "description": "보행재활 로봇, 웨어러블, 스마트병원 물리치료, AI 동작분석/체형평가 솔루션",
         "is_global": False
     },
     "fri_celeb": {
         "day": "금요일",
-        "title": "셀럽 스타 치료 & 건강 가십",
-        "description": "연예인/스타/유명인의 물리치료·도수치료·부상 후기 및 체형 가십",
+        "title": "물리치료사 커리어·창업 & 임상 연구(EBP)",
+        "description": "도수/재활센터 창업, 방문재활, 물리치료사 채용/연봉/해외진출, 최신 물리치료 학회지 및 EBP 임상 논문 요약",
         "is_global": False
     },
     "sat_global": {
         "day": "토요일",
         "title": "해외 글로벌 트렌드",
-        "description": "글로벌 물리치료 연구, APTA/해외 제도, 해외 피지컬 테라피 동향, 외신 헬스케어",
+        "description": "전 세계 최신 물리치료 연구 논문, APTA/글로벌 피지컬 테라피 동향, 외신 헬스케어 혁신 (Google News Global RSS 연동)",
         "is_global": True
     }
 }
@@ -556,27 +710,27 @@ def heuristic_classify_article(title: str, text: str) -> tuple[str, int]:
     combined = (title + " " + text).lower()
 
     # 1. 토요일: 해외/글로벌
-    if any(k in combined for k in ["해외", "미국", "글로벌", "외신", "영국", "독일", "일본", "fda", "apta", "who", "국제"]):
-        return "sat_global", 7
+    if any(k in combined for k in ["해외", "미국", "글로벌", "외신", "영국", "독일", "일본", "fda", "apta", "who", "국제", "physiotherapy", "physical therapy"]):
+        return "sat_global", 8
 
-    # 2. 목요일: 첨단 기술/로봇/장비
+    # 2. 금요일: 커리어/창업/논문/EBP
+    if any(k in combined for k in ["창업", "센터", "개원", "채용", "연봉", "이직", "구인", "논문", "학회지", "ebp", "근거중심", "연구", "방문재활", "방문물리치료"]):
+        return "fri_celeb", 8
+
+    # 3. 목요일: 첨단 기술/로봇/장비
     if any(k in combined for k in ["로봇", "ai", "인공지능", "웨어러블", "재활장비", "재활 장비", "스마트", "디지털", "vr", "센서", "기기"]):
         return "thu_tech", 8
 
-    # 3. 수요일: 스포츠/선수 부상
-    if any(k in combined for k in ["선수", "스포츠", "축구", "야구", "올림픽", "골프", "부상", "복귀", "트레이닝", "구단", "국가대표"]):
+    # 4. 수요일: 스포츠/선수 부상
+    if any(k in combined for k in ["선수", "스포츠", "축구", "야구", "올림픽", "골프", "트레이너", "피지컬", "십자인대", "햄스트링", "rtp", "복귀"]):
         return "wed_sports", 8
-
-    # 4. 금요일: 셀럽/연예인/스타
-    if any(k in combined for k in ["배우", "가수", "연예인", "스타", "아이돌", "방송", "유명", "드라마", "예능", "mc", "투혼"]):
-        return "fri_celeb", 7
 
     # 5. 월요일: 정책/제도/실손/수가/협회
     if any(k in combined for k in ["수가", "실손", "복지부", "보험", "정책", "협회", "법안", "의료기관", "제도", "보건", "비급여"]):
         return "mon_policy", 8
 
     # 6. 화요일: 임상 실무/재활 프로토콜
-    if any(k in combined for k in ["디스크", "관절", "도수치료", "재활치료", "통증", "체형", "교정", "보행", "오십견", "회전근개", "운동치료"]):
+    if any(k in combined for k in ["도수치료", "기법", "가동술", "슬링", "디스크", "관절", "통증", "체형", "교정", "보행", "오십견", "회전근개", "운동치료"]):
         return "tue_clinical", 7
 
     return "tue_clinical", 5
@@ -606,24 +760,34 @@ def classify_and_distribute_articles_llm(
     batch_size = 30
     classifications = {}  # {pool_idx: (category_key, score)}
 
+    # 1. 외신 글로벌 RSS 기사는 sat_global에 직접 1차 우선 배정 (고품질 해외 기사 확실한 보장)
+    for art in articles:
+        if art.get("is_global"):
+            classifications[art["_pool_idx"]] = ("sat_global", 9)
+
     system_prompt = """당신은 대한민국 1위 물리치료 전문 미디어 'THEPT'의 수석 큐레이터 AI입니다.
 주어진 기사들의 제목과 본문 요약을 분석하여 다음 7가지 카테고리 중 가장 적합한 1개를 선택하고 적합도 점수(relevance_score, 1~10점)를 매겨주세요:
 
-[카테고리 분류 기준]
-- mon_policy: 국내 정책·제도·수가·실손보험·협회 (보건복지부, 건강보험, 실손보험 도수치료, 물리치료 수가, 협회 현안, 의료법 등)
-- tue_clinical: 임상 실무·질환별 재활 프로토콜 (디스크, 오십견, 관절염, 도수치료 임상효과, 재활운동 가이드, 신경/근골격 임상 연구 등)
-- wed_sports: 운동·스포츠 재활 (프로/엘리트 선수 부상 및 복귀, 스포츠 재활, 기능회복 트레이닝, 구단 피지컬 코치 등)
-- thu_tech: 첨단 재활 기술·AI·로봇·재활 장비 (보행재활 로봇, 웨어러블, 스마트 헬스케어 기기, AI 진단/재활, 재활 장비 등)
-- fri_celeb: 셀럽/연예인/스타 치료 & 건강 가십 (배우, 가수, 방송인, 유명인의 부상 및 재활 후기, 방송 건강 이슈, 대중 체형 토픽 등)
-- sat_global: 해외/글로벌 트렌드 (해외 물리치료 연구, APTA/해외 제도, 외신 헬스케어 동향, 해외 의료기기 도입, FDA/글로벌 트렌드 등)
-- exclude: 물리치료/재활과 직접 무관하거나 단순 광고/스팸
+[카테고리 분류 기준 및 엄격한 품질 원칙]
+- mon_policy: 국내 정책·제도·수가·실손보험·협회 (보건복지부 정책, 건강보험, 실손보험 도수치료, 물리치료 수가, 협회 현안, 의료법 등)
+- tue_clinical: 임상 실무·질환별 재활 프로토콜 (도수치료 기법, 관절가동술, 슬링치료, 디스크/오십견/관절염 실무 평가, 물리치료사/재활치료사 주도 운동치료 가이드)
+  ※ [엄격 배제/감점]: 의사(정형외과/재활의학과) 개인 명의 칼럼이나 병원 마케팅/홍보 기사는 1~3점으로 감점하거나 exclude 하십시오. 물리치료사 임상 실무 기사에 최고점(9~10점)을 부여하십시오.
+- wed_sports: 운동·스포츠 재활 (스포츠 물리치료, 선수트레이너(AT), 피지컬 코치, 전방십자인대(ACL)/햄스트링 재활, 선수 복귀 프로토콜(RTP), 스포츠 손상 예방)
+  ※ [엄격 배제/감점]: "손흥민 결장", "OO선수 부상" 등 단순 결장/부상 단신이나 경기 결과는 무조건 exclude 하십시오. 실제 부상 치료 과정, 재활 루틴, 트레이닝 메커니즘을 다룬 전문 기사만 8~10점을 부여하십시오.
+- thu_tech: 첨단 재활 기술·AI·로봇 (보행재활 로봇, 웨어러블, 스마트병원 물리치료 솔루션, AI 동작분석/체형평가 기기 등 실제 임상 현장 적용 기술)
+- fri_celeb: 물리치료사 커리어·창업 & 임상 연구(EBP) (도수치료/재활센터 창업 스토리, 방문재활 현황, 물리치료사 채용/연봉/해외진출, 최신 물리치료 학회지 논문 및 근거중심 물리치료(EBP) 연구)
+- sat_global: 해외/글로벌 트렌드 (글로벌 피지컬 테라피 연구, APTA/해외 제도, 외신 물리치료 혁신 사례, 해외 최신 임상 트렌드)
+- exclude: 물리치료/재활과 직접 무관한 기사, 의사/병원 단순 홍보, 단순 스포츠 단신, 입시/가십
 
 [엄격한 반환 규격]
 반드시 다음 JSON 포맷으로만 응답하십시오:
 {"classifications": [{"idx": 0, "category": "mon_policy", "score": 9}, ...]}"""
 
-    for b_start in range(0, len(articles), batch_size):
-        b_items = articles[b_start:b_start + batch_size]
+    # LLM 분류가 필요한 기사만 필터링 (글로벌 기사 제외)
+    need_llm_articles = [a for a in articles if a["_pool_idx"] not in classifications]
+
+    for b_start in range(0, len(need_llm_articles), batch_size):
+        b_items = need_llm_articles[b_start:b_start + batch_size]
         payload = [
             {
                 "idx": a["_pool_idx"],
@@ -784,28 +948,39 @@ def parse_custom_url(url: str, category_key: str = "mon_policy") -> dict:
 def collect_6categories_candidates(target_per_category: int = 20) -> dict:
     """
     주 6일 6대 카테고리 후보 기사를 수집하는 메인 진입점 함수:
-    1. 네이버 뉴스 API로 29개 상위 키워드 광범위 Pool 수집 (중복 제거)
-    2. 비동기 병렬 본문 크롤링으로 본문 및 3줄 핵심 요약 미리보기 생성
-    3. OpenAI GPT(gpt-4o-mini)로 문맥 분석 후 요일별 15~30건씩 중복 없이 배분
+    1. 네이버 뉴스 API로 고도화된 상위 키워드 광범위 Pool 수집 (중복 제거)
+    2. Google News Global RSS(영문) 피드로 글로벌 최신 물리치료 기사 수집 & LLM 고품질 한글 번역
+    3. 비동기 병렬 본문 크롤링으로 본문 및 3줄 핵심 요약 미리보기 생성
+    4. OpenAI GPT(gpt-4o-mini)로 문맥 분석 후 요일별 15~30건씩 중복 없이 배분
     """
     print("=" * 70)
-    print("🌐 [뉴스 수집기] 네이버 광범위 Pool & LLM 지능형 카테고리 분배 파이프라인 가동")
+    print("🌐 [뉴스 수집기] 네이버 고도화 Pool + Google News Global RSS & LLM 카테고리 분배 파이프라인 가동")
     print("=" * 70)
 
-    # 1. 광범위 Pool 수집
+    # 1. 광범위 네이버 Pool 수집
     pool = fetch_broad_pool_naver()
 
+    # 2. Google News Global RSS 수집 및 한국어 번역 풀 확보
+    try:
+        global_rss_arts = fetch_global_rss_articles(max_items=35)
+        if global_rss_arts:
+            translated_global = translate_and_enrich_global_articles(global_rss_arts, batch_size=10)
+            pool.extend(translated_global)
+            print(f"  🎉 [글로벌 풀 병합] 총 {len(translated_global)}건의 외신 번역 기사가 수집 풀에 병합되었습니다!")
+    except Exception as e:
+        print(f"  ⚠️ [글로벌 RSS 수집 경고]: {e}")
+
     if not pool:
-        print("⚠️ [경고] 네이버 뉴스 수집 결과가 없습니다. 카테고리 빈 결과를 반환합니다.")
+        print("⚠️ [경고] 수집된 뉴스 결과가 없습니다. 빈 결과를 반환합니다.")
         return {k: [] for k in SIX_CATEGORIES.keys()} | {"total_count": 0}
 
-    # 2. 비동기 본문 크롤링
+    # 3. 비동기 본문 크롤링
     try:
         pool = asyncio.run(fetch_article_bodies_async(pool, max_concurrency=15))
     except Exception as e:
         print(f"  ⚠️ [비동기 크롤러 경고]: {e} (기존 description 유지)")
 
-    # 3. LLM 지능형 카테고리 분배 (1기사 1카테고리 원칙, 요일별 15~30건)
+    # 4. LLM 지능형 카테고리 분배 (1기사 1카테고리 원칙, 요일별 15~30건)
     target_max = max(target_per_category, 30)
     candidates_by_cat = classify_and_distribute_articles_llm(pool, target_min=15, target_max=target_max)
 

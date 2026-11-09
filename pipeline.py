@@ -124,7 +124,7 @@ async def run_curated_6days_pipeline(
         ("tue_clinical", "화요일", "Tue_Clinical", "임상 실무·질환별 재활 프로토콜", False),
         ("wed_sports", "수요일", "Wed_Sports", "운동·스포츠 재활", False),
         ("thu_tech", "목요일", "Thu_Tech", "첨단 재활 기술·AI·로봇", False),
-        ("fri_celeb", "금요일", "Fri_Celeb", "셀럽 스타 치료 & 건강 가십", False),
+        ("fri_celeb", "금요일", "Fri_Career", "물리치료사 커리어·창업 & 임상 연구(EBP)", False),
         ("sat_global", "토요일", "Sat_Global", "해외 글로벌 트렌드", False),
     ]
     day_configs = []
