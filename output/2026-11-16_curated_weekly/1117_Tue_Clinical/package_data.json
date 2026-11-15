@@ -1,0 +1,166 @@
+{
+  "day_name": "화요일",
+  "category_title": "임상 실무·질환별 재활 프로토콜",
+  "title": "화요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "산재 전문재활로 기능 회복 대폭 향상",
+      "source": "청년의사",
+      "link": "http://www.docdocdoc.co.kr/news/articleView.html?idxno=3044568",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "장재인, 근긴장이상증 투병 고백",
+      "source": "네이버 뉴스",
+      "link": "https://www.fnnews.com/news/202611081950319255",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "러닝, 무릎 건강의 반전 효과!",
+      "source": "조선일보",
+      "link": "https://health.chosun.com/site/data/html_dir/2026/11/09/2026110902544.html",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\개발\\자동화에이전트\\assets\\intro\\tue_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 화요일 브리핑",
+        "title": "<span class=\"hl-yellow\">화요일 임상 실무·질환별 재활 프로토콜</span>",
+        "desc": "오늘 꼭 살펴봐야 할 임상 실무·질환별 재활 프로토콜 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "산재 전문재활로 기능 회복 대폭 향상",
+          "장재인, 근긴장이상증 투병 고백",
+          "러닝, 무릎 건강의 반전 효과!"
+        ],
+        "media_image": "C:\\개발\\자동화에이전트\\assets\\intro\\tue_intro.jpeg"
+      },
+      "narration": "화요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "임상 실무·질환별 재활 프로토콜",
+        "source": "청년의사 (2026년 11월 14일 09:00)",
+        "headline": "산재 전문재활로 기능 회복 대폭 향상",
+        "media_image": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_01_photo_01.jpg",
+        "bullets": [
+          "산재 노동자가 전문재활 프로그램에 참여하면 기능과 보행 능력이 개선됩니다.",
+          "어깨 재활환자 기능 점수가 42.5에서 55.7로, 하지절단 환자는 13.5에서 26.6으로 상승했습니다.",
+          "재활 서비스 연계 체계 구축이 필요하며, 직장복귀를 위한 통합 지원 체계가 강조됩니다."
+        ],
+        "highlight": "💡 포인트: 급성기 치료 후 재활 서비스 연계를 통해 최적의 치료를 제공해야 합니다.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 산재 전문재활로 기능 회복 대폭 향상. 산재 노동자가 전문재활 프로그램에 참여하면 신체 기능과 보행 능력이 크게 향상됩니다. 연구에 따르면 어깨 재활환자의 기능 점수가 42.5에서 55.7로 상승하며, 하지절단 환자는 13.5에서 26.6으로 증가했습니다. 따라서 급성기 치료 이후 재활 서비스의 연계 체계 구축이 필수적입니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "임상 실무·질환별 재활 프로토콜",
+        "source": "네이버 뉴스 (2026년 11월 09일 04:20)",
+        "headline": "장재인, 근긴장이상증 투병 고백",
+        "media_image": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_02_photo_01.jpg",
+        "bullets": [
+          "가수 장재인이 22세에 반신마비 근긴장이상증 진단을 받았다고 밝혔습니다.",
+          "근긴장이상증은 의지와 관계없이 근육이 수축하여 비정상적인 움직임을 초래하는 신경계 질환입니다.",
+          "이 질환은 음악가에게도 영향을 미쳐 연주 능력을 저하시킬 수 있으며, 치료가 필요합니다."
+        ],
+        "highlight": "💡 포인트: 근긴장이상증 환자는 스트레스 관리와 적절한 재활 치료가 중요합니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 장재인, 근긴장이상증 투병 고백. 가수 장재인이 22세에 반신마비 근긴장이상증 진단을 받았다고 밝혔습니다. 이 질환은 근육이 의지와 관계없이 수축하여 비정상적인 움직임을 초래하는 신경계 질환입니다. 특히 음악가에게는 연주 능력에 큰 영향을 미칠 수 있어, 스트레스 관리와 적절한 재활 치료가 필수적입니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "임상 실무·질환별 재활 프로토콜",
+        "source": "조선일보 (2026년 11월 09일 20:31)",
+        "headline": "러닝, 무릎 건강의 반전 효과!",
+        "media_image": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_03_photo_01.jpg",
+        "bullets": [
+          "유재석이 언급한 러닝 후 통증, 관절 손상 위험이 크다.",
+          "꾸준한 달리기는 퇴행성 관절염 발생 위험을 3배 낮춘다.",
+          "적절한 강도로 달리면 관절 보호 효과가 있으며, 하체 근력 운동이 필수다."
+        ],
+        "highlight": "💡 포인트: 러닝 전후 스트레칭과 하체 근력 운동으로 부상 예방에 힘쓰세요.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 러닝, 무릎 건강의 반전 효과. 최근 유재석이 러닝 후 통증을 언급하며 관절 손상 위험을 경고했습니다. 하지만, 보라매병원 정세희 교수는 꾸준한 달리기가 퇴행성 관절염 발생 위험을 3배 낮춘다고 강조했습니다. 따라서 적절한 강도로 달리며 하체 근력 운동을 병행하면 관절을 보호할 수 있습니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\tue_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 화요일]\n화요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 산재 전문재활로 기능 회복 대폭 향상 (청년의사)\n   🔗 http://www.docdocdoc.co.kr/news/articleView.html?idxno=3044568\n\n02. 장재인, 근긴장이상증 투병 고백 (네이버 뉴스)\n   🔗 https://www.fnnews.com/news/202611081950319255\n\n03. 러닝, 무릎 건강의 반전 효과! (조선일보)\n   🔗 https://health.chosun.com/site/data/html_dir/2026/11/09/2026110902544.html\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#임상_실무질환별_재활_프로토콜 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 11월 17일 (화)",
+  "target_date": "2026-11-17",
+  "youtube_category_id": "27"
+}

@@ -1,0 +1,166 @@
+{
+  "day_name": "수요일",
+  "category_title": "운동·스포츠 재활",
+  "title": "수요일 THEPT 물리치료 1분 브리핑",
+  "is_global": false,
+  "sources": [
+    {
+      "index": "01",
+      "title": "부민병원, 주니어 골프선수 맞춤 피지오 지원",
+      "source": "네이버 뉴스",
+      "link": "https://kormedi.com/?p=2902981",
+      "story_summary": ""
+    },
+    {
+      "index": "02",
+      "title": "경기도 러닝 코스, 무릎 충격 위험 높아!",
+      "source": "네이버 뉴스",
+      "link": "https://www.kyeonggi.com/article/20261109580520",
+      "story_summary": ""
+    },
+    {
+      "index": "03",
+      "title": "현대차, 소방관 재활 다큐 ‘리부트’ 공개",
+      "source": "네이버 뉴스",
+      "link": "https://www.handmk.com/news/articleView.html?idxno=44949",
+      "story_summary": ""
+    }
+  ],
+  "slides": [
+    {
+      "type": "cover",
+      "header_tag": "THEPT WEEKLY",
+      "swipe_label": "밀어서 보기 👉",
+      "background": "C:\\개발\\자동화에이전트\\assets\\intro\\wed_intro.jpeg",
+      "data": {
+        "tag": "THEPT WEEKLY | 수요일 브리핑",
+        "title": "<span class=\"hl-yellow\">수요일 운동·스포츠 재활</span>",
+        "desc": "오늘 꼭 살펴봐야 할 운동·스포츠 재활 주요 뉴스 3가지를 전해드립니다.",
+        "items": [
+          "부민병원, 주니어 골프선수 맞춤 피지오 지원",
+          "경기도 러닝 코스, 무릎 충격 위험 높아!",
+          "현대차, 소방관 재활 다큐 ‘리부트’ 공개"
+        ],
+        "media_image": "C:\\개발\\자동화에이전트\\assets\\intro\\wed_intro.jpeg"
+      },
+      "narration": "수요일 더피티 뉴스 1분 브리핑 시작합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 01",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_01_photo_01.jpg",
+      "data": {
+        "index": "01",
+        "category": "운동·스포츠 재활",
+        "source": "네이버 뉴스 (2026년 11월 11일 09:40)",
+        "headline": "부민병원, 주니어 골프선수 맞춤 피지오 지원",
+        "media_image": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_01_photo_01.jpg",
+        "bullets": [
+          "부민병원은 보건복지부 지정 관절 전문병원으로 피지오 프로그램을 지원합니다.",
+          "대회 기간 동안 물리치료사 3명과 의료진이 현장에 매일 상주하여 서비스를 제공합니다.",
+          "이 프로그램은 통증 치료를 넘어 선수들의 운동 능력 향상에 기여합니다."
+        ],
+        "highlight": "💡 포인트: 주니어 선수의 맞춤형 재활 프로그램을 통해 성과를 극대화하세요.",
+        "story_summary": ""
+      },
+      "narration": "첫 번째 소식입니다. 부민병원, 주니어 골프선수 맞춤 피지오 지원. 부민병원은 보건복지부 지정 관절 전문병원으로, 주니어 골프선수를 위한 피지오 프로그램을 지원합니다. 대회 기간 동안 물리치료사 3명과 의료진이 현장에 상주하여 선수들의 운동 능력 향상에 기여하고 있습니다. 이 프로그램은 단순한 통증 치료를 넘어 선수들의 전반적인 퍼포먼스를 높이는 데 중요한 역할을 합니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 02",
+      "swipe_label": "다음 소식 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_02_photo_01.jpg",
+      "data": {
+        "index": "02",
+        "category": "운동·스포츠 재활",
+        "source": "네이버 뉴스 (2026년 11월 10일 04:02)",
+        "headline": "경기도 러닝 코스, 무릎 충격 위험 높아!",
+        "media_image": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_02_photo_01.jpg",
+        "bullets": [
+          "경기도 내 러닝 코스 10곳 중 8곳이 아스팔트와 콘크리트로 조성되었습니다.",
+          "장거리 러닝 시 착지 동작을 수만 번 반복하며 무릎에 큰 충격을 줍니다.",
+          "이로 인해 물리치료사들은 러너들의 부상 예방을 위한 재활 프로그램 필요성을 강조합니다."
+        ],
+        "highlight": "💡 포인트: 러닝 코스의 재질 개선과 부상 예방 교육이 필요합니다.",
+        "story_summary": ""
+      },
+      "narration": "두 번째 소식입니다. 경기도 러닝 코스, 무릎 충격 위험 높아. 경기도의 러닝 코스 10곳 중 8곳이 아스팔트와 콘크리트로 되어 있습니다. 장거리 러닝 시 수만 번의 착지 동작이 무릎에 큰 충격을 주며, 이는 부상의 위험을 높입니다. 물리치료사들은 이러한 문제를 해결하기 위해 재활 프로그램과 교육의 필요성을 강조하고 있습니다."
+    },
+    {
+      "type": "news",
+      "header_tag": "NEWS 03",
+      "swipe_label": "핵심 정리 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_03_photo_01.jpg",
+      "data": {
+        "index": "03",
+        "category": "운동·스포츠 재활",
+        "source": "네이버 뉴스 (2026년 11월 11일 09:20)",
+        "headline": "현대차, 소방관 재활 다큐 ‘리부트’ 공개",
+        "media_image": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_03_photo_01.jpg",
+        "bullets": [
+          "현대차그룹이 소방관 치료와 재활 과정을 담은 다큐멘터리 ‘리부트’를 공개했습니다.",
+          "국립소방병원에서 치료받는 소방관들의 일상과 재활 과정을 1개월간 기록했습니다.",
+          "소방관의 신체적·심리적 회복을 지원하며, 재활 접근성을 높이는 데 기여할 것입니다."
+        ],
+        "highlight": "💡 포인트: 소방관 재활에 참여하는 엑스블 멕스 로봇 활용을 고려해보세요.",
+        "story_summary": ""
+      },
+      "narration": "세 번째 소식입니다. 현대차, 소방관 재활 다큐 ‘리부트’ 공개. 현대차그룹은 소방관들의 치료와 재활 과정을 담은 다큐멘터리 '리부트'를 공개했습니다. 이 영상은 국립소방병원에서 치료받는 소방관들의 일상과 재활 과정을 1개월간 기록했습니다. 소방관의 신체적, 심리적 회복을 지원하며, 재활 접근성을 높이는 데 기여할 것입니다."
+    },
+    {
+      "type": "ad",
+      "header_tag": "THEPT SPONSOR",
+      "swipe_label": "마무리 👉",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_02_photo_01.jpg",
+      "data": {
+        "badge": "THEPT SPONSOR",
+        "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
+        "sub_badge": "물리치료사 필수 솔루션",
+        "categories": [
+          {
+            "num": "01",
+            "name": "방문재활 AI 음성차팅",
+            "tag": "4thept.com",
+            "bullets": [
+              "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
+              "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+            ]
+          },
+          {
+            "num": "02",
+            "name": "소규모 가성비 센터창업 가이드",
+            "subname": "- 병원밖 물리치료사",
+            "tag": "크몽 전자책",
+            "bullets": [
+              "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+              "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+            ]
+          }
+        ],
+        "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
+        "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+        "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
+        "link": "https://4thept.com",
+        "kmong_link": "https://kmong.com/gig/813101"
+      },
+      "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!"
+    },
+    {
+      "type": "outro",
+      "header_tag": "THEPT NEWS",
+      "swipe_label": "좋아요 & 공유 ❤️",
+      "background": "C:\\개발\\자동화에이전트\\output\\2026-11-16_curated_weekly\\backgrounds\\wed_03_photo_01.jpg",
+      "data": {
+        "media_image": "C:\\개발\\자동화에이전트\\assets\\outro_thept_team.jpg",
+        "header": "더 많은 물리치료 소식이<br><span class=\"hl-yellow\">궁금하다면?</span>",
+        "sub": "도움이 되셨다면 좋아요를 누르고 동료 물리치료사와 함께 공유해보세요!"
+      },
+      "narration": "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    }
+  ],
+  "caption": "📋 [THEPT 주간 브리핑 - 수요일]\n수요일 THEPT 물리치료 1분 브리핑\n\n주요 핵심 뉴스 3가지의 상세 카드뉴스입니다.\n슬라이드를 넘겨 각 뉴스의 핵심 포인트를 확인해보세요! 👉\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📰 [기사 원문 출처 및 링크]\n01. 부민병원, 주니어 골프선수 맞춤 피지오 지원 (네이버 뉴스)\n   🔗 https://kormedi.com/?p=2902981\n\n02. 경기도 러닝 코스, 무릎 충격 위험 높아! (네이버 뉴스)\n   🔗 https://www.kyeonggi.com/article/20261109580520\n\n03. 현대차, 소방관 재활 다큐 ‘리부트’ 공개 (네이버 뉴스)\n   🔗 https://www.handmk.com/news/articleView.html?idxno=44949\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n#운동스포츠_재활 #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스\n",
+  "date_text": "26년 11월 18일 (수)",
+  "target_date": "2026-11-18",
+  "youtube_category_id": "17"
+}
