@@ -27,6 +27,8 @@ from config import (
     DEFAULT_YOUTUBE_CATEGORY_ID,
     YOUTUBE_CATEGORY_NAMES,
     YOUTUBE_DEFAULT_PLAYLIST_ID,
+    YOUTUBE_EXPECTED_CHANNEL_ID,
+    YOUTUBE_EXPECTED_CHANNEL_NAME,
     get_youtube_category_id,
 )
 
@@ -45,14 +47,20 @@ class YouTubeShortsUploader:
         self.token_path = Path(token_file) if token_file else YOUTUBE_TOKEN_FILE
         self._service = None
 
-    def get_service(self):
+    def get_service(self, force_reauth: bool = False):
         """인증된 YouTube Data API 클라이언트 객체를 반환합니다."""
-        if self._service:
+        if self._service and not force_reauth:
             return self._service
 
         creds = None
+        if force_reauth:
+            self._service = None
+            if self.token_path.exists():
+                backup_path = self.token_path.with_suffix(".pickle.prev")
+                backup_path.write_bytes(self.token_path.read_bytes())
+                print(f"📦 [YouTube] 기존 토큰 백업 완료: {backup_path.name}")
         # 1. 저장된 토큰이 있으면 로드
-        if self.token_path.exists():
+        elif self.token_path.exists():
             try:
                 with open(self.token_path, "rb") as token:
                     creds = pickle.load(token)
@@ -62,7 +70,7 @@ class YouTubeShortsUploader:
 
         # 2. 토큰이 유효하지 않거나 없으면 갱신 또는 신규 인증
         if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
+            if creds and creds.expired and creds.refresh_token and not force_reauth:
                 try:
                     print("🔄 [YouTube] 만료된 OAuth 토큰을 자동으로 갱신합니다...")
                     creds.refresh(Request())
@@ -92,6 +100,43 @@ class YouTubeShortsUploader:
 
         self._service = build("youtube", "v3", credentials=creds)
         return self._service
+
+    def get_authenticated_channel(self) -> Optional[dict]:
+        """현재 OAuth 토큰으로 인증된 YouTube 채널의 ID, 이름, 핸들을 조회합니다."""
+        service = self.get_service()
+        ch_res = service.channels().list(part="snippet,statistics", mine=True).execute()
+        items = ch_res.get("items", [])
+        if not items:
+            return None
+        ch = items[0]
+        snip = ch.get("snippet", {})
+        return {
+            "id": ch.get("id", ""),
+            "title": snip.get("title", ""),
+            "handle": snip.get("customUrl", ch.get("id", "")),
+        }
+
+    def check_channel_alignment(self) -> dict:
+        """현재 토큰 채널이 목표 채널(THEPT)과 일치하는지 검증합니다."""
+        info = self.get_authenticated_channel()
+        if not info:
+            return {
+                "matched": False,
+                "actual_id": "",
+                "actual_title": "(채널 없음)",
+                "actual_handle": "",
+                "expected_id": YOUTUBE_EXPECTED_CHANNEL_ID,
+                "expected_name": YOUTUBE_EXPECTED_CHANNEL_NAME,
+            }
+        matched = (not YOUTUBE_EXPECTED_CHANNEL_ID) or (info["id"] == YOUTUBE_EXPECTED_CHANNEL_ID)
+        return {
+            "matched": matched,
+            "actual_id": info["id"],
+            "actual_title": info["title"],
+            "actual_handle": info["handle"],
+            "expected_id": YOUTUBE_EXPECTED_CHANNEL_ID,
+            "expected_name": YOUTUBE_EXPECTED_CHANNEL_NAME,
+        }
 
     def _run_auth_server(self, flow):
         """인증 URL을 즉시 출력하고 Windows 브라우저를 안정적으로 오픈하는 로컬 인증 서버"""
@@ -157,6 +202,16 @@ class YouTubeShortsUploader:
         - playlist_id: 비디오가 추가될 대상 재생목록 ID (기본값: YOUTUBE_DEFAULT_PLAYLIST_ID)
         """
         service = self.get_service()
+        try:
+            align = self.check_channel_alignment()
+            if not align.get("matched"):
+                print(
+                    f"⚠️ [YouTube 채널 불일치 경고] 현재 토큰 채널은 '{align['actual_title']}' ({align['actual_id']})입니다. "
+                    f"목표 채널 '{align['expected_name']}' ({align['expected_id']})으로 전환하려면 "
+                    f"'python curate.py auth-yt' 후 'python curate.py export-yt-secrets'를 진행하세요."
+                )
+        except Exception:
+            pass
 
         if not video_path.exists():
             raise FileNotFoundError(f"업로드할 비디오 파일이 없습니다: {video_path}")
@@ -240,7 +295,10 @@ class YouTubeShortsUploader:
                 playlist_item_id = self.add_to_playlist(target_playlist_id, video_id)
                 print(f"📑 [YouTube] 재생목록에 추가 완료 (Playlist ID: {target_playlist_id})")
             except Exception as e:
-                print(f"⚠️ [YouTube] 재생목록 추가 중 경고: {e}")
+                print(
+                    f"⚠️ [YouTube] 재생목록 추가 중 경고: {e} "
+                    f"(참고: '{target_playlist_id}'는 THEPT 채널 재생목록입니다. 채널 불일치 시 auth-yt로 재인증하세요.)"
+                )
 
         return {
             "video_id": video_id,
@@ -336,20 +394,49 @@ def upload_youtube_short(
         return {"success": False, "error": str(e)}
 
 
-def authenticate_youtube():
+def test_youtube_connection() -> bool:
+    """YouTube Data API 인증 상태 및 목표 채널(THEPT) 일치 여부를 진단합니다."""
+    try:
+        uploader = YouTubeShortsUploader()
+        align = uploader.check_channel_alignment()
+        print(
+            f"📺 현재 연동 채널: {align['actual_title']} "
+            f"({align['actual_handle']} / ID: {align['actual_id']})"
+        )
+        print(
+            f"🎯 목표 설정 채널: {align['expected_name']} "
+            f"(ID: {align['expected_id']}) | 기본 재생목록: {YOUTUBE_DEFAULT_PLAYLIST_ID or '미지정'}"
+        )
+        if align["matched"]:
+            print("🎉 [진단 통과] YouTube 목표 채널과 정상 일치합니다!")
+            return True
+        print(
+            "⚠️ [채널 불일치] 현재 token.pickle이 목표 채널(THEPT)이 아닙니다.\n"
+            "   해결: 'python curate.py auth-yt' 실행 시 THEPT 브랜드 채널을 선택한 뒤 "
+            "'python curate.py export-yt-secrets'로 GitHub Secret을 갱신하세요."
+        )
+        return False
+    except Exception as e:
+        print(f"❌ YouTube 연결 진단 실패: {e}")
+        return False
+
+
+def authenticate_youtube(force_reauth: bool = False):
     """
-    YouTube Data API OAuth 최초 1회 브라우저 인증을 수행하고 서비스 객체를 반환합니다.
+    YouTube Data API OAuth 최초 1회 브라우저 인증(또는 --reauth 시 강제 재인증)을 수행하고 서비스 객체를 반환합니다.
     """
     try:
         uploader = YouTubeShortsUploader()
-        service = uploader.get_service()
+        service = uploader.get_service(force_reauth=force_reauth)
         if service:
             try:
-                ch_res = service.channels().list(part="snippet", mine=True).execute()
-                for ch in ch_res.get("items", []):
-                    title = ch["snippet"]["title"]
-                    handle = ch["snippet"].get("customUrl", ch["id"])
-                    print(f"📺 연동된 YouTube 채널: {title} ({handle})")
+                align = uploader.check_channel_alignment()
+                print(f"📺 연동된 YouTube 채널: {align['actual_title']} ({align['actual_handle']} / {align['actual_id']})")
+                if not align["matched"]:
+                    print(
+                        f"⚠️ [주의] 목표 채널 '{align['expected_name']}' ({align['expected_id']})과 다릅니다. "
+                        "브라우저 계정 선택 화면에서 THEPT 채널을 선택해 주세요."
+                    )
             except Exception:
                 pass
         return service

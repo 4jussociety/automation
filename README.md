@@ -87,17 +87,13 @@ NAVER_CLIENT_SECRET=your_client_secret
 # 1단계: 6대 카테고리 기사 대량 수집 및 제목 스크리닝 파일 생성
 python curate.py fetch
 
-# [중간 작업] candidates_titles.md를 에디터로 열어 관심 기사에 [x] 표시
+# [중간 작업] candidates_titles.md를 에디터로 열어 최종 기사 [x] 표시
+# (필요 시 candidates_fulltext.md 에서 기사 전문 바로 확인 가능)
 
-# 2단계: 1차 선택 기사 상세 본문 및 보도 사진 크롤링
-python curate.py review
-
-# [중간 작업] candidates_detail.md를 에디터로 열어 최종 기사 확정 [x] 표시
-
-# 3단계: 주 6일 콘텐츠 일괄 제작 (또는 --day thu로 특정 요일만 제작)
+# 2단계: 선택 기사 기반 주 6일 콘텐츠 일괄 제작 (또는 --day thu로 특정 요일만 제작)
 python curate.py build
 
-# 4단계: 미디어 렌더링 (목요일만: --day thu --render / 전체: --render)
+# 3단계: 미디어 렌더링 (목요일만: --day thu --render / 전체: --render)
 python curate.py build --day thu --render
 ```
 
@@ -111,13 +107,18 @@ python curate.py build --day thu --render
 
 ### 주요 CLI 명령어
 ```bash
-# 1. YouTube 1회 브라우저 OAuth 인증
+# 1. YouTube 1회 브라우저 OAuth 인증 및 목표 채널(THEPT) 진단
 python curate.py auth-yt
+python curate.py test-yt
 
 # 2. Instagram Graph API 연결 상태 진단
 python curate.py test-insta
 
-# 3. 예약 발행 시뮬레이션 (API 호출 없는 검증)
+# 3. 성과 리포트 및 마케팅 컴플라이언스/60초 규격 검사
+python curate.py analytics --save-report
+python curate.py check
+
+# 4. 예약 발행 시뮬레이션 (API 호출 없는 검증)
 python curate.py upload --dry-run
 
 # 4. 주간 콘텐츠 실제 예약 업로드 실행 (YouTube 쇼츠 + Instagram 캐러셀 + 릴스)

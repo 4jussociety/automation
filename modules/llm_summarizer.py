@@ -52,33 +52,39 @@ def build_system_prompt(is_global: bool = False) -> str:
 """
     json_format = """{
   "headline": "...",
+  "opening_hook": "...",
   "bullets": [
     "첫 번째 불릿 문장...",
     "두 번째 불릿 문장...",
     "세 번째 불릿 문장..."
   ],
   "highlight": "💡 포인트: ...",
-  "narration_body": "...\""""
+  "narration_body": "...",
+  "comment_question": "...\""""
     if is_global:
         json_format += ',\n  "story_summary": "4~6문장(350~450자)의 완성도 높은 번역 브리핑 단락..."\n}'
     else:
         json_format += "\n}"
 
-    return f"""당신은 대한민국 1위 물리치료 전문 미디어 'THEPT'의 수석 전문기자이자 방송 앵커입니다.
+    return f"""당신은 대한민국 1위 물리치료 전문 미디어 'THEPT'의 수석 전문기자이자 쇼츠 PD입니다.
 제공되는 뉴스 기사(국내 정책, 임상 연구, 해외 APTA 동향, 디지털 재활 등)를 정밀 분석하여, 
-인스타그램 4:5 카드뉴스와 9:16 유튜브 쇼츠에 최적화된 고품격 3줄 요약과 나레이션 대본을 작성해야 합니다.
+인스타그램 4:5 카드뉴스와 60초 이내 고속 9:16 유튜브 쇼츠에 최적화된 요약·훅·나레이션 대본을 작성해야 합니다.
 
 [작성 지침 및 엄격한 규칙]
-1. 완결된 문장: 모든 문장은 서술어가 명확히 종결된 완결형 문장이어야 합니다. 문장이 중간에 잘리거나 '~관련 최신 동향이 발표되었습니다' 같은 무성의한 땜질 어미를 절대 사용하지 마십시오.
+1. 완결된 문장 & 컴플라이언스:
+   - 모든 문장은 서술어가 명확히 종결된 완결형 문장이어야 합니다.
+   - '병원/의원' 병기 금지('병원' 또는 '병의원'), 구 호칭('매니저', '센터장') 및 'AI 자동 진단', 'EMR 완벽 대체', '식약처/의료기기 인증' 같은 과장 표현을 절대 사용하지 마십시오.
 2. 카드뉴스 레이아웃 규격 (글자 수 엄수):
    - headline: 카드뉴스 1080x1350 상단용. 공백 포함 18~34자 이내 (최대 2줄). 강렬하고 직관적인 헤드라인.
+   - opening_hook: 쇼츠 0~2초 스크롤 정지 훅(공백 포함 20~34자, 1문장). 제품명/브랜드 소개 없이 독자가 놓치면 손해 보거나 기존 습관을 돌아보게 만드는 질문/경고형 문장으로 작성.
    - bullets (정확히 3개):
      * 불릿 1 [핵심 팩트]: 주체와 핵심 사건, 공식 발표/시행 골자를 명확히 제시 (공백 포함 42~54자).
      * 불릿 2 [구체적 배경/수치]: 제도적 변경점, 구체적 통계 수치(비율/금액/대상), 임상적 근거 명시 (공백 포함 42~54자).
-     * 불릿 3 [현장 파급효과/시사점]: 물리치료사 임상 실무, 병의원 운영, 수가/급여, 환자 치료 접근성에 미치는 영향 (공백 포함 42~54자).
+     * 불릿 3 [현장 파급효과/시사점]: 물리치료사 임상 실무, 병원 운영, 수가/급여, 환자 치료 접근성에 미치는 영향 (공백 포함 42~54자).
      * 3개 불릿의 총 글자 수 합계는 반드시 130자~162자 이내여야 합니다.
    - highlight: "💡 포인트: "로 시작하며, 해당 기사 내용에 직접 기반한 치료사를 위한 원포인트 실무 대응 조언 (공백 포함 40~55자).
-   - narration_body: 유튜브 쇼츠 브리핑용 본문 대본. 신뢰감 있고 또렷한 방송 앵커 구어체로 [사건/연구 배경 ➔ 핵심 사실 및 구체적 수치 ➔ 물리치료사 임상/현장 파급효과]를 알차고 입체감 있게 설명하는 3~4문장(공백 포함 130~160자 내외)으로 작성.
+   - narration_body: 60초 이내 쇼츠 브리핑용 본문 대본. 6.1~6.8자/초 고속 템포에 맞춰 군더더기 없이 [핵심 사실 ➔ 구체적 수치/변화 ➔ 현장 영향]만 압축한 2~3문장(공백 포함 80~105자 이내)으로 작성.
+   - comment_question: 아웃트로에서 시청자 댓글 참여를 유도하는 1줄 현장 질문(공백 포함 22~38자).
 
 3. 전문 용어 및 글로벌 기사:
    - 영문 기사(APTA, PubMed, Medscape 등)인 경우 자연스러운 대한민국 물리치료 임상 표준 용어로 완벽히 번역하여 요약하십시오.
@@ -173,9 +179,11 @@ def summarize_article_with_llm(article: dict, is_global: bool = False) -> dict:
 
     # 반환 데이터 정제 및 규격 확인
     headline = result_data.get("headline", "").strip()
+    opening_hook = result_data.get("opening_hook", "").strip()
     bullets = result_data.get("bullets", [])
     highlight = result_data.get("highlight", "").strip()
     narration_body = result_data.get("narration_body", "").strip()
+    comment_question = result_data.get("comment_question", "").strip()
     story_summary = result_data.get("story_summary", "").strip()
 
     # 불릿 개수 3개 보장
@@ -200,15 +208,22 @@ def summarize_article_with_llm(article: dict, is_global: bool = False) -> dict:
     if not narration_body.endswith(('.', '!', '?')):
         narration_body += '.'
 
+    if opening_hook and not opening_hook.endswith(('.', '!', '?')):
+        opening_hook += '.'
+    if comment_question and not comment_question.endswith(('.', '!', '?')):
+        comment_question += '?'
+
     if is_global and not story_summary:
         # 글로벌 기사인데 story_summary가 누락되었을 경우 3대 불릿과 포인트를 결합하여 완성형 단락 구축
         story_summary = f"{refined_bullets[0]} {refined_bullets[1]} {refined_bullets[2]} {highlight.replace('💡 포인트: ', '').strip()}"
 
     final_result = {
         "headline": headline,
+        "opening_hook": opening_hook,
         "bullets": refined_bullets,
         "highlight": highlight,
         "narration_body": narration_body,
+        "comment_question": comment_question,
         "story_summary": story_summary
     }
 

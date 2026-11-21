@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>4THEPT 실사 기반 4:5 카드뉴스 &amp; 바이럴 키트 (18종)</title>
+  <!--
+  기능: 실제 4THEPT 화면 고해상도 스크린샷 기반 1080x1350 (4:5) PNG 카드뉴스 4대 테마(총 18장) + 원클릭 복붙 문구 키트
+  구성:
+    1) CHEAT_SHEET (5장): 인스타/네이버카페 저장·북마크 유도형 실무 SOAP 기록 예시 총정리 + 실사 캡처
+    2) REAL_SCREEN (5장): 비포/애프터 실제 화면 직관 비교형 + 실사 캡처
+    3) KAKAO_POSTER (3장): 카카오톡 단톡방/오픈채팅 1장 요약 실사 포스터
+    4) CENTER_PACK (5장): 비의료 운동·트레이닝·PT 센터 전용 키트 (의료 표현 0건)
+  규칙: 토스 비즈니스 UI 표준 (유니코드 이모지 배제, 타이포그래피 중심, [초안]·[직접 검수] 면책 고지 필수)
+-->
+  <link rel="stylesheet" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --line: #e2e8f0;
+      --ink: #0f172a;
+      --sub: #475569;
+      --mute: #94a3b8;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --blue-line: #bfdbfe;
+      --amber-soft: #fffbeb;
+      --amber-line: #fde68a;
+      --green: #059669;
+      --green-soft: #ecfdf5;
+      --green-line: #a7f3d0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-style: italic;
+      font-weight: 900;
+      font-size: 22px;
+      letter-spacing: -.03em;
+    }
+
+    .badge-top {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--blue);
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-line);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tab,
+    .btn {
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 9px 15px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--sub);
+      cursor: pointer;
+      transition: all .15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .tab:hover,
+    .btn:hover {
+      border-color: var(--blue-line);
+      color: var(--ink);
+    }
+
+    .tab.on,
+    .btn.primary {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .btn.primary:hover {
+      background: #1d4ed8;
+      color: #fff;
+    }
+
+    .btn.copied {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 24px 72px;
+    }
+
+    /* 원클릭 복붙 패널 */
+    .copy-panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 28px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 14px;
+    }
+
+    .panel-head h2 {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -.02em;
+    }
+
+    .panel-head p {
+      font-size: 13px;
+      color: var(--sub);
+      margin-top: 3px;
+    }
+
+    .copy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .copy-card {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .copy-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .copy-tag {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--blue);
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-line);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .copy-preview {
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--sub);
+      white-space: pre-line;
+      max-height: 130px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    /* 카드뉴스 그리드 */
+    .theme-head {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .theme-head h2 {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -.03em;
+    }
+
+    .theme-head p {
+      font-size: 14px;
+      color: var(--sub);
+      margin-top: 4px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px;
+    }
+
+    .slot {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+    }
+
+    .slot .view {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      position: relative;
+    }
+
+    .slot .view .card {
+      transform-origin: top left;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .slot .bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 4px 2px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--sub);
+    }
+
+    /* 1080x1350 (4:5 세로형) 카드 - 모바일 피드 가독성 기준 확대 */
+    .card {
+      width: 1080px;
+      height: 1350px;
+      background: #fff;
+      padding: 46px 56px 40px;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Pretendard', -apple-system, 'Malgun Gothic', sans-serif;
+      color: var(--ink);
+    }
+
+    .card .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--mute);
+    }
+
+    .card .top .lg {
+      font-style: italic;
+      font-weight: 900;
+      font-size: 38px;
+      color: var(--ink);
+      letter-spacing: -.03em;
+    }
+
+    .card .body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .card .tag {
+      align-self: flex-start;
+      padding: 10px 24px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      border: 2px solid var(--blue-line);
+      color: var(--blue);
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .card .tag.green {
+      background: var(--green-soft);
+      border-color: var(--green-line);
+      color: var(--green);
+    }
+
+    .card .tag.dark {
+      background: #0f172a;
+      border-color: #0f172a;
+      color: #fff;
+    }
+
+    .card h3 {
+      font-size: 72px;
+      line-height: 1.18;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      word-break: keep-all;
+    }
+
+    .card h3 em {
+      font-style: normal;
+      color: var(--blue);
+    }
+
+    .card p.desc {
+      margin-top: 14px;
+      font-size: 34px;
+      line-height: 1.44;
+      color: #334155;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+
+    .card:has(.real-shot) h3,
+    .card:has(.cheat-grid) h3,
+    .card:has(.box) h3 {
+      font-size: 58px;
+      line-height: 1.18;
+    }
+
+    .card:has(.real-shot) p.desc,
+    .card:has(.cheat-grid) p.desc,
+    .card:has(.box) p.desc {
+      font-size: 28px;
+      line-height: 1.42;
+      margin-top: 10px;
+    }
+
+    .card:has(.real-shot) .tag,
+    .card:has(.cheat-grid) .tag,
+    .card:has(.box) .tag {
+      margin-bottom: 12px;
+      font-size: 24px;
+      padding: 8px 20px;
+    }
+
+    /* 2열 단어 끊김 방지를 위한 세로 풀폭 스택 */
+    .card .box {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card .mini {
+      border: 2px solid var(--line);
+      border-radius: 22px;
+      padding: 18px 24px;
+      font-size: 27px;
+      line-height: 1.42;
+      color: #1e293b;
+      background: #fff;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+
+    .card .mini b {
+      display: block;
+      font-size: 26px;
+      color: var(--sub);
+      margin-bottom: 8px;
+      font-weight: 900;
+    }
+
+    .card .mini.hl {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      color: var(--ink);
+    }
+
+    .card .mini.hl b {
+      color: var(--blue);
+    }
+
+    .card .mini .add {
+      background: var(--amber-soft);
+      border: 1px solid var(--amber-line);
+      color: #92400e;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-weight: 800;
+    }
+
+    /* 실사 스크린샷 + 2배 확대 콜아웃 프레임 */
+    .real-shot {
+      margin-top: 16px;
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: 0 14px 36px rgba(15, 23, 42, .08);
+      overflow: hidden;
+    }
+
+    .zoom-callout {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 16px;
+      padding: 14px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid #3b82f6;
+    }
+
+    .zoom-callout-badge {
+      background: #2563eb;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      padding: 6px 14px;
+      border-radius: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .zoom-callout-text {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #f8fafc;
+      word-break: keep-all;
+    }
+
+    .real-shot img {
+      display: block;
+      width: 100%;
+      max-height: 520px;
+      object-fit: cover;
+      object-position: top center;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+    }
+
+    .card:has(.benefit-strip) .real-shot img,
+    .card:has(.foot-last) .real-shot img {
+      max-height: 415px;
+    }
+
+    .real-shot-cap {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 6px;
+      font-size: 23px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .real-shot-cap span.pill {
+      color: var(--blue);
+      background: var(--blue-soft);
+      border: 1px solid var(--blue-line);
+      padding: 5px 14px;
+      border-radius: 10px;
+      font-size: 21px;
+      white-space: nowrap;
+    }
+
+    /* 저장용 치트시트 그리드 */
+    .cheat-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .cheat-card {
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 22px;
+      padding: 20px 22px;
+    }
+
+    .cheat-card.accent {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+
+    .cheat-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .cheat-head span {
+      font-size: 21px;
+      font-weight: 900;
+      color: var(--blue);
+      background: #fff;
+      border: 2px solid var(--blue-line);
+      padding: 4px 12px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .cheat-kw {
+      font-size: 25px;
+      font-weight: 800;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 13px 16px;
+      margin-bottom: 10px;
+      line-height: 1.4;
+      word-break: keep-all;
+    }
+
+    .cheat-out {
+      font-size: 24px;
+      font-weight: 700;
+      color: #334155;
+      line-height: 1.42;
+      word-break: keep-all;
+    }
+
+    .cheat-out strong {
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .benefit-strip {
+      margin-top: 16px;
+      background: #0f172a;
+      border-radius: 20px;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+    }
+
+    .benefit-strip .b-title {
+      font-size: 29px;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .benefit-strip .b-sub {
+      font-size: 23px;
+      font-weight: 700;
+      color: #93c5fd;
+      margin-top: 4px;
+    }
+
+    .benefit-pill {
+      background: var(--blue);
+      color: #fff;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 12px 22px;
+      border-radius: 14px;
+      white-space: nowrap;
+    }
+
+    .card .foot-last {
+      font-size: 24px;
+      font-weight: 700;
+      background: #f8fafc;
+      border: 2px solid var(--line);
+      border-radius: 18px;
+      padding: 15px 22px;
+      line-height: 1.42;
+      color: #1e293b;
+      margin-top: 14px;
+      word-break: keep-all;
+    }
+
+    .card .card-foot-notice {
+      margin-top: auto;
+      font-size: 21px;
+      color: #64748b;
+      line-height: 1.42;
+      border-top: 2px solid var(--line);
+      padding-top: 14px;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="brand-wrap">
+    <div class="logo">4THEPT</div>
+    <span class="badge-top">실사 화면 탑재 · 4:5 18종 카드뉴스 키트</span>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-t="CHEAT_SHEET">저장 유도 치트시트 (5장)</button>
+    <button class="tab" data-t="REAL_SCREEN">실제 화면 비포/애프터 (5장)</button>
+    <button class="tab" data-t="KAKAO_POSTER">카톡 1장 요약 포스터 (3장)</button>
+    <button class="tab" data-t="CENTER_PACK">트레이너·PT센터 전용 키트 (5장)</button>
+    <a href="promo_master_hub.html" class="tab" style="background:#0f172a;color:#fff;border-color:#0f172a;">올인원 홍보 마스터 허브 ➔</a>
+  </div>
+  <button class="btn primary" id="dlAll">현재 테마 전체 PNG 저장</button>
+</header>
+
+  <main>
+    <section class="copy-panel">
+      <div class="panel-head">
+        <div>
+          <h2>무반응 돌파용 원클릭 복붙 문구집 (정보글 위장 · 저장 유도형)</h2>
+          <p>노골적인 광고 문구 대신 "실무 기록지 예시 / 치트시트 공유" 문구와 실제 작동 화면을 함께 올리세요.</p>
+        </div>
+      </div>
+      <div class="copy-grid" id="copyGrid"></div>
+    </section>
+
+    <div class="theme-head">
+      <div>
+        <h2 id="th"></h2>
+        <p id="tp"></p>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <script>
+    const URL_SITE = 'https://www.4thept.com/intro';
+
+    const COPY_TEMPLATES = [
+      {
+        id: 'cafe_cheatsheet',
+        tag: '네이버 카페 · 블로그 정보 공유형 (추천 1순위)',
+        title: '광고 거부감 0% 실무 치트시트 공유 글',
+        text: `[도수·운동치료 EMR 기록지 자주 쓰는 부위별 예시 4종 정리해 뒀습니다]
+신규 환자나 바쁜 날 퇴근 전에 SOAP 차트 문장 다듬느라 30~40분씩 걸리길래, 제가 자주 쓰는 발목·경추·요추·회전근개 4부위 5단락 양식을 저장용으로 묶어 봤습니다.
+
+1) 발목·족부 : 부종 감소, plantar flexion 30도, 발꿈치들기 운동, NRS 5->2
+2) 경추·어깨 : 승모근·견갑거근 단축, 회전 ROM 제한, 후두하근 이완, NRS 6->3
+3) 요추·골반 : L4-5 기립근 과긴장, 장요근 이완·코어 안정화, NRS 5->2
+4) 회전근개 : rt sh flex 120도 제한, Neer (+), 극상근 이완, NRS 5->3
+
+매번 문장 치기 귀찮을 때는 아래 링크에서 키워드 1줄만 직접 수정해서 5초 만에 표준 EMR 양식 [초안]으로 변환해 복붙 쓰고 있습니다. 로그인 없이 바로 타이핑 테스트도 되니 저장해두고 써보세요.
+
+실제 테스트해 보기: ${URL_SITE}`
+      },
+      {
+        id: 'kakao_colleague',
+        tag: '카톡 · 병원 치료실 동료 단톡방 추천형',
+        title: '친근한 실무 팁 공유용',
+        text: `선생님들 오늘 도수 차팅 밀리셨으면 이거 한 번 직접 쳐보세요.
+발목/어깨/허리 메모하듯 단어 5개(예: 오른쪽 발 통증, 발꿈치들기, plantar flexion 30도, NRS 5->2)만 적으면 5초 만에 병원 EMR 복붙용 치료기록지 [초안] 형식으로 정리됩니다.
+
+- 로그인 없이 링크에서 바로 내 환자 키워드 직접 수정 체험 가능
+- 구글 로그인 후 매월 120건(120분) 무료 · THEPT 회원은 월 300건 무료
+- 10초 직접 검수 후 [EMR 양식 복사] 클릭하면 바로 복붙 완료
+
+무료 체험 페이지: ${URL_SITE}`
+      },
+      {
+        id: 'kakao_openchat',
+        tag: '오픈채팅방 · Q&A형 자연스러운 노출',
+        title: '질문·답변 맥락용 정보 공유',
+        text: `퇴근 전 EMR 도수 기록지 문장 반복 타이핑 줄이실 분들은 4THEPT 무료 티어(월 120건) 한 번 테스트해 보세요.
+임의로 진단명을 지어내는 게 아니라, 치료사가 적은 키워드·수치(NRS, ROM, 중재 내용)만 병원 표준 5단락(환자정보/평가소견/중재/전후비교/종합소견) [초안]으로 정리해 줍니다.
+
+소개 페이지에서 로그인 없이 직접 키워드 고쳐보면서 결과 복사까지 테스트해 볼 수 있습니다: ${URL_SITE}`
+      },
+      {
+        id: 'insta_save_caption',
+        tag: '인스타그램 · 저장/공유 유도형 캡션',
+        title: '치트시트 5장 피드 업로드용 캡션',
+        text: `퇴근 전 EMR 차팅 쓸 때 복사해두고 쓰세요 (일단 저장 필수)
+
+도수·운동치료 12명 보고 나면 아까 3시 환자분 ROM 몇 도였는지, 중재 문장 어떻게 정리할지 기억 더듬느라 야근하는 날이 많죠.
+자주 쓰는 4부위(발목·경추·요추·어깨) 키워드 ➔ 표준 5단락 EMR [초안] 예시를 한 번에 정리했습니다.
+
+이 양식 매번 타이핑할 필요 없이
+프로필 링크(${URL_SITE})에서 로그인 없이 키워드 1줄만 직접 입력해 보세요.
+5초 만에 병원 EMR 복붙용 [초안]이 나옵니다. (매월 120건 무료 · THEPT 회원 월 300건 무료)
+
+* AI 생성 결과([초안])는 기록 작성 보조용이며, 반드시 담당 치료사 본인의 직접 검수·수정 후 사용해야 합니다.
+
+#물리치료사 #도수치료 #치료기록지 #도수치료기록지 #SOAP차트 #EMR차팅 #정형외과물리치료 #물리치료실 #칼퇴필수 #4THEPT`
+      }
+    ];
+
+    const FOOT_NOTICE = '<strong>4THEPT</strong> · [기록 보조 안내] AI 생성 결과는 [초안]이며, 반드시 담당 치료사 본인의 [직접 검수] 후 사용해야 합니다.';
+    const FOOT_NOTICE_CENTER = '<strong>4THEPT</strong> · [기록 보조 안내] AI 생성 결과는 세션 기록 작성을 돕는 [초안]이며, 최종 상태 평가 및 운동 지도는 담당 전문가 본인의 [직접 검수] 후 활용합니다.';
+
+    const BENEFIT_HTML =
+      '<div class="benefit-strip">'
+      + '<div><div class="b-title">매월 120건(120분) 무료 · THEPT 회원 월 300건 무료</div>'
+      + '<div class="b-sub">로그인 없이 키워드 직접 입력 체험 가능 · 1건 = 1분 차감 기준</div></div>'
+      + '<div class="benefit-pill">www.4thept.com/intro</div>'
+      + '</div>';
+
+    function realShot(file, capTitle, pillText, calloutLabel, calloutText) {
+      const calloutHtml = calloutText
+        ? '<div class="zoom-callout"><span class="zoom-callout-badge">'
+          + (calloutLabel || '2배 확대 핵심')
+          + '</span><span class="zoom-callout-text">'
+          + calloutText
+          + '</span></div>'
+        : '';
+      return '<div class="real-shot">'
+        + calloutHtml
+        + '<img src="./real_assets/' + file + '" alt="' + capTitle + '">'
+        + '<div class="real-shot-cap"><span>' + capTitle + '</span><span class="pill">' + pillText + '</span></div>'
+        + '</div>';
+    }
+
+    const THEMES = {
+      CHEAT_SHEET: {
+        title: '테마 1 | 인스타·카페 "저장/북마크 유도형" 실무 SOAP 차트 치트시트 (5장)',
+        sub: '1~3장은 100% 실무 정보로 거부감을 없애고, 4~5장에서 실제 4THEPT 변환 화면으로 자연스럽게 전환하는 고효율 구성입니다.',
+        cards: [
+          {
+            tag: '실무 저장용 · 도수/운동치료 EMR 치트시트',
+            tagClass: 'dark',
+            h: '바쁜 치료실 필수 저장,<br><em>부위별 SOAP 차트</em> 1분 총정리',
+            d: '퇴근 전 문장 다듬느라 야근하지 마세요. 가장 자주 쓰는 4부위 핵심 키워드와 표준 5단락 포맷을 모았습니다.',
+            html: '<div class="cheat-grid">'
+              + '<div class="cheat-card"><div class="cheat-head">발목·족부 재활<span>NRS 5 ➔ 2</span></div><div class="cheat-kw">오른쪽 발 통증, 부종 감소, 발꿈치들기 운동, plantar flexion 30도</div><div class="cheat-out"><strong>중재:</strong> 근력강화운동, 스트레칭 · ROM 변화 명시</div></div>'
+              + '<div class="cheat-card"><div class="cheat-head">경추·어깨 도수<span>NRS 6 ➔ 3</span></div><div class="cheat-kw">우측 승모근·견갑거근 단축, 경추 회전 제한, 후두하근 이완·흉추 가동</div><div class="cheat-out"><strong>중재:</strong> 연부조직가동술, 관절가동술 · Chin-tuck 지도</div></div>'
+              + '<div class="cheat-card"><div class="cheat-head">요추·골반 통증<span>NRS 5 ➔ 2</span></div><div class="cheat-kw">L4-5 기립근 과긴장, 전굴 방사통 경미, 장요근 이완·코어 안정화</div><div class="cheat-out"><strong>중재:</strong> 근막이완술, 안정화 운동 · 좌식 교정 권고</div></div>'
+              + '<div class="cheat-card accent"><div class="cheat-head">회전근개·관절가동<span>NRS 5 ➔ 3</span></div><div class="cheat-kw">rt sh flex 120도 제한, Neer (+), 극상근·삼각근 이완, 견갑 안정화</div><div class="cheat-out"><strong>중재:</strong> 연부조직가동술, 운동치료 · 탄력밴드 교육</div></div>'
+              + '</div>'
+          },
+          {
+            tag: '저장용 예시 1·2 · 상지·경추',
+            h: '경추·어깨 도수 &amp; 회전근개<br><em>EMR 표준 5단락</em> 예시',
+            d: '약어와 수치(ROM, 특수검사, NRS)만 빠짐없이 기록하면 깔끔한 경과기록이 완성됩니다.',
+            box: [
+              ['CASE 01 · 경추·어깨 도수', '<strong>1. 진단평가:</strong> 우측 경견부 근막통증 및 가동성 제한<br><strong>2. 평가소견:</strong> 우측 상부 승모근·견갑거근 단축, 경추 좌회전 ROM 제한<br><strong>3. 중재:</strong> 연부조직가동술, 관절가동술 (후두하근·흉추 가동)<br><strong>4. 전·후 평가:</strong> NRS 6 ➔ 3 / 경추 회전 개선<br><strong>5. 종합소견:</strong> 자가 Chin-tuck 운동 처방'],
+              ['CASE 02 · 회전근개·관절가동', '<strong>1. 진단평가:</strong> 우측 견관절 가동성 제한 및 충돌 징후<br><strong>2. 평가소견:</strong> 굴곡(Flexion) 120도 제한, Neer 검사 (+)<br><strong>3. 중재:</strong> 연부조직가동술, 운동치료 (극상근 이완·견갑골 안정화)<br><strong>4. 전·후 평가:</strong> NRS 5 ➔ 3 / 거상 시 찝힘감 완화<br><strong>5. 종합소견:</strong> 탄력밴드 외회전 교육 및 유지']
+            ]
+          },
+          {
+            tag: '저장용 예시 3·4 · 하지·요추',
+            h: '요추 통증 &amp; 발목 재활<br><em>EMR 표준 5단락</em> 예시',
+            d: '환자 정보, 시행시간, 누적횟수부터 중재 세부 내용까지 빠진 항목 없이 정리하는 기준입니다.',
+            box: [
+              ['CASE 03 · 요추·골반 통증', '<strong>1. 진단평가:</strong> 요추부(L4-5) 근육 과긴장 및 전굴 제한<br><strong>2. 평가소견:</strong> L4-5 기립근 압통·과긴장, 전굴 시 하지 당김<br><strong>3. 중재:</strong> 근막이완술, 안정화 운동 (장요근 이완·복횡근 코어)<br><strong>4. 전·후 평가:</strong> NRS 5 ➔ 2 / 체간 전굴 시 묵직함 감소<br><strong>5. 종합소견:</strong> 좌식 자세 교정 및 복압 유지 교육'],
+              ['CASE 04 · 발목·족부 재활', '<strong>1. 진단평가:</strong> 오른쪽 발 통증 (5회차 · 60분)<br><strong>2. 평가소견:</strong> 부종 감소에 따른 통증 완화, 지속 지도 필요<br><strong>3. 중재:</strong> 근력강화운동, 스트레칭 (세부: 발꿈치들기 운동)<br><strong>4. 전·후 평가:</strong> NRS 5 ➔ 2 / 발목 plantar flexion 30도<br><strong>5. 종합소견:</strong> 통증 완화 확인 및 지속 운동 치료']
+            ]
+          },
+          {
+            tag: '실제 작동 화면 · 타이핑 불필요',
+            tagClass: 'green',
+            h: '이 양식, 매번 직접 치지 마세요<br><em>키워드 1줄</em>이면 5초 만에 [초안] 완성',
+            d: '4THEPT 소개 페이지에서 로그인 없이 직접 키워드를 입력해 상세 치료기록지 변환 결과를 체험할 수 있습니다.',
+            html: realShot(
+              'shot_2_output_zoom.png',
+              '우측 결과 패널 2배 확대: EMR 표준 5단락 치료기록 [초안]',
+              '실제 작동 캡처',
+              '5초 자동 정렬',
+              '1. 진단평가 · 2. 평가소견 · 3. 중재 · 4. 전·후 NRS · 5. 종합소견'
+            )
+          },
+          {
+            tag: '지금 바로 무료 테스트',
+            tagClass: 'green',
+            h: '10초 직접 검수 후 <em>[EMR 양식 복사]</em>,<br>월 120건 무료로 시작하세요',
+            d: '복사 버튼 클릭 한 번으로 병원 EMR에 바로 붙여넣고, 매월 120건(THEPT 회원 300건) 무료 혜택을 받으세요.',
+            html: realShot(
+              'shot_4_copied_zoom.png',
+              '상단 [복사 완료] 클릭 직후 화면',
+              '복사 완료 상태',
+              '원클릭 클립보드',
+              '담당 치료사 10초 직접 검수 후 EMR 차트에 바로 붙여넣기'
+            ),
+            benefit: true
+          }
+        ]
+      },
+
+      REAL_SCREEN: {
+        title: '테마 2 | 실제 화면 비포/애프터 직관 비교형 (5장)',
+        sub: '가짜 그래픽이 아닌 실제 서비스 화면 4장을 순서대로 배치해 신뢰도와 클릭률을 극대화합니다.',
+        cards: [
+          {
+            tag: '병원 물리치료사 야근 원인',
+            h: '오늘 도수 12명 뛰고,<br><em>차팅만 40분째</em> 남아계신가요?',
+            d: '기억 더듬으며 똑같은 서술 문장 반복 타이핑하던 시간, 이제 치료 직후 5초 메모로 끝내세요.',
+            benefit: true
+          },
+          {
+            tag: 'STEP 01 · 실제 입력 화면',
+            h: '문장 말고 단어 몇 개만<br><em>1줄 키워드 창</em>에 적으세요',
+            d: '실제 /intro 체험 화면에서 내 환자 키워드를 직접 수정해 어떻게 변환되는지 바로 확인해 보세요.',
+            html: realShot(
+              'shot_2_input_zoom.png',
+              '좌측 입력 패널 2배 확대 · 310구역 바디차트 + 키워드 1줄',
+              '실제 화면 #1',
+              '치료 직후 5초 입력',
+              '우측 발목·아킬레스건 터치 + plantar flexion 30도, NRS 5->2'
+            )
+          },
+          {
+            tag: 'STEP 02 · 부위별 즉시 구조화',
+            h: '경추·요추·어깨·발목 모두<br><em>EMR 표준 5단락</em>으로 5초 정렬',
+            d: 'AI가 임의로 질환명을 지어내지 않고, 치료사가 입력한 약어·ROM·NRS 수치만 정확히 구조화합니다.',
+            html: realShot(
+              'shot_3_output_zoom.png',
+              '회전근개·관절가동(rt sh flex 120도, Neer+) 출력 패널 확대',
+              '실제 화면 #2',
+              '임의 창작 0%',
+              '치료사가 적은 굴곡 120도 · Neer (+) · NRS 5->3 수치만 정확히 정리'
+            )
+          },
+          {
+            tag: 'STEP 03 · 10초 검수 후 원클릭 복사',
+            tagClass: 'green',
+            h: '선생님이 10초 검수하고<br><em>[EMR 양식 복사]</em> 누르면 칼퇴!',
+            d: '환자 정보, 시행시간, 누적횟수, 전후 NRS까지 빠짐없이 클립보드에 복사되어 EMR에 쏙 들어갑니다.',
+            html: realShot(
+              'shot_4_copied_zoom.png',
+              '우측 결과 복사 완료 상태 2배 확대',
+              '실제 화면 #3',
+              '복사 1초 완료',
+              '시행일자·누적횟수·전후 비교까지 표준 포맷으로 즉시 복사'
+            )
+          },
+          {
+            tag: '설치 없음 · 구글 1클릭 시작',
+            h: '앱 설치 없이 웹에서 바로,<br><em>월 120건 · THEPT 300건 무료</em>',
+            d: '구글 1클릭 로그인 후 혼자 쓸 땐 1인 스케줄 개설, 동료와는 6자리 코드로 즉시 공유할 수 있습니다.',
+            html: realShot(
+              'shot_5_login_zoom.png',
+              '4THEPT 구글 1클릭 로그인 게이트웨이 확대',
+              '실제 화면 #4',
+              '1인 · 팀 공유',
+              '1인 치료실 바로 개설 또는 관리자 6자리 코드로 팀 합류'
+            ),
+            lastNotice: '초진 평가가 긴 날엔 음성 녹음 파일을 업로드해 [치료사]/[환자] 화자 분리 초안도 생성할 수 있습니다.'
+          }
+        ]
+      },
+
+      KAKAO_POSTER: {
+        title: '테마 3 | 카카오톡 단톡방·오픈채팅 1장 요약 실사 포스터 (3장)',
+        sub: '단톡방에 이미지 1장만 공유해도 실제 동작 화면과 무료 혜택을 한눈에 전달합니다.',
+        cards: [
+          {
+            tag: '단톡방 공유 1장 요약',
+            tagClass: 'green',
+            h: '단어 5개만 적으면 <em>5초 만에</em><br>EMR 복붙 치료기록지 [초안]',
+            d: '실제 작동 화면으로 확인하세요. 로그인 없이 내 환자 메모를 직접 입력해 볼 수 있습니다.',
+            html: realShot(
+              'shot_2_output_zoom.png',
+              '우측 5단락 치료기록 결과 패널 확대',
+              '5초 변환',
+              '단어 5개 ➔ 5단락',
+              '환자명·시행시간·평가소견·중재·전후 NRS 자동 정리'
+            ),
+            benefit: true
+          },
+          {
+            tag: '차팅 소요 시간 비교',
+            h: '오늘 환자 12명 차팅,<br><em>40분 야근 vs 3분 칼퇴</em>',
+            d: '치료 직후 5초 키워드 메모 + [EMR 양식 복사]로 퇴근 전 밀린 차팅 스트레스를 없애세요.',
+            html: realShot(
+              'shot_4_copied_zoom.png',
+              'EMR 양식 복사 완료 패널 확대',
+              '10초 검수 후 복사',
+              '복사 완료 1초',
+              '담당 치료사 검수 직후 병원 EMR 차트에 그대로 붙여넣기'
+            ),
+            benefit: true
+          },
+          {
+            tag: '월 120건 · THEPT 300건 무료',
+            tagClass: 'dark',
+            h: '지어내지 않고 정리하는 AI,<br><em>매월 무료</em>로 먼저 써보세요',
+            d: '별도 카드 등록 없이 매월 120건(THEPT 회원 300건) 무료 제공. 매월 1일 자동 초기화됩니다.',
+            html: realShot(
+              'shot_6_benefit_zoom.png',
+              '무료 혜택 카드 2배 확대 화면',
+              'www.4thept.com/intro',
+              '매월 자동 초기화',
+              '기본 월 120건(120분) · THEPT 교육 회원 월 300건 무료'
+            )
+          }
+        ]
+      },
+
+  CENTER_PACK: {
+    title: '테마 4 | 비의료 운동·트레이닝·PT 센터 관리자 저장 키트 (5장)',
+    sub: '센터·고객·전문가·트레이너·세션·이용권 표준 용어만 사용하며, 기간 연기·양도 약관 및 5초 세션기록지 루틴을 담았습니다.',
+    cards: [
+      {
+        tag: '트레이닝·PT 센터 관리자 저장 필수',
+        tagClass: 'dark',
+        h: '이용권 <em>기간 연기·양도</em> 분쟁,<br>구두 안내 대신 딱 3가지 기준',
+        d: '당일 연기 요청과 양도 수수료 갈등, 시작할 때 명확한 기준이 없으면 매달 반복됩니다.',
+        box: [
+          ['많이 겪는 분쟁 사례', '당일 갑작스러운 연기 요구 · 지인 양도 시 초기평가 비용 마찰 · 종이 약관 분실로 인한 회차 분쟁'],
+          ['해결 핵심 (80% 정보 저장)', '기간 연기 횟수/누적 일수 상한 명시 + 양도 시 [명의변경 및 초기평가 수수료] 규정 + 태블릿 전자서명 보관']
+        ]
+      },
+      {
+        tag: '실무 저장 · 이용권 표준 약관 3대 기준',
+        h: '분쟁 없이 운영하는 센터의<br><em>기간 연기 · 양도</em> 기준표',
+        d: '초기 상담 시 아래 3줄을 전자서명으로 안내해 두면 불필요한 감정 소모가 사라집니다.',
+        html: '<div class="cheat-grid">'
+          + '<div class="cheat-card accent"><div class="cheat-head">기간 연기 신청 기한<span>당일 신청 허용</span></div><div class="cheat-kw">세션 시작 전 요청 시 무단 불참 회차 차감 없이 깔끔하게 기간 연기 처리</div><div class="cheat-out"><strong>핵심:</strong> 사전 기준 고지로 고객 신뢰 확보</div></div>'
+          + '<div class="cheat-card"><div class="cheat-head">기간 연기 한도<span>10회당 최대 2회</span></div><div class="cheat-kw">이용권 10회당 최대 2회 신청 가능 · 전체 누적 최대 30일 이내 제한</div><div class="cheat-out"><strong>핵심:</strong> 장기 방치 방지 · 스케줄 예측 가능</div></div>'
+          + '<div class="cheat-card"><div class="cheat-head">이용권 양도 기준<span>자유 양도 + 수수료</span></div><div class="cheat-kw">양도는 자유롭게 허용하되 [명의변경 및 초기평가 수수료] (정상 1회권 상당) 부과</div><div class="cheat-out"><strong>핵심:</strong> 신규 양수 고객 초기 체형평가 비용 보전</div></div>'
+          + '<div class="cheat-card"><div class="cheat-head">약관 보관 방식<span>모바일·태블릿 서명</span></div><div class="cheat-kw">종이 출력·스캔 없이 고객 스마트폰 또는 태블릿 전자서명으로 당일 약관 즉시 저장</div><div class="cheat-out"><strong>핵심:</strong> 서류 분실 0건 · 이력 영구 보관</div></div>'
+          + '</div>'
+      },
+      {
+        tag: '수업 직후 5초 습관 · 세션기록지',
+        h: '카톡 · 엑셀 · 세션노트 대신<br><em>키워드 1줄</em>이면 5초 정리',
+        d: '고객 세션 후 짧은 메모 1줄만 남겨두면 5단락 표준 세션기록지 [초안]이 바로 정리됩니다.',
+        box: [
+          ['수업 직후 5초 메모 (예시)', '우측 어깨 가동성 개선, 견갑 안정화 밴드 지도, 불편감 NRS 5->2, 4면 바디차트 우측 어깨 체크'],
+          ['5초 자동 정리 결과 [초안]', '1. 고객 정보 및 상태평가<br>2. 평가소견 (긴장·동작 제한)<br>3. 중재 프로그램 &amp; 맞춤 운동 지도<br>4. 세션 전·후 변화 (NRS 5➔2)<br>5. 종합 세션 소견 &amp; 홈 운동']
+        ]
+      },
+      {
+        tag: '310구역 4면 바디차트 · 팀 스케줄 공유',
+        h: '바디차트 터치부터 <em>6자리 팀 공유</em>까지<br>센터 내부 모드 하나로',
+        d: '1인 PT샵은 단독 개설로, 다점포·팀 센터는 관리자 6자리 코드 합류로 이용권·세션을 함께 관리합니다.',
+        html: '<div class="cheat-grid">'
+          + '<div class="cheat-card accent"><div class="cheat-head">4면 310구역 바디차트<span>AI 연동</span></div><div class="cheat-kw">앞·뒤·좌·우 4면 부위를 터치하면 세션기록지 AI 입력값으로 즉시 반영</div><div class="cheat-out"><strong>효과:</strong> 회차별 변화 한눈에 추적</div></div>'
+          + '<div class="cheat-card"><div class="cheat-head">이용권 · 기간 연기 자동화<span>10회당 2회/30일</span></div><div class="cheat-kw">잔여 회차 차감, 당일 기간 연기 등록, 만료 임박 고객 목록을 대시보드에서 바로 확인</div><div class="cheat-out"><strong>효과:</strong> 엑셀 수기 대조 시간 단축</div></div>'
+          + '</div>'
+      },
+      {
+        tag: '센터 내부 모드 지원 · 로그인 없이 체험',
+        tagClass: 'green',
+        h: '지금 프로필 링크에서 <em>5초 무료 체험</em><br>바로 시작해 보세요',
+        d: '매월 120건(THEPT 회원 월 300건) 무료 제공. 로그인 후 내부 설정에서 센터용 용어로 전환할 수 있습니다.',
+        box: [
+          ['팀 센터 6자리 코드 합류', '구글 1클릭 로그인 직후 1인 개설 또는 관리자 6자리 코드 입력만으로 전문가별 스케줄과 이용권을 즉시 공유합니다.'],
+          ['비의료 보조 [초안] &amp; 검수 원칙', 'AI가 임의로 추측하지 않고 전문가가 입력한 키워드와 발화 사실만 정리하며, 담당 전문가 검수 후 활용합니다.']
+        ],
+        benefit: true
+      }
+    ]
+  }
+};
+
+    let cur = 'CHEAT_SHEET';
+
+    function renderCopyCards() {
+      const grid = document.getElementById('copyGrid');
+      grid.innerHTML = '';
+      COPY_TEMPLATES.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'copy-card';
+        el.innerHTML = `
+      <div>
+        <div class="copy-card-top">
+          <span class="copy-tag">${item.tag}</span>
+          <button type="button" class="btn" data-copy-id="${item.id}" style="padding:5px 10px; font-size:11px;">문구 복사</button>
+        </div>
+        <div style="font-size:13px; font-weight:800; color:var(--ink); margin:8px 0 6px;">${item.title}</div>
+        <div class="copy-preview">${item.text}</div>
+      </div>
+    `;
+        grid.appendChild(el);
+      });
+
+      grid.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-copy-id]');
+        if (!btn) return;
+        const item = COPY_TEMPLATES.find((x) => x.id === btn.dataset.copyId);
+        if (!item) return;
+        try {
+          await navigator.clipboard.writeText(item.text);
+          const orig = btn.textContent;
+          btn.textContent = '복사 완료';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove('copied');
+          }, 2200);
+        } catch {
+          alert('복사에 실패했습니다. 미리보기 박스에서 직접 복사해 주세요.');
+        }
+      });
+    }
+
+    function cardHtml(c, i, n, themeKey) {
+      const activeTheme = themeKey || cur;
+      const footNotice = activeTheme === 'CENTER_PACK' ? FOOT_NOTICE_CENTER : FOOT_NOTICE;
+      const bodyExtra = c.html
+        ? c.html
+        : c.box
+          ? '<div class="box">' + c.box.map((b, k) => '<div class="mini' + (k ? ' hl' : '') + '"><b>' + b[0] + '</b>' + b[1] + '</div>').join('') + '</div>'
+          : '';
+      const benefit = c.benefit ? BENEFIT_HTML : '';
+      const extra = c.lastNotice ? '<div class="foot-last">' + c.lastNotice + '</div>' : '';
+      const tagCls = c.tagClass ? 'tag ' + c.tagClass : 'tag';
+
+      return '<div class="card">'
+        + '<div class="top"><span class="lg">4THEPT</span><span>' + (i + 1) + ' / ' + n + '</span></div>'
+        + '<div class="body"><span class="' + tagCls + '">' + c.tag + '</span><h3>' + c.h + '</h3><p class="desc">' + c.d + '</p>' + bodyExtra + benefit + extra + '</div>'
+        + '<div class="card-foot-notice">' + footNotice + '</div>'
+        + '</div>';
+    }
+
+    function render() {
+      const T = THEMES[cur];
+      document.getElementById('th').textContent = T.title;
+      document.getElementById('tp').textContent = T.sub;
+      const g = document.getElementById('grid');
+      g.innerHTML = '';
+      T.cards.forEach((c, i) => {
+        const s = document.createElement('div');
+        s.className = 'slot';
+        s.innerHTML = '<div class="view">' + cardHtml(c, i, T.cards.length, cur) + '</div>'
+          + '<div class="bar"><span>카드 ' + (i + 1) + '</span><button class="btn" data-i="' + i + '">PNG 저장 (1080x1350)</button></div>';
+        g.appendChild(s);
+      });
+      fit();
+    }
+
+    function fit() {
+      document.querySelectorAll('.view').forEach((v) => {
+        const k = v.clientWidth / 1080;
+        v.querySelector('.card').style.transform = 'scale(' + k + ')';
+      });
+    }
+
+    async function save(i) {
+      if (document.fonts && document.fonts.ready) {
+        await document.fonts.ready;
+      }
+      const T = THEMES[cur];
+      const tmp = document.createElement('div');
+      tmp.style.cssText = 'position:fixed; left:-9999px; top:0;';
+      tmp.innerHTML = cardHtml(T.cards[i], i, T.cards.length, cur);
+      document.body.appendChild(tmp);
+      const imgs = Array.from(tmp.querySelectorAll('img'));
+      await Promise.all(imgs.map((img) => img.complete ? Promise.resolve() : new Promise((res) => { img.onload = res; img.onerror = res; })));
+      const cv = await html2canvas(tmp.firstChild, { scale: 1, backgroundColor: '#ffffff', useCORS: location.protocol.startsWith('http') });
+      const a = document.createElement('a');
+      a.download = '4thept_pt_' + cur.toLowerCase() + '_' + (i + 1) + '.png';
+      a.href = cv.toDataURL('image/png');
+      a.click();
+      tmp.remove();
+    }
+
+    document.getElementById('grid').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-i]');
+      if (b) save(+b.dataset.i);
+    });
+
+    document.getElementById('dlAll').onclick = async () => {
+      for (let i = 0; i < THEMES[cur].cards.length; i++) {
+        await save(i);
+        await new Promise((r) => setTimeout(r, 320));
+      }
+    };
+
+    document.querySelectorAll('.tab[data-t]').forEach((t) => {
+      t.onclick = () => {
+        document.querySelectorAll('.tab[data-t]').forEach((x) => x.classList.remove('on'));
+        t.classList.add('on');
+        cur = t.dataset.t;
+        render();
+      };
+    });
+
+    window.addEventListener('resize', fit);
+    renderCopyCards();
+    render();
+  </script>
+</body>
+
+</html>

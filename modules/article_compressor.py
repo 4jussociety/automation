@@ -341,6 +341,8 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
             and len(llm_result["bullets"]) == 3
             and llm_result.get("headline")
         ):
+            llm_result.setdefault("opening_hook", "")
+            llm_result.setdefault("comment_question", "")
             if is_global and not llm_result.get("story_summary"):
                 b = llm_result["bullets"]
                 hl = llm_result.get("highlight", "").replace("💡 포인트: ", "").strip()
@@ -351,7 +353,7 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
 
     title_raw = article.get("title", "")
     desc_raw = article.get("description", "")
-    body_raw = article.get("article_body", "")
+    body_raw = article.get("article_body") or article.get("body_text", "")
     
     # 외신 또는 영문 기사 감지 시 한국어로 1차 번역
     if is_global or is_english_text(title_raw):
@@ -472,7 +474,7 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
     # 7. 하이라이트 문장 결정
     highlight = theme_highlight_map.get(theme, theme_highlight_map["general_clinical"])
 
-    # 8. 쇼츠 나레이션용 본문 요약 (충실한 3문장 브리핑)
+    # 8. 쇼츠 나레이션용 본문 요약 (60초 이내 고속 브리핑용 2문장 압축: ~80~105자)
     spoken_fact_1 = to_spoken_polite(bullet_1)
     if not spoken_fact_1.endswith(('.', '!', '?')):
         spoken_fact_1 += '.'
@@ -481,11 +483,12 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
     if not spoken_fact_2.endswith(('.', '!', '?')):
         spoken_fact_2 += '.'
 
-    theme_impact = to_spoken_polite(theme_bullet_3_map.get(theme, "현장 치료사들의 지속적인 관심과 실천이 필요합니다."))
-    if not theme_impact.endswith(('.', '!', '?')):
-        theme_impact += '.'
+    narration_body = refine_text_for_tts(f"{spoken_fact_1} {spoken_fact_2}")
+    if len(narration_body) > 110:
+        narration_body = spoken_fact_1
 
-    narration_body = refine_text_for_tts(f"{spoken_fact_1} {spoken_fact_2} {theme_impact}")
+    opening_hook = refine_text_for_tts(f"{headline}, 현장 영향 지금 확인하세요.")
+    comment_question = "현장에서는 이 변화 어떻게 체감하시나요?"
 
     story_summary = ""
     if is_global:
@@ -494,9 +497,11 @@ def compress_article_content(article: dict, is_global: bool = False) -> dict:
 
     return {
         "headline": headline,
+        "opening_hook": opening_hook,
         "bullets": [bullet_1, bullet_2, bullet_3],
         "highlight": highlight,
         "narration_body": narration_body,
+        "comment_question": comment_question,
         "story_summary": story_summary
     }
 

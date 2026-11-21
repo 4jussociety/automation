@@ -22,26 +22,16 @@ from config import (
     TEMPLATE_4X5, TEMPLATE_9X16,
     CARD_WIDTH, CARD_HEIGHT,
     VIDEO_WIDTH, VIDEO_HEIGHT,
-    get_youtube_category_id
+    get_youtube_category_id,
+    build_4thept_promo_footer,
+    build_first_comment,
 )
 from modules.content_builder import build_daily_curated_package
 from modules.card_renderer import render_cards_to_images
 from modules.tts_synthesizer import synthesize_all_narration
 from modules.video_renderer import render_shorts_video
 from modules.article_image_fetcher import fetch_article_images
-
-# 공식 첫 댓글(고정 댓글) 템플릿
-FIRST_COMMENT_TEXT = (
-    "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
-    "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
-    "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
-    "👉 바로가기: https://4thept.com\n\n"
-    "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
-    "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
-    "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
-    "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
-    "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
-)
+from modules.marketing_compliance import check_package_compliance
 
 
 
@@ -181,7 +171,8 @@ async def run_curated_6days_pipeline(
                 articles=articles,
                 bg_dir=bg_dir,
                 article_photos=day_photos,
-                is_global=is_global
+                is_global=is_global,
+                day_slug=cat_key,
             )
             pkg["date_text"] = date_text
             pkg["target_date"] = day_date.strftime("%Y-%m-%d")
@@ -271,6 +262,17 @@ async def run_curated_6days_pipeline(
         s3 = sources[2] if len(sources) > 2 else {"title": "", "source": "", "link": ""}
 
         clean_title = f"{day_name} THEPT 물리치료 1분 브리핑 #Shorts"
+        yt_footer = build_4thept_promo_footer(
+            utm_source="yt",
+            utm_medium="shorts",
+            utm_campaign=f"weekly_briefing_{cat_key}",
+            include_disclaimer=True,
+        )
+        first_comment_text = build_first_comment(
+            utm_source="ig",
+            utm_medium="carousel",
+            utm_campaign=f"weekly_briefing_{cat_key}",
+        )
 
         if is_global:
             # 글로벌 기사 전용 유튜브 쇼츠 설명란: 상세 번역 브리핑 전문 수록
@@ -291,11 +293,7 @@ async def run_curated_6days_pipeline(
                 f"{articles_briefing_text}"
                 f"{t_outro} 아웃트로\n\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
-                f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
-                f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
-                f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
-                f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
+                f"{yt_footer}\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활 #해외물리치료\n"
             )
@@ -316,16 +314,28 @@ async def run_curated_6days_pipeline(
                 f"  🔗 원문 링크: {s3['link']}\n\n"
                 f"{t_outro} 아웃트로\n\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
-                f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
-                f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
-                f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
-                f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
+                f"{yt_footer}\n"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                 f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활\n"
             )
         (day_dir / "youtube_shorts_caption.txt").write_text(shorts_caption, encoding="utf-8")
-        (day_dir / "first_comment.txt").write_text(FIRST_COMMENT_TEXT, encoding="utf-8")
+        (day_dir / "first_comment.txt").write_text(first_comment_text, encoding="utf-8")
+
+        # 6.5. 마케팅 컴플라이언스 및 쇼츠 60초 규격 자동 검수
+        comp_res = check_package_compliance(
+            pkg,
+            ig_caption=pkg.get("caption", ""),
+            yt_caption=shorts_caption,
+            first_comment=first_comment_text,
+        )
+        if comp_res["errors"]:
+            for err in comp_res["errors"]:
+                print(f"  ❌ [컴플라이언스 위반] {err.scope}: {err.rule} ({err.excerpt})")
+        elif comp_res["warnings"]:
+            for w in comp_res["warnings"]:
+                print(f"  ⚠️ [품질 주의] {w.scope}: {w.rule}")
+        else:
+            print(f"  🛡️ [컴플라이언스 통과] 위반 0건 · 예상 길이 {comp_res['estimated_seconds']:.1f}초")
 
         # 7. 기사 출처 및 선택 이유 저장
         curation_notes = f"📌 [{day_name} 큐레이션 기사 및 선택 이유]\n\n"

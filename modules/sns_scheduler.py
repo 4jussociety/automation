@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+from urllib.parse import quote
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from config import BASE_DIR, GITHUB_REPO, GITHUB_BRANCH, PUBLISH_HOUR_KST
@@ -104,6 +105,7 @@ def get_schedule_for_day(
 def get_github_raw_url(local_path: Path) -> str:
     """
     로컬 파일의 경로를 GitHub 저장소 공개 Raw URL로 변환합니다.
+    한글 폴더명('결과물/THEPT뉴스', '결과물/4THEPT마케팅' 등)도 RFC 3986 퍼센트 인코딩으로 안전하게 처리합니다.
     (인스타그램 Graph API의 image_url / video_url 파라미터 요구조건 충족)
     """
     local_resolved = local_path.resolve()
@@ -114,7 +116,8 @@ def get_github_raw_url(local_path: Path) -> str:
     except ValueError:
         rel_path = local_path.name
 
-    return f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{rel_path}"
+    encoded_rel = quote(rel_path, safe="/")
+    return f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{encoded_rel}"
 
 
 def get_all_weekly_schedules(base_date: Optional[datetime] = None) -> dict:

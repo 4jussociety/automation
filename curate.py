@@ -20,7 +20,7 @@ if sys.platform == "win32":
 
 sys.path.append(str(Path(__file__).resolve().parent))
 
-from config import BASE_DIR, OUTPUT_DIR
+from config import BASE_DIR, OUTPUT_DIR, build_4thept_promo_footer, build_first_comment
 from modules.news_collector import collect_6categories_candidates, SIX_CATEGORIES
 from modules.curation_manager import (
     save_candidates_cache,
@@ -30,6 +30,7 @@ from modules.curation_manager import (
     parse_candidates_titles_markdown,
     generate_candidates_detail_markdown,
     parse_candidates_detail_markdown,
+    build_curation_history_records,
     append_to_curation_history,
     rebalance_selected_articles,
     CACHE_FILE,
@@ -40,7 +41,7 @@ from modules.article_image_fetcher import fetch_article_images
 
 def get_weekly_dir(date_str: str = None, create: bool = True) -> Path:
     """
-    주간 큐레이션 통합 작업 디렉토리(output/{YYYY-MM-DD}_curated_weekly) 경로를 반환합니다.
+    주간 큐레이션 통합 작업 디렉토리(결과물/THEPT뉴스/{YYYY-MM-DD}_curated_weekly) 경로를 반환합니다.
     주간 기준 날짜가 전달되지 않으면, 일요일 실행 시에는 내일(월요일), 평일에는 해당 주의 월요일을 기본 날짜로 통일합니다.
     """
     if not date_str:
@@ -110,8 +111,9 @@ def cmd_fetch(args):
     print(f" 1. 에디터에서 [candidates_titles.md]를 열어 관심 기사에 [x]를 체크하세요.")
     print(f"    (기사 전문이 궁금할 땐 [candidates_fulltext.md]에서 Ctrl+F로 바로 확인 가능!)")
     print(" 2. 추가하고 싶은 기사가 있다면 맨 아래 [✍️ 직접 기사 추가]에 URL을 적어주세요.")
-    print(" 3. 저장이 끝나면 아래 명령어를 실행하세요:")
-    print("    👉 python curate.py review")
+    print(" 3. 저장이 끝나면 아래 명령어를 실행해 바로 콘텐츠를 제작하세요:")
+    print("    👉 python curate.py build")
+    print("    (※ 별도 상세 검토 파일이 필요할 때만 'python curate.py review' 실행)")
     print("=" * 70)
 
 
@@ -179,22 +181,36 @@ async def cmd_review_async(args):
 
 
 def cmd_build(args):
-    """3단계: 최종 선택 기사 확정, 큐레이션 히스토리 저장 및 주 6일 콘텐츠 일괄 제작"""
+    """최종 선택 기사 확정(기본: candidates_titles.md 직통 파싱), 히스토리 저장 및 주 6일 콘텐츠 일괄 제작"""
     weekly_dir = find_active_weekly_dir(getattr(args, "date", None))
-    detail_md = weekly_dir / "candidates_detail.md"
+    use_detail = getattr(args, "from_detail", False)
 
-    if not detail_md.exists():
-        print(f"❌ [오류] 2단계 검토 파일이 존재하지 않습니다: {detail_md.resolve()}")
-        print(f"   먼저 2단계 검토 파일을 생성하세요: python curate.py review")
-        sys.exit(1)
+    if use_detail:
+        detail_md = weekly_dir / "candidates_detail.md"
+        if not detail_md.exists():
+            print(f"❌ [오류] 상세 검토 파일이 존재하지 않습니다: {detail_md.resolve()}")
+            print(f"   먼저 검토 파일을 생성하거나(--from-detail 제외), 기본 모드로 실행하세요: python curate.py build")
+            sys.exit(1)
 
-    print(f"\n⚙️ [3단계] 최종 큐레이션 검토 결과 파싱 중: {detail_md.name} ({weekly_dir.name})")
-    final_by_cat, history_records = parse_candidates_detail_markdown(detail_md, CACHE_FILE)
+        print(f"\n⚙️ [빌드] 상세 검토 결과 파싱 중: {detail_md.name} ({weekly_dir.name})")
+        final_by_cat, history_records = parse_candidates_detail_markdown(detail_md, CACHE_FILE)
+        source_md = detail_md
+    else:
+        titles_md = weekly_dir / "candidates_titles.md"
+        if not titles_md.exists():
+            print(f"❌ [오류] 1단계 제목 스크리닝 파일이 존재하지 않습니다: {titles_md.resolve()}")
+            print(f"   먼저 1단계 수집을 실행하세요: python curate.py fetch")
+            sys.exit(1)
+
+        print(f"\n⚙️ [빌드] 제목 스크리닝 체크박스 직통 파싱 중: {titles_md.name} ({weekly_dir.name})")
+        final_by_cat = parse_candidates_titles_markdown(titles_md, CACHE_FILE)
+        history_records = build_curation_history_records(final_by_cat)
+        source_md = titles_md
 
     total_final = sum(len(v) for v in final_by_cat.values())
     if total_final == 0:
-        print("⚠️ [주의] 2단계에서 [x]로 최종 채택된 기사가 없습니다!")
-        print(f"   파일({detail_md.resolve()})에서 각 요일별 기사에 [x]를 체크해주세요.")
+        print(f"⚠️ [주의] {source_md.name}에서 [x]로 채택된 기사가 없습니다!")
+        print(f"   파일({source_md.resolve()})에서 각 요일별 기사에 [x]를 체크해주세요.")
         sys.exit(1)
 
     print(f"  -> 총 {total_final}건의 기사가 최종 채택되었습니다.")
@@ -272,21 +288,8 @@ def cmd_upload(args):
     platform = getattr(args, "platform", "all").lower()
     content_type = getattr(args, "type", "all").lower()
 
-    # [하드 가드레일: 로컬 환경 실제 발행 원천 차단]
-    # 실제 SNS 발행은 매일 08:00 GitHub Actions 환경(GITHUB_ACTIONS=true)에서만 독점적으로 수행됩니다.
-    # 로컬 환경에서는 오직 --dry-run (시뮬레이션) 모드만 허용됩니다.
-    is_github_actions = os.environ.get("GITHUB_ACTIONS") == "true"
-    allow_force_local = getattr(args, "force_local", False)
-
-    if not dry_run and not is_github_actions and not allow_force_local:
-        print("\n" + "🛑" * 35)
-        print("🚨 [보안 차단] 로컬 PC 환경에서는 실제 SNS 발행이 엄격히 금지되어 있습니다!")
-        print("   • 시스템 원칙: 실제 발행은 매일 아침 KST 08:00에 GitHub Actions가 당일 콘텐츠 1건만 자동으로 무인 발행합니다.")
-        print("   • 로컬 환경에서는 시뮬레이션(--dry-run) 모드로만 동작을 검증할 수 있습니다.")
-        print("   👉 안전한 시뮬레이션 실행: python curate.py upload --dry-run")
-        print("   👉 주간 작업 마무리(GitHub 동기화): python curate.py sync")
-        print("🛑" * 35 + "\n")
-        sys.exit(1)
+    # GitHub Actions 정기 발행뿐 아니라 로컬 PC에서의 즉시 업로드도 허용합니다.
+    # (에이전트 실행 시 scripts/hooks/pre_tool_guard.py가 force_ask 사용자 확인 게이트를 적용합니다.)
 
     print("\n" + "=" * 70)
     mode_str = "🧪 [시뮬레이션 모드 (DRY-RUN)]" if dry_run else "🚀 [실제 API 업로드 모드]"
@@ -345,8 +348,16 @@ def cmd_upload(args):
 
     from modules.sns_scheduler import get_github_raw_url
     from modules.youtube_uploader import upload_youtube_short
-    from modules.instagram_uploader import upload_instagram_carousel, upload_instagram_reel
+    from modules.instagram_uploader import (
+        InstagramGraphUploader,
+        upload_instagram_carousel,
+        upload_instagram_reel,
+    )
     from config import get_youtube_category_id, YOUTUBE_CATEGORY_NAMES
+
+    allow_duplicate = getattr(args, "allow_duplicate", False)
+    ig_dup_checker = None if (dry_run or allow_duplicate) else InstagramGraphUploader()
+    today_date_kst = now_kst.strftime("%Y-%m-%d")
 
     total_tasks = 0
     success_tasks = 0
@@ -388,22 +399,20 @@ def cmd_upload(args):
         print(f"\n📅 [{day_label}] {cat_title} ({folder_name})")
         print(f"   ⏰ 발행 모드: {sched['formatted_kst']}")
 
-        # 사족 없는 공식 첫 댓글 로드
+        # 사족 없는 공식 첫 댓글 로드 (config 단일 헬퍼 기반)
         comment_file = folder / "first_comment.txt"
         if comment_file.exists():
             first_comment = comment_file.read_text(encoding="utf-8").strip()
         else:
-            first_comment = (
-                "📌 [THEPT 추천] 물리치료사를 위한 실전 솔루션 & 창업 가이드!\n\n"
-                "1️⃣ 방문재활 물리치료사 맞춤 AI 음성 차팅\n"
-                "• 수기 차팅 부담은 줄이고 환자 관리에 집중하세요! (매월 무료 체험)\n"
-                "👉 바로가기: https://4thept.com\n\n"
-                "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
-                "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우!\n"
-                "👉 크몽 바로가기: https://kmong.com/gig/813101\n\n"
-                "💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: https://thept.co.kr\n"
-                "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com"
+            first_comment = build_first_comment(
+                utm_source="ig",
+                utm_medium="carousel",
+                utm_campaign=f"weekly_briefing_{folder_name.lower()}",
             )
+
+        yt_first_comment = first_comment.replace("utm_source=ig", "utm_source=yt").replace(
+            "utm_medium=carousel", "utm_medium=shorts"
+        )
 
         # 1. YouTube Shorts 업로드
         if platform in ("all", "youtube") and content_type in ("all", "shorts", "video"):
@@ -420,15 +429,17 @@ def cmd_upload(args):
                 if yt_caption_file.exists():
                     yt_desc = yt_caption_file.read_text(encoding="utf-8").strip()
                 else:
+                    yt_footer = build_4thept_promo_footer(
+                        utm_source="yt",
+                        utm_medium="shorts",
+                        utm_campaign=f"weekly_briefing_{folder_name.lower()}",
+                        include_disclaimer=True,
+                    )
                     yt_desc = (
                         f"📢 {day_label} THEPT 물리치료 1분 브리핑 #Shorts\n\n"
                         f"{caption}\n\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                        f"📌 물리치료사를 위한 전문 플랫폼 THEPT\n"
-                        f"• 방문재활 AI 음성 차팅: https://4thept.com\n"
-                        f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
-                        f"• THEPT 공식 커뮤니티: https://thept.co.kr\n"
-                        f"• 광고 및 비즈니스 제휴: teamthept@gmail.com\n"
+                        f"{yt_footer}\n"
                         f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
                         f"#물리치료 #물리치료사 #쇼츠 #Shorts #THEPT #더피티 #재활 #도수치료\n"
                     )
@@ -450,7 +461,7 @@ def cmd_upload(args):
                     tags=["물리치료", "물리치료사", "Shorts", "쇼츠", "THEPT", "더피티", "재활", "도수치료"],
                     category_id=yt_category_id,
                     publish_at_rfc3339=None,
-                    first_comment=first_comment,
+                    first_comment=yt_first_comment,
                     dry_run=dry_run
                 )
                 if res_yt.get("success"):
@@ -459,6 +470,8 @@ def cmd_upload(args):
                 else:
                     print(f"     ❌ YouTube 실패: {res_yt.get('error')}")
 
+        ig_dup_marker = f"주간 브리핑 - {day_label}]"
+
         # 2. Instagram Carousel 업로드
         if platform in ("all", "instagram") and content_type in ("all", "carousel"):
             card_images = sorted(list(card_dir.glob("*.png"))) if card_dir.exists() else []
@@ -466,20 +479,32 @@ def cmd_upload(args):
                 print("   ⚠️ [Instagram 캐러셀] 카드뉴스 이미지(*.png)가 없어 건너뜁니다.")
             else:
                 total_tasks += 1
-                image_urls = [get_github_raw_url(p) for p in card_images]
-                print(f"   📸 [Instagram 캐러셀] 즉시 공개 업로드 요청 중... (총 {len(card_images)}장)")
-                res_ig = upload_instagram_carousel(
-                    image_urls=image_urls,
-                    caption=caption,
-                    scheduled_timestamp=None,
-                    first_comment=first_comment,
-                    dry_run=dry_run
+                dup_carousel = (
+                    ig_dup_checker.has_recent_duplicate("carousel", ig_dup_marker, today_date_kst)
+                    if ig_dup_checker
+                    else None
                 )
-                if res_ig.get("success"):
+                if dup_carousel:
                     success_tasks += 1
-                    print(f"     ✅ Instagram 캐러셀 성공: ID {res_ig.get('container_id', 'DRY-RUN')}")
+                    print(
+                        f"   ⏭️ [Instagram 캐러셀 중복 방지] 오늘({today_date_kst}) 이미 동일 브리핑이 발행되어 건너뜁니다. "
+                        f"(기존 ID: {dup_carousel.get('id')})"
+                    )
                 else:
-                    print(f"     ❌ Instagram 캐러셀 실패: {res_ig.get('error')}")
+                    image_urls = [get_github_raw_url(p) for p in card_images]
+                    print(f"   📸 [Instagram 캐러셀] 즉시 공개 업로드 요청 중... (총 {len(card_images)}장)")
+                    res_ig = upload_instagram_carousel(
+                        image_urls=image_urls,
+                        caption=caption,
+                        scheduled_timestamp=None,
+                        first_comment=first_comment,
+                        dry_run=dry_run
+                    )
+                    if res_ig.get("success"):
+                        success_tasks += 1
+                        print(f"     ✅ Instagram 캐러셀 성공: ID {res_ig.get('container_id', 'DRY-RUN')}")
+                    else:
+                        print(f"     ❌ Instagram 캐러셀 실패: {res_ig.get('error')}")
 
         # 3. Instagram Reels 업로드
         skip_reels = getattr(args, "skip_reels", False)
@@ -490,20 +515,33 @@ def cmd_upload(args):
                 print("   ⚠️ [Instagram 릴스] 비디오 파일(.mp4)이 없어 건너뜁니다.")
             else:
                 total_tasks += 1
-                video_url = get_github_raw_url(shorts_files[0])
-                print(f"   🎥 [Instagram 릴스] 즉시 공개 업로드 요청 중...")
-                res_reel = upload_instagram_reel(
-                    video_url=video_url,
-                    caption=caption,
-                    scheduled_timestamp=None,
-                    first_comment=first_comment,
-                    dry_run=dry_run
+                dup_reels = (
+                    ig_dup_checker.has_recent_duplicate("reels", ig_dup_marker, today_date_kst)
+                    if ig_dup_checker
+                    else None
                 )
-                if res_reel.get("success"):
+                if dup_reels:
                     success_tasks += 1
-                    print(f"     ✅ Instagram 릴스 성공: ID {res_reel.get('container_id', 'DRY-RUN')}")
+                    print(
+                        f"   ⏭️ [Instagram 릴스 중복 방지] 오늘({today_date_kst}) 이미 동일 브리핑이 발행되어 건너뜁니다. "
+                        f"(기존 ID: {dup_reels.get('id')})"
+                    )
                 else:
-                    print(f"     ❌ Instagram 릴스 실패: {res_reel.get('error')}")
+                    video_url = get_github_raw_url(shorts_files[0])
+                    ig_reels_comment = first_comment.replace("utm_medium=carousel", "utm_medium=reels")
+                    print(f"   🎥 [Instagram 릴스] 즉시 공개 업로드 요청 중...")
+                    res_reel = upload_instagram_reel(
+                        video_url=video_url,
+                        caption=caption,
+                        scheduled_timestamp=None,
+                        first_comment=ig_reels_comment,
+                        dry_run=dry_run
+                    )
+                    if res_reel.get("success"):
+                        success_tasks += 1
+                        print(f"     ✅ Instagram 릴스 성공: ID {res_reel.get('container_id', 'DRY-RUN')}")
+                    else:
+                        print(f"     ❌ Instagram 릴스 실패: {res_reel.get('error')}")
 
     print("\n" + "=" * 70)
     failed_tasks = total_tasks - success_tasks
@@ -523,8 +561,9 @@ def cmd_upload(args):
 def cmd_auth_yt(args):
     """YouTube Data API OAuth 인증 도우미"""
     from modules.youtube_uploader import authenticate_youtube
+    reauth = getattr(args, "reauth", False)
     print("\n🔑 [YouTube Data API] OAuth 2.0 사용자 인증을 시작합니다...")
-    service = authenticate_youtube()
+    service = authenticate_youtube(force_reauth=reauth)
     if service:
         print("\n🎉 [인증 완료] YouTube API 인증이 성공적으로 완료되었습니다!")
         print("   이제 'python curate.py upload --platform youtube'로 예약 업로드할 수 있습니다.")
@@ -542,6 +581,81 @@ def cmd_test_insta(args):
         print("   이제 'python curate.py upload --platform instagram'로 예약 업로드할 수 있습니다.")
     else:
         print("\n❌ [진단 실패] Instagram API 연결에 문제가 있습니다. docs/api_setup_guide.md 를 확인해주세요.")
+
+
+def cmd_test_yt(args):
+    """YouTube Data API OAuth 토큰 및 목표 채널(THEPT) 일치 여부 진단 도우미"""
+    from modules.youtube_uploader import test_youtube_connection
+    print("\n🔍 [YouTube Data API] OAuth 토큰 및 목표 채널(THEPT) 연동 상태를 진단합니다...")
+    ok = test_youtube_connection()
+    if not ok:
+        sys.exit(1)
+
+
+def cmd_analytics(args):
+    """YouTube · Instagram 통합 SNS 성과 및 중복 업로드 리포트 수집"""
+    from modules.sns_analytics import run_analytics_report
+    limit = getattr(args, "limit", 20)
+    save_report = getattr(args, "save_report", False)
+    sync_log = getattr(args, "sync_log", False)
+    print(f"\n📊 [SNS 성과 분석] 최근 {limit}건 기준 YouTube 및 Instagram 데이터를 수집합니다...")
+    run_analytics_report(limit=limit, save_report=save_report, sync_log=sync_log)
+
+
+def cmd_check(args):
+    """통합 마케팅 컴플라이언스(THEPT뉴스 + 4THEPT마케팅 프리셋/초안) 및 쇼츠 60초 규격 검증"""
+    from modules.marketing_compliance import (
+        check_config_compliance,
+        check_package_compliance,
+        check_promo_compliance,
+    )
+    print("\n🛡️ [통합 컴플라이언스 & 품질 게이트] 설정 · THEPT뉴스 · 4THEPT마케팅 검증을 시작합니다...")
+    total_errors = 0
+
+    cfg_issues = check_config_compliance()
+    if cfg_issues:
+        for iss in cfg_issues:
+            print(f"  ❌ [{iss.scope}] {iss.rule} -> {iss.excerpt}")
+        total_errors += len(cfg_issues)
+    else:
+        print("  ✅ [config.py] 기본 광고·푸터·첫 댓글 컴플라이언스 통과 (위반 0건)")
+
+    weekly_dir = find_active_weekly_dir(getattr(args, "date", None))
+    day_folders = sorted(
+        [d for d in weekly_dir.iterdir() if d.is_dir() and re.match(r"^\d{2,4}_", d.name)],
+        key=lambda x: x.name,
+    )
+    for folder in day_folders:
+        pkg_file = folder / "package_data.json"
+        if not pkg_file.exists():
+            continue
+        pkg = json.loads(pkg_file.read_text(encoding="utf-8"))
+        ig_cap = (folder / "instagram_caption.txt").read_text(encoding="utf-8") if (folder / "instagram_caption.txt").exists() else ""
+        yt_cap = (folder / "youtube_shorts_caption.txt").read_text(encoding="utf-8") if (folder / "youtube_shorts_caption.txt").exists() else ""
+        fc = (folder / "first_comment.txt").read_text(encoding="utf-8") if (folder / "first_comment.txt").exists() else ""
+        res = check_package_compliance(pkg, ig_caption=ig_cap, yt_caption=yt_cap, first_comment=fc)
+        if res["errors"]:
+            total_errors += len(res["errors"])
+            for err in res["errors"]:
+                print(f"  ❌ [{folder.name}/{err.scope}] {err.rule} -> {err.excerpt}")
+        elif res["warnings"]:
+            warn_txt = ", ".join(w.rule for w in res["warnings"])
+            print(f"  ⚠️ [{folder.name}] 경고 {len(res['warnings'])}건: {warn_txt}")
+        else:
+            print(f"  ✅ [{folder.name}] 통과 (예상 {res['estimated_seconds']:.1f}초)")
+
+    promo_issues = check_promo_compliance(track=getattr(args, "track", "all"))
+    if promo_issues:
+        for p_iss in promo_issues:
+            print(f"  ❌ [4THEPT/{p_iss.scope}:{p_iss.line_no}] {p_iss.rule} -> {p_iss.excerpt}")
+        total_errors += len(promo_issues)
+    else:
+        print("  ✅ [4THEPT마케팅] 프리셋 · 플레이북 · 결과물/4THEPT마케팅/drafts 통과 (위반 0건)")
+
+    if total_errors > 0:
+        print(f"\n❌ 총 {total_errors}건의 컴플라이언스 오류가 발견되었습니다.")
+        sys.exit(1)
+    print("\n🎉 모든 컴플라이언스 필수 검사를 통과했습니다 (오류 0건).")
 
 
 def cmd_stats(args):
@@ -648,15 +762,16 @@ def main():
     p_fetch.add_argument("--count", type=int, default=25, help="카테고리당 수집 건수 (기본 25건, 15~30건 범위)")
     p_fetch.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 오늘 YYYY-MM-DD)")
 
-    # 2. review
-    p_review = subparsers.add_parser("review", help="2단계: 1차 선택 기사 상세 본문/사진 크롤링 및 검토 마크다운 생성")
+    # 2. review (선택적 보조 단계)
+    p_review = subparsers.add_parser("review", help="(선택) 1차 선택 기사 상세 본문/사진 크롤링 및 candidates_detail.md 생성")
     p_review.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
 
     # 3. build
-    p_build = subparsers.add_parser("build", help="3단계: 최종 선택 기사 확정, 이유 저장 및 주 6일 콘텐츠 일괄 제작")
+    p_build = subparsers.add_parser("build", help="2단계(핵심): candidates_titles.md [x] 기반 주 6일 콘텐츠 일괄 제작")
     p_build.add_argument("--day", "--target-date", type=str, default=None, help="특정 날짜만 단독 빌드/렌더링 (4자리 MMDD 예: 0917, 9/17)")
     p_build.add_argument("--render", action="store_true", default=False, help="카드뉴스 PNG 및 쇼츠 MP4 미디어 렌더링까지 즉시 수행")
     p_build.add_argument("--sync", action="store_true", default=False, help="빌드 및 렌더링 완료 후 GitHub 원격 저장소 푸시까지 즉시 연계 실행")
+    p_build.add_argument("--from-detail", action="store_true", default=False, help="(선택) candidates_titles.md 대신 candidates_detail.md 기준으로 빌드")
     p_build.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차 YYYY-MM-DD 또는 단독 날짜 MMDD)")
 
     # 4. upload
@@ -668,6 +783,7 @@ def main():
     p_upload.add_argument("--day", "--target-date", type=str, default=None, help="특정 날짜 지정 발행 (4자리 MMDD 예: 0917, 9/17)")
     p_upload.add_argument("--category", "--yt-category", type=str, default=None, help="유튜브 업로드 카테고리 ID 수동 지정 (기본값: 요일별 테마 자동 할당)")
     p_upload.add_argument("--skip-reels", action="store_true", default=False, help="인스타그램 릴스 발행을 건너뛰고 캐러셀 피드 및 유튜브 쇼츠만 선별 발행")
+    p_upload.add_argument("--allow-duplicate", action="store_true", default=False, help="당일 동일 Instagram 브리핑 중복 방지 가드를 해제하고 강제 재업로드")
     p_upload.add_argument("--force-local", action="store_true", default=False, help="로컬 개발 환경에서 실제 API 발행을 비상 허용")
     p_upload.add_argument("--dry-run", action="store_true", default=False, help="실제 API 호출 없이 예약 스케줄 및 업로드 매핑 시뮬레이션")
 
@@ -681,17 +797,29 @@ def main():
 
     # 6. auth-yt
     p_auth_yt = subparsers.add_parser("auth-yt", help="YouTube Data API OAuth 최초 1회 브라우저 인증 도우미")
+    p_auth_yt.add_argument("--reauth", action="store_true", default=False, help="기존 token.pickle을 백업하고 브라우저에서 채널을 새로 인증")
 
     # 7. auth-gdrive
     p_auth_gd = subparsers.add_parser("auth-gdrive", help="Google Drive API OAuth 최초 1회 브라우저 인증 도우미")
 
-    # 8. test-insta
+    # 8. test-insta & test-yt
     p_test_insta = subparsers.add_parser("test-insta", help="Instagram Graph API 토큰 및 비즈니스 계정 연결 진단 도우미")
+    p_test_yt = subparsers.add_parser("test-yt", help="YouTube OAuth 토큰 및 목표 채널(THEPT) 일치 여부 진단")
 
-    # 9. stats
+    # 9. analytics & check
+    p_analytics = subparsers.add_parser("analytics", help="YouTube · Instagram 최근 성과 및 중복 업로드 리포트 조회")
+    p_analytics.add_argument("--limit", type=int, default=20, help="조회할 최근 게시물/영상 수 (기본 20건)")
+    p_analytics.add_argument("--save-report", action="store_true", default=False, help="결과물/THEPT뉴스/analytics_report.md 및 4THEPT마케팅 스냅샷 저장")
+    p_analytics.add_argument("--sync-log", action="store_true", default=False, help="promo_4thept/campaigns/publish_log.md 성과 수치 동기화")
+
+    p_check = subparsers.add_parser("check", help="통합 마케팅 컴플라이언스(THEPT뉴스 + 4THEPT마케팅) 및 쇼츠 60초 규격 검증")
+    p_check.add_argument("--date", type=str, default=None, help="대상 주간 날짜 (기본값: 최신 주차)")
+    p_check.add_argument("--track", choices=("all", "hospital", "center"), default="all", help="4THEPT 검증 트랙")
+
+    # 10. stats
     p_stats = subparsers.add_parser("stats", help="누적된 큐레이션 데이터셋 통계 확인")
 
-    # 10. export-yt-secrets
+    # 11. export-yt-secrets
     p_secrets = subparsers.add_parser("export-yt-secrets", help="GitHub Actions Secrets 등록용 YouTube 토큰 Base64 출력 도우미")
 
     args = parser.parse_args()
@@ -712,6 +840,12 @@ def main():
         cmd_auth_gdrive(args)
     elif args.command == "test-insta":
         cmd_test_insta(args)
+    elif args.command == "test-yt":
+        cmd_test_yt(args)
+    elif args.command == "analytics":
+        cmd_analytics(args)
+    elif args.command == "check":
+        cmd_check(args)
     elif args.command == "stats":
         cmd_stats(args)
     elif args.command == "export-yt-secrets":

@@ -38,11 +38,12 @@ def generate_candidates_titles_markdown(candidates: dict, output_path: Path) -> 
     now = datetime.now()
     created_at_str = f"{now.year}년 {now.month:02d}월 {now.day:02d}일 {now.hour:02d}:{now.minute:02d} (한국 기준시)"
     lines = [
-        "# 📋 주간 6대 카테고리 후보 기사 목록 (1단계: 제목 스크리닝)",
+        "# 📋 주간 6대 카테고리 후보 기사 목록 (1단계: 제목 스크리닝 및 최종 선정)",
         "",
         "> **안내사항**:",
-        "> 1. 관심 가는 기사 앞의 `[ ]`를 `[x]`로 변경하세요. (요일당 3~5개 정도 넉넉히 체크 권장)",
-        "> 2. 저장이 끝나면 터미널에서 `python curate.py review` 명령을 실행하세요.",
+        "> 1. 관심 가는 기사 앞의 `[ ]`를 `[x]`로 변경하세요. (요일당 3건씩 총 18건 선택 권장)",
+        "> 2. 저장이 끝나면 터미널에서 `python curate.py build` 명령을 실행해 바로 콘텐츠를 제작하세요.",
+        ">    *(기사 전문 확인은 옆의 `candidates_fulltext.md`를 참고하고, 별도 상세 검토 파일이 필요할 때만 `python curate.py review`를 실행하세요.)*",
         "> 3. 후보 기사가 부족하거나 따로 다룰 기사가 있다면 맨 아래 **[✍️ 직접 기사 추가]** 섹션에 URL을 적어주세요.",
         "",
         f"- 생성 일시: {created_at_str}",
@@ -394,20 +395,61 @@ def parse_candidates_detail_markdown(
             final_by_cat[cat_key].append(base_art)
 
         # 향후 에이전트 분석용 히스토리 레코드 생성
-        history_records.append({
-            "id": art_id,
-            "title": base_art["title"],
-            "link": base_art["link"],
-            "source": base_art["source"],
-            "category_key": cat_key,
-            "category": base_art["category"],
-            "day": base_art["day"],
-            "final_selected": is_checked,
-            "selection_reason": selection_reason,
-            "curated_at": now_iso
-        })
+        history_records.append(
+            _build_history_record(
+                base_art,
+                cat_key=cat_key,
+                is_checked=is_checked,
+                selection_reason=selection_reason,
+                curated_at=now_iso,
+            )
+        )
 
     return final_by_cat, history_records
+
+
+def _build_history_record(
+    art: dict,
+    cat_key: str,
+    is_checked: bool,
+    selection_reason: str = "",
+    curated_at: str = None,
+) -> dict:
+    """큐레이션 히스토리(JSONL) 누적 저장용 단일 레코드 딕셔너리를 생성합니다."""
+    meta = SIX_CATEGORIES.get(cat_key, {})
+    return {
+        "id": art.get("id", ""),
+        "title": art.get("title", ""),
+        "link": art.get("link", ""),
+        "source": art.get("source", "뉴스"),
+        "category_key": cat_key,
+        "category": art.get("category") or meta.get("title", ""),
+        "day": art.get("day") or meta.get("day", ""),
+        "final_selected": is_checked,
+        "selection_reason": selection_reason,
+        "curated_at": curated_at or datetime.now().isoformat(),
+    }
+
+
+def build_curation_history_records(selected_by_cat: dict) -> list[dict]:
+    """
+    candidates_titles.md 기반 직통 빌드 시 선택된 기사 목록으로부터
+    큐레이션 히스토리 레코드 리스트를 생성합니다.
+    """
+    now_iso = datetime.now().isoformat()
+    records = []
+    for cat_key, arts in selected_by_cat.items():
+        for art in arts:
+            records.append(
+                _build_history_record(
+                    art,
+                    cat_key=cat_key,
+                    is_checked=True,
+                    selection_reason=art.get("selection_reason", ""),
+                    curated_at=now_iso,
+                )
+            )
+    return records
 
 
 def append_to_curation_history(history_records: list[dict], history_file: Path = HISTORY_FILE):

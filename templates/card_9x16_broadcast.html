@@ -62,7 +62,7 @@
       z-index: 2;
       width: 1080px;
       height: 1920px;
-      padding: 50px 70px 160px 70px; /* 쇼츠 Safe Zone 및 대형 타이포그래피 최적화 */
+      padding: 46px 125px 250px 70px; /* 쇼츠/릴스 하단·우측 플랫폼 UI Safe Zone 최적화 */
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -148,16 +148,43 @@
       display: none !important;
     }
 
-    /* [표지 슬라이드 (제안 A: MBC 미디어 프레임 + 3개 뉴스 헤드라인)] */
+    /* [표지 슬라이드 (제안 A: MBC 미디어 프레임 + 0~3초 훅 배너 + 3개 뉴스 헤드라인)] */
+    .cover-hook-banner {
+      background: rgba(11, 15, 25, 0.92);
+      border: 2px solid rgba(250, 204, 21, 0.55);
+      border-radius: 18px;
+      padding: 16px 24px;
+      margin-bottom: 16px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .cover-hook-l1 {
+      font-size: 38px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.25;
+      word-break: keep-all;
+    }
+
+    .cover-hook-l2 {
+      font-size: 40px;
+      font-weight: 900;
+      color: #facc15;
+      line-height: 1.25;
+      margin-top: 2px;
+      word-break: keep-all;
+    }
+
     .cover-media-frame {
       width: 100%;
-      height: 480px;
+      height: 410px;
       border-radius: 24px;
       overflow: hidden;
       border: 2px solid rgba(255, 255, 255, 0.25);
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
       position: relative;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .cover-media-img {
@@ -171,17 +198,6 @@
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      background: rgba(250, 204, 21, 0.2);
-      border: 2px solid #facc15;
-      color: #facc15;
-      padding: 12px 28px;
-      border-radius: 14px;
-      font-size: 28px;
-      font-weight: 900;
-      margin-bottom: 24px;
-      width: fit-content;
-      box-shadow: 0 4px 18px rgba(250, 204, 21, 0.25);
-    }
       background: rgba(250, 204, 21, 0.2);
       border: 2px solid #facc15;
       color: #facc15;
@@ -269,12 +285,12 @@
     /* 뉴스 슬라이드 내부 보도사진 프레임 (최상단 배치, 표지와 동일한 480px) */
     .news-media-frame {
       width: 100%;
-      height: 480px;
+      height: 440px;
       border-radius: 24px;
       overflow: hidden;
       border: 2px solid rgba(255, 255, 255, 0.25);
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       position: relative;
     }
 

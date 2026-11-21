@@ -11,8 +11,17 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from PIL import Image
 
 from config import (
+    BASE_DIR,
     VIDEO_WIDTH, VIDEO_HEIGHT, CARD_WIDTH, CARD_HEIGHT,
     DEFAULT_BGM_PATH, BGM_VOLUME
+)
+
+SFX_WHOOSH_PATH = BASE_DIR / "assets" / "sfx" / "sfx_whoosh.wav"
+SFX_POP_PATH = BASE_DIR / "assets" / "sfx" / "sfx_pop.wav"
+VOICE_PRESENCE_FILTER = (
+    "highpass=f=80,equalizer=f=2800:t=q:w=1.2:g=2.6,"
+    "acompressor=threshold=-17dB:ratio=3:attack=5:release=60,"
+    "alimiter=limit=0.92"
 )
 
 
@@ -41,7 +50,7 @@ def render_slide_segment(image_path: Path, audio_path: Path, duration: float, ou
     """단일 슬라이드 이미지와 오디오를 9:16 세그먼트 영상으로 렌더링합니다."""
     output_segment.parent.mkdir(parents=True, exist_ok=True)
 
-    filter_complex = get_video_filter(image_path)
+    filter_complex = f"{get_video_filter(image_path)};[1:a]{VOICE_PRESENCE_FILTER}[a]"
 
     cmd = [
         "ffmpeg", "-y",
@@ -51,7 +60,7 @@ def render_slide_segment(image_path: Path, audio_path: Path, duration: float, ou
         "-i", str(audio_path),
         "-filter_complex", filter_complex,
         "-map", "[v]",
-        "-map", "1:a",
+        "-map", "[a]",
         "-c:v", "libx264",
         "-preset", "veryfast",
         "-crf", "20",
@@ -122,12 +131,13 @@ def render_multi_photo_slide_segment(image_paths: list[Path], audio_path: Path, 
     subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_txt), "-c", "copy", str(merged_v)],
                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    # 최종 오디오 합성
+    # 최종 오디오 합성 (4THEPT 스튜디오 보이스 Presence EQ + 컴프레서 마스터링 적용)
     cmd_final = [
         "ffmpeg", "-y",
         "-i", str(merged_v),
         "-i", str(audio_path),
         "-c:v", "copy",
+        "-af", VOICE_PRESENCE_FILTER,
         "-c:a", "aac",
         "-b:a", "192k",
         "-shortest",
@@ -175,6 +185,62 @@ def concatenate_segments(segment_paths: list[Path], final_output: Path) -> Path:
     return final_output
 
 
+def _mix_transition_sfx(
+    video_path: Path,
+    durations: list[float],
+    sfx_path: Path = SFX_WHOOSH_PATH,
+    pop_delays_ms: list[int] | None = None,
+) -> Path:
+    """슬라이드 전환 효과음(sfx_whoosh) 및 핵심/광고 포인트 효과음(sfx_pop)을 믹싱합니다."""
+    has_whoosh = bool(sfx_path and sfx_path.exists() and len(durations) > 1)
+    has_pop = bool(pop_delays_ms and SFX_POP_PATH.exists())
+    if not has_whoosh and not has_pop:
+        return video_path
+
+    out_file = video_path.parent / f"sfx_mixed_{video_path.name}"
+    cum_ms = 0
+    cut_delays_ms: list[int] = []
+    if has_whoosh:
+        for d in durations[:-1]:
+            cum_ms += int(d * 1000)
+            if cum_ms > 120:
+                cut_delays_ms.append(max(0, cum_ms - 80))
+
+    sfx_events: list[tuple[Path, int, float]] = [(sfx_path, d_ms, 0.18) for d_ms in cut_delays_ms]
+    if has_pop and pop_delays_ms:
+        sfx_events.extend((SFX_POP_PATH, d_ms, 0.22) for d_ms in pop_delays_ms)
+
+    if not sfx_events:
+        return video_path
+
+    cmd = ["ffmpeg", "-y", "-i", str(video_path)]
+    filter_parts = []
+    mix_labels = ["[0:a]"]
+    for idx, (ev_path, delay_ms, vol) in enumerate(sfx_events, start=1):
+        cmd.extend(["-i", str(ev_path)])
+        lbl = f"[s{idx}]"
+        filter_parts.append(f"[{idx}:a]adelay={delay_ms}|{delay_ms},volume={vol:.2f}{lbl}")
+        mix_labels.append(lbl)
+
+    filter_parts.append(
+        f"{''.join(mix_labels)}amix=inputs={len(mix_labels)}:duration=first:normalize=0[aout]"
+    )
+    cmd.extend([
+        "-filter_complex", ";".join(filter_parts),
+        "-map", "0:v", "-map", "[aout]",
+        "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-shortest",
+        str(out_file),
+    ])
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
+    if res.returncode == 0 and out_file.exists() and out_file.stat().st_size > 0:
+        video_path.unlink()
+        shutil.move(str(out_file), str(video_path))
+        return video_path
+    if out_file.exists():
+        out_file.unlink()
+    return video_path
+
+
 def mix_bgm_to_video(
     video_path: Path,
     bgm_path: Path = None,
@@ -182,8 +248,8 @@ def mix_bgm_to_video(
     output_path: Path = None
 ) -> Path:
     """
-    완성된 영상 비디오(TTS 음성 포함)에 BGM 배경음악을 적정 볼륨(기본 10%)으로 합성하고,
-    영상 종료 1.5초 전에 서서히 페이드아웃(afade out)을 적용합니다.
+    완성된 영상 비디오(TTS 음성 포함)에 BGM 배경음악을 sidechaincompress 자동 덕킹으로 믹싱하고,
+    -14 LUFS 방송 음량 정규화(loudnorm) 및 종료 1.5초 페이드아웃을 적용합니다.
     """
     target_bgm = Path(bgm_path) if bgm_path else Path(DEFAULT_BGM_PATH)
     if not target_bgm or not target_bgm.exists():
@@ -205,41 +271,51 @@ def mix_bgm_to_video(
 
     fade_st = max(0.0, total_dur - 1.5)
 
-    # filter: BGM 볼륨 조절 및 페이드아웃 후, 기존 나레이션과 amix 합성
-    filter_expr = (
+    # 1차 시도: sidechaincompress 자동 덕킹 + -14 LUFS loudnorm
+    duck_filter = (
+        f"[0:a]asplit=2[voice][sc];"
+        f"[1:a]volume={bgm_volume * 1.4:.3f},afade=t=out:st={fade_st:.2f}:d=1.5[bgm_raw];"
+        f"[bgm_raw][sc]sidechaincompress=threshold=0.02:ratio=6:attack=25:release=220[bgm_duck];"
+        f"[voice][bgm_duck]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-14:LRA=11:TP=-1.5[aout]"
+    )
+    fallback_filter = (
         f"[1:a]volume={bgm_volume:.3f},afade=t=out:st={fade_st:.2f}:d=1.5[bgm];"
         f"[0:a][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]"
     )
 
-    cmd = [
-        "ffmpeg", "-y",
-        "-i", str(video_path),
-        "-stream_loop", "-1",  # BGM이 영상보다 짧아도 자동 루프
-        "-i", str(target_bgm),
-        "-filter_complex", filter_expr,
-        "-map", "0:v",
-        "-map", "[aout]",
-        "-c:v", "copy",
-        "-c:a", "aac",
-        "-b:a", "192k",
-        "-shortest",
-        str(out_file)
-    ]
+    for filter_expr in (duck_filter, fallback_filter):
+        cmd = [
+            "ffmpeg", "-y",
+            "-i", str(video_path),
+            "-stream_loop", "-1",
+            "-i", str(target_bgm),
+            "-filter_complex", filter_expr,
+            "-map", "0:v",
+            "-map", "[aout]",
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-b:a", "192k",
+            "-shortest",
+            str(out_file)
+        ]
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
+        if res.returncode == 0 and out_file.exists() and out_file.stat().st_size > 0:
+            if output_path is None:
+                video_path.unlink()
+                shutil.move(str(out_file), str(video_path))
+                return video_path
+            return out_file
 
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
-    if res.returncode == 0 and out_file.exists() and out_file.stat().st_size > 0:
-        if output_path is None:
-            # 원본 파일 교체
-            video_path.unlink()
-            shutil.move(str(out_file), str(video_path))
-            return video_path
-        return out_file
-    else:
-        print(f"⚠️ [BGM 믹싱 경고] 배경음악 합성 실패, 원본 유지: {res.stderr}")
-        return video_path
+    print(f"⚠️ [BGM 믹싱 경고] 배경음악 합성 실패, 원본 유지")
+    return video_path
 
 
-def render_shorts_video(card_image_paths: list[Path], audio_info_list: list[dict], output_video_path: Path) -> Path:
+def render_shorts_video(
+    card_image_paths: list[Path],
+    audio_info_list: list[dict],
+    output_video_path: Path,
+    slide_image_lists: list[list[Path]] = None,
+) -> Path:
     """
     모든 카드뉴스 이미지와 TTS 오디오를 매칭하여 9:16 완성형 쇼츠 비디오(shorts.mp4)를 렌더링합니다.
     """
@@ -251,15 +327,21 @@ def render_shorts_video(card_image_paths: list[Path], audio_info_list: list[dict
     temp_segment_dir = output_video_path.parent / "temp_segments"
     temp_segment_dir.mkdir(parents=True, exist_ok=True)
     segment_paths = []
+    durations = []
 
     print(f"[비디오 렌더] 총 {len(card_image_paths)}개 슬라이드 세그먼트 영상 렌더링 시작...")
 
     for i, (img_path, audio_info) in enumerate(zip(card_image_paths, audio_info_list)):
         dur = audio_info["duration"]
+        durations.append(dur)
         aud_path = audio_info["audio_path"]
         seg_path = temp_segment_dir / f"seg_{i+1:02d}.mp4"
 
-        render_slide_segment(img_path, aud_path, dur, seg_path)
+        multi_imgs = slide_image_lists[i] if slide_image_lists and i < len(slide_image_lists) else None
+        if multi_imgs and len([p for p in multi_imgs if p and Path(p).exists()]) >= 2:
+            render_multi_photo_slide_segment(multi_imgs, aud_path, dur, seg_path)
+        else:
+            render_slide_segment(img_path, aud_path, dur, seg_path)
         segment_paths.append(seg_path)
         print(f"[세그먼트 완료] 슬라이드 {i+1}/{len(card_image_paths)} ({dur:.2f}초): {seg_path.name}")
 
@@ -270,9 +352,20 @@ def render_shorts_video(card_image_paths: list[Path], audio_info_list: list[dict
     # 임시 세그먼트 디렉토리 정리
     shutil.rmtree(temp_segment_dir, ignore_errors=True)
 
-    # BGM 배경음악 자동 믹싱 (등록된 BGM이 있는 경우)
+    # 전환 SFX + 광고 포인트 Pop SFX 믹싱
+    pop_delays_ms: list[int] = []
+    cum_ms = 0
+    for d, a_info in zip(durations, audio_info_list):
+        if a_info.get("slide_type") == "ad" and cum_ms > 0:
+            pop_delays_ms.append(cum_ms + 120)
+        cum_ms += int(d * 1000)
+
+    if SFX_WHOOSH_PATH.exists() or (pop_delays_ms and SFX_POP_PATH.exists()):
+        _mix_transition_sfx(output_video_path, durations, SFX_WHOOSH_PATH, pop_delays_ms=pop_delays_ms)
+
+    # BGM 배경음악 자동 덕킹 + -14 LUFS 정규화 믹싱
     if DEFAULT_BGM_PATH and Path(DEFAULT_BGM_PATH).exists():
-        print(f"🎵 [BGM 합성] 배경음악 자동 믹싱 중: {Path(DEFAULT_BGM_PATH).name} (볼륨: {int(BGM_VOLUME * 100)}%)...")
+        print(f"🎵 [BGM 합성] 자동 덕킹 및 음량 정규화 믹싱 중: {Path(DEFAULT_BGM_PATH).name} (볼륨: {int(BGM_VOLUME * 100)}%)...")
         mix_bgm_to_video(output_video_path, DEFAULT_BGM_PATH, BGM_VOLUME)
 
     print(f"[비디오 완성] 쇼츠 영상 생성 성공: {output_video_path} (크기: {output_video_path.stat().st_size / (1024*1024):.2f} MB)")
@@ -287,7 +380,7 @@ if __name__ == "__main__":
     import asyncio
 
     print("[테스트] 9:16 쇼츠 비디오 전체 렌더링 테스트 시작...")
-    test_dir = Path(__file__).resolve().parent.parent / "output" / "test_full_run"
+    test_dir = Path(__file__).resolve().parent.parent / "결과물" / "THEPT뉴스" / "test_full_run"
     news = collect_weekly_physical_therapy_news(min_news_count=3)
     pkg = build_content_package(news)
 

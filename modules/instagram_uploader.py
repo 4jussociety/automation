@@ -3,9 +3,12 @@
 
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List, Optional
 import requests
+
+KST = timezone(timedelta(hours=9))
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from config import INSTAGRAM_ACCOUNT_ID, INSTAGRAM_ACCESS_TOKEN
@@ -64,6 +67,67 @@ class InstagramGraphUploader:
             }
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    def has_recent_duplicate(
+        self,
+        content_kind: str,
+        marker_text: str,
+        target_date_kst: Optional[str] = None,
+        limit: int = 15,
+    ) -> Optional[dict]:
+        """
+        당일(KST) 동일 포맷(carousel vs reels) 및 동일 브리핑 마커를 가진 게시물이
+        이미 Instagram에 등록되어 있는지 확인합니다.
+        """
+        if not self.is_configured():
+            return None
+
+        target_date = target_date_kst or datetime.now(KST).strftime("%Y-%m-%d")
+        expected_types = (
+            {"CAROUSEL_ALBUM", "IMAGE"} if content_kind == "carousel" else {"REELS", "VIDEO"}
+        )
+
+        try:
+            res = requests.get(
+                f"{self.api_base}/{self.account_id}/media",
+                params={
+                    "fields": "id,media_type,media_product_type,caption,timestamp,permalink",
+                    "limit": limit,
+                    "access_token": self.access_token,
+                },
+                timeout=12,
+            )
+            data = res.json()
+            for item in data.get("data", []):
+                raw_ts = (item.get("timestamp") or "").strip()
+                if not raw_ts:
+                    continue
+                norm_ts = raw_ts[:-1] + "+00:00" if raw_ts.endswith("Z") else (
+                    raw_ts[:-2] + ":" + raw_ts[-2:] if len(raw_ts) > 5 and raw_ts[-5] in "+-" else raw_ts
+                )
+                try:
+                    item_date = datetime.fromisoformat(norm_ts).astimezone(KST).strftime("%Y-%m-%d")
+                except Exception:
+                    continue
+                if item_date != target_date:
+                    continue
+
+                mtype = str(item.get("media_product_type") or item.get("media_type") or "").upper()
+                if mtype not in expected_types and str(item.get("media_type", "")).upper() not in expected_types:
+                    continue
+
+                caption = item.get("caption") or ""
+                if marker_text and marker_text in caption:
+                    return {
+                        "id": item.get("id"),
+                        "media_type": mtype,
+                        "permalink": item.get("permalink"),
+                        "date_kst": item_date,
+                    }
+        except Exception as e:
+            print(f"   ⚠️ [Instagram 중복 확인 경고] 조회 실패로 계속 진행합니다: {e}")
+
+        return None
 
     def add_comment(self, media_id: str, comment_text: str) -> dict:
         """

@@ -10,7 +10,14 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import base64
 
-from config import DEFAULT_BG_PATH, AI_TECH_BG_PATH, DEFAULT_AD_CONFIG, OUTRO_IMG_PATH, get_day_intro_image
+from config import (
+    DEFAULT_BG_PATH,
+    AI_TECH_BG_PATH,
+    DEFAULT_AD_CONFIG,
+    OUTRO_IMG_PATH,
+    get_day_intro_image,
+    build_4thept_promo_footer,
+)
 
 
 def get_image_data_uri(img_path) -> str:
@@ -43,7 +50,18 @@ def build_slide_html(slide_type: str, data: dict) -> str:
         media_img = data.get("media_image", "")
         media_uri = get_image_data_uri(media_img)
         bg_style = f"background-image: url('{media_uri}');" if media_uri else "background: linear-gradient(135deg, #1e293b, #0f172a);"
+        hook_line_1 = data.get("hook_line_1", "").strip()
+        hook_line_2 = data.get("hook_line_2", "").strip()
+        hook_banner_html = ""
+        if hook_line_1 or hook_line_2:
+            hook_banner_html = f"""
+        <div class="cover-hook-banner">
+            <div class="cover-hook-l1">{hook_line_1}</div>
+            {f'<div class="cover-hook-l2">{hook_line_2}</div>' if hook_line_2 else ''}
+        </div>
+        """
         return f"""
+        {hook_banner_html}
         <div class="cover-media-frame">
             <div class="cover-media-img" style="{bg_style}"></div>
         </div>
@@ -389,7 +407,8 @@ def build_daily_curated_package(
     articles: list[dict],
     bg_dir: Path = None,
     article_photos: dict = None,
-    is_global: bool = False
+    is_global: bool = False,
+    day_slug: str = "weekly",
 ) -> dict:
     """
     큐레이션된 일별 2~3개 기사를 바탕으로,
@@ -430,12 +449,24 @@ def build_daily_curated_package(
     tag_text = f"THEPT WEEKLY | {day_name} 브리핑"
 
     # 5. 슬라이드 목록 조립
-    # 슬라이드 1: 표지 (요일별 전용 시그니처 인트로 사진 우선 적용)
+    # 슬라이드 1: 표지 (요일별 전용 시그니처 인트로 사진 우선 적용 + 0~3초 훅 적용)
     day_intro_img = get_day_intro_image(day_name)
     if day_intro_img and day_intro_img.exists():
         cover_bg = str(day_intro_img)
     else:
         cover_bg = str(photo_map.get(1, default_bg))
+
+    lead_hook = (compressed_items[0].get("opening_hook") or "").strip()
+    cover_narration = (
+        lead_hook
+        if lead_hook
+        else f"{day_name} 물리치료 핵심 소식 {num_arts}가지, 놓치기 전에 지금 확인하세요."
+    )
+    hook_words = lead_hook.rstrip(".!?").split() if lead_hook else []
+    split_at = max(1, len(hook_words) // 2) if hook_words else 0
+    hook_line_1 = " ".join(hook_words[:split_at]) if hook_words else f"{day_name} 핵심 브리핑"
+    hook_line_2 = " ".join(hook_words[split_at:]) if len(hook_words) > 1 else ""
+
     slides = [
         {
             "type": "cover",
@@ -447,9 +478,11 @@ def build_daily_curated_package(
                 "title": f"<span class=\"hl-yellow\">{day_name} {category_title}</span>",
                 "desc": f"오늘 꼭 살펴봐야 할 {category_title} 주요 뉴스 {num_arts}가지를 전해드립니다.",
                 "items": cover_items,
-                "media_image": cover_bg
+                "media_image": cover_bg,
+                "hook_line_1": hook_line_1,
+                "hook_line_2": hook_line_2,
             },
-            "narration": f"{day_name} 더피티 뉴스 1분 브리핑 시작합니다."
+            "narration": cover_narration
         }
     ]
 
@@ -492,9 +525,14 @@ def build_daily_curated_package(
         "narration": ad_cfg["narration"]
     })
 
-    # 슬라이드 6: 아웃트로 슬라이드 (남녀 듀오 물리치료사 대표 이미지 적용)
+    # 슬라이드 6: 아웃트로 슬라이드 (댓글 질문 + 간결한 마무리)
     outro_bg = str(photo_map.get(num_arts, cover_bg))
-    outro_narration = "오늘 소식이 유익하셨다면 구독과 좋아요 부탁드립니다. 내일도 알찬 소식으로 찾아오겠습니다. 감사합니다!"
+    comment_q = (compressed_items[0].get("comment_question") or "").strip()
+    outro_narration = (
+        f"{comment_q} 의견은 댓글로, 구독과 좋아요도 부탁드립니다."
+        if comment_q
+        else "현장의 생각을 댓글로 남기고, 구독과 좋아요도 부탁드립니다."
+    )
     slides.append({
         "type": "outro",
         "header_tag": "THEPT NEWS",
@@ -508,9 +546,15 @@ def build_daily_curated_package(
         "narration": outro_narration
     })
 
-    # 인스타그램 캡션 생성
+    # 인스타그램 캡션 생성 (표준 UTM + 보조 도구 고지 포함)
     clean_cat = category_title.replace('·', '').replace(' ', '_')
     tags_line = f"#{clean_cat} #물리치료 #도수치료 #재활치료 #물리치료사 #THEPT #더피티 #카드뉴스"
+    ig_footer = build_4thept_promo_footer(
+        utm_source="ig",
+        utm_medium="carousel",
+        utm_campaign=f"weekly_briefing_{day_slug}",
+        include_disclaimer=True,
+    )
 
     if is_global:
         # 글로벌 기사 전용: [헤드라인 + 4~6문장 상세 스토리텔링 번역 브리핑 + 원문 출처 + 링크]
@@ -540,7 +584,7 @@ def build_daily_curated_package(
         # 인스타그램 2,200자 제한 안전 가드레일 (기사 요약 길이 동적 조정, 최대 2,150자 이내 보장)
         summary_limit = 500
         caption_text = ""
-        while summary_limit >= 150:
+        while summary_limit >= 120:
             sources_text = build_global_sources_block(summary_limit)
             caption_text = (
                 f"📋 [THEPT 글로벌 주간 브리핑 - {day_name}]\n"
@@ -551,11 +595,7 @@ def build_daily_curated_package(
                 f"🌐 [글로벌 뉴스 심층 번역 브리핑 & 원문 출처]\n\n"
                 f"{sources_text}"
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-                f"💬 더 많은 글로벌 임상 연구 자료와 동료 치료사들의 토론은\n"
-                f"'THEPT 커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
-                f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
-                f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
-                f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
+                f"{ig_footer}\n\n"
                 f"도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
                 f"{tags_line}\n"
             )
@@ -576,11 +616,7 @@ def build_daily_curated_package(
             f"📰 [기사 원문 출처 및 링크]\n"
             f"{sources_text}"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"💬 더 많은 임상 연구 자료와 동료 치료사들의 토론은\n"
-            f"'THEPT커뮤니티' (https://thept.co.kr) 에서 확인하실 수 있습니다!\n\n"
-            f"📌 방문재활 AI 음성 차팅 무료 체험: https://4thept.com\n"
-            f"📘 [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: https://kmong.com/gig/813101\n"
-            f"📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n\n"
+            f"{ig_footer}\n\n"
             f"도움이 되셨다면 좋아요 ❤️ 와 동료 치료사에게 공유 ✈️ 부탁드립니다!\n"
             f"{tags_line}\n"
         )

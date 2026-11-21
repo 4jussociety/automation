@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4THEPT 홍보 실행 마스터 허브 (실사 스크린샷 · 쇼츠 · 카드뉴스 · 카피)</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --surface-soft: #f1f5f9;
+      --border: #e2e8f0;
+      --ink: #0f172a;
+      --ink-sub: #475569;
+      --ink-muted: #64748b;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --blue-soft: #eff6ff;
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --navy: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Pretendard", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; }
+
+    /* Top Bar */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: baseline; gap: 10px; }
+    .brand-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+    .brand-tag {
+      font-size: 12px; font-weight: 700; color: var(--blue);
+      background: var(--blue-soft); padding: 3px 9px; border-radius: 999px;
+    }
+    .nav-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill-link {
+      font-size: 13px; font-weight: 700; padding: 7px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--ink-sub);
+      transition: all .15s ease;
+    }
+    .pill-link:hover { border-color: var(--blue); color: var(--blue); }
+    .pill-link.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .pill-link.primary:hover { background: var(--blue-dark); }
+
+    /* Section */
+    .section { margin-top: 28px; }
+    .section-head {
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
+      margin-bottom: 12px; flex-wrap: wrap;
+    }
+    .section-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+    .section-sub { font-size: 13px; color: var(--ink-sub); margin: 2px 0 0; }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    @media (max-width: 960px) {
+      .grid-3, .grid-4, .grid-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+    }
+
+    /* Diagnosis Banner */
+    .hero-box {
+      background: var(--navy);
+      color: #f8fafc;
+      border-radius: 20px;
+      padding: 24px;
+    }
+    .hero-eyebrow {
+      display: inline-block; font-size: 12px; font-weight: 800; color: #93c5fd;
+      letter-spacing: 0.02em; margin-bottom: 8px;
+    }
+    .hero-title { font-size: 24px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.02em; }
+    .hero-desc { font-size: 14px; color: #cbd5e1; margin: 0 0 18px; max-width: 820px; }
+    .formula-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .formula-badge {
+      display: inline-block; font-size: 11px; font-weight: 800; color: #60a5fa; margin-bottom: 6px;
+    }
+    .formula-title { font-size: 15px; font-weight: 800; color: #fff; margin: 0 0 6px; }
+    .formula-body { font-size: 13px; color: #cbd5e1; margin: 0; }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+      cursor: pointer; transition: all .15s ease;
+    }
+    .btn:hover { border-color: var(--blue); color: var(--blue); }
+    .btn.blue { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn.blue:hover { background: var(--blue-dark); }
+    .btn.copied { background: var(--emerald-soft); border-color: var(--emerald); color: var(--emerald); }
+
+    /* Video / Asset Frames */
+    .video-wrap {
+      display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;
+    }
+    .phone-frame {
+      width: 240px; flex-shrink: 0; background: #0f172a; border-radius: 18px;
+      padding: 8px; border: 1px solid #334155;
+    }
+    .phone-frame video {
+      width: 100%; border-radius: 12px; display: block; background: #000; aspect-ratio: 9 / 16;
+    }
+    .asset-meta { flex: 1; min-width: 210px; }
+    .asset-title { font-size: 16px; font-weight: 800; margin: 0 0 6px; }
+    .asset-desc { font-size: 13px; color: var(--ink-sub); margin: 0 0 10px; }
+    .spec-list { list-style: none; padding: 0; margin: 0 0 12px; font-size: 12px; color: var(--ink-sub); }
+    .spec-list li { padding: 3px 0; border-bottom: 1px dashed var(--border); }
+
+    /* Gallery Thumbnails */
+    .thumb-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+    .thumb-img-box {
+      background: var(--surface-soft); aspect-ratio: 16 / 10; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb-img-box.square { aspect-ratio: 4 / 5; }
+    .thumb-img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb-foot { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; justify-content: space-between; }
+    .thumb-name { font-size: 12px; font-weight: 800; color: var(--ink); word-break: break-all; }
+    .thumb-note { font-size: 11px; color: var(--ink-muted); }
+
+    /* Copy Templates */
+    .tab-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tab-btn {
+      font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 10px;
+      border: 1px solid var(--border); background: var(--surface); color: var(--ink-sub); cursor: pointer;
+    }
+    .tab-btn.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+    .copy-pre {
+      background: var(--surface-soft); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px; font-family: inherit; font-size: 13px; white-space: pre-wrap;
+      color: var(--ink); margin: 0; max-height: 360px; overflow-y: auto;
+    }
+
+    /* Notice */
+    .compliance-box {
+      margin-top: 24px; background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--blue); border-radius: 12px; padding: 14px 16px;
+      font-size: 12px; color: var(--ink-sub);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-title">4THEPT 홍보 실행 마스터 허브</span>
+        <span class="brand-tag">실사 스크린샷 · 쇼츠 · 1080px 카드뉴스 · 원클릭 카피</span>
+      </div>
+      <nav class="nav-pills">
+        <a class="pill-link" href="#diagnosis">전환 진단</a>
+        <a class="pill-link" href="#shorts">쇼츠 영상</a>
+        <a class="pill-link" href="#gif-og">루프 GIF · OG</a>
+        <a class="pill-link" href="#cards">카드뉴스 18종 (4:5)</a>
+        <a class="pill-link" href="#shots">실사 스크린샷 6종</a>
+        <a class="pill-link" href="#copy">바이럴 카피</a>
+        <a class="pill-link" href="#sns-cli">SNS 자동 업로드 CLI</a>
+        <a class="pill-link" href="./pt_hospital_viral_kit.html">카드뉴스 편집기</a>
+        <a class="pill-link primary" href="https://www.4thept.com/intro" target="_blank" rel="noopener">실서비스 /intro 열기</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 1. Zero-Reaction Diagnosis & 3 Breakthroughs -->
+    <section id="diagnosis" class="section">
+      <div class="hero-box">
+        <span class="hero-eyebrow">MARKETING AUDIT & BREAKTHROUGH STRATEGY</span>
+        <h1 class="hero-title">기존 카드뉴스 · 쇼츠 반응이 저조했던 이유와 3가지 돌파 공식</h1>
+        <p class="hero-desc">
+          선생님들은 피드에서 "새로운 AI 서비스 홍보글"을 만나면 0.5초 만에 광고로 인식하고 넘깁니다.
+          제품 소개를 앞세우는 대신, <strong>저장할 수밖에 없는 실무 참고 자료(저장형 치트시트) + 실제 5초 구동 화면 + 동료에게 먼저 보여주고 싶은 무료 체험</strong>으로 구조를 바꿨습니다.
+        </p>
+        <div class="grid-3">
+          <div class="formula-card">
+            <span class="formula-badge">공식 01 · 카페 / 인스타 우회 침투</span>
+            <h3 class="formula-title">정보 90% : 도구 10% (저장형 치트시트)</h3>
+            <p class="formula-body">
+              "좋은 프로그램 나왔어요" 대신, 발목 염좌 · 경견부 근막통증 등 실제 EMR 작성 포맷과 NRS/ROM 기록 루틴을 1~4번 카드로 먼저 주고 마지막 5번 카드에만 <code>www.4thept.com/intro</code>를 배치해 광고 반감과 카페 삭제를 피합니다.
+            </p>
+          </div>
+          <div class="formula-card">
+            <span class="formula-badge">공식 02 · 스크롤 정지 장치</span>
+            <h3 class="formula-title">가상 목업 폐기, 실제 /intro 화면 전면 배치</h3>
+            <p class="formula-body">
+              직접 타이핑해 5항목 EMR 초안이 생성되고 부위 탭(목·허리·어깨·발목)을 전환하는 실제 구동 영상·6초 루프 GIF·고해상도 스크린샷을 첫 장면에 배치해 "진짜 돌아가는 도구"라는 즉각적 신뢰를 만듭니다.
+            </p>
+          </div>
+          <div class="formula-card">
+            <span class="formula-badge">공식 03 · 0원 마찰 루프</span>
+            <h3 class="formula-title">로그인 없는 5초 수정 체험 + 동료 공유</h3>
+            <p class="formula-body">
+              회원가입부터 요구하지 않습니다. <code>/intro</code>에서 1줄 키워드를 고쳐 써 보고 <code>EMR 양식 복사</code>까지 5초 안에 끝낸 뒤 <code>동료에게 공유</code> 버튼으로 치료실 단톡방에 자연스럽게 퍼지도록 설계했습니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Real-UI 9:16 Shorts -->
+    <section id="shorts" class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">최신 9:16 세로형 쇼츠·릴스 6종 (V2 시네마틱 실사본 + 벤치마킹 + 네이티브본 + 카드형 3종)</h2>
+          <p class="section-sub">유튜브 쇼츠, 인스타그램 릴스, 틱톡에 바로 업로드 가능한 1080x1920 30fps MP4 파일입니다.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="video-wrap">
+            <div class="phone-frame">
+              <video controls preload="metadata" src="../결과물/4THEPT마케팅/videos/shorts_cinematic_v2_18s.mp4"></video>
+            </div>
+            <div class="asset-meta">
+              <h3 class="asset-title">V2 시네마틱 실사본 (AI 차팅 집중 · 2.2배 확대 UI · Veo 3.1 + Gemini 3.8 TTS · 추천)</h3>
+              <p class="asset-desc">매 치료 후 테크닉·환자 상태 메모 ➔ EMR용 자세한 차팅 변환 및 검토·복사 과정만 단독 집중 구성했습니다. 1000x840 확대 UI와 74~84px 대화면 타이포, 4thept.com 단일 표기, 최하단 정돈 안내를 적용한 V2 마스터입니다.</p>
+              <ul class="spec-list">
+                <li>파일명: <code>shorts_cinematic_v2_18s.mp4</code></li>
+                <li>해상도 / 비율: 1080 x 1920 (9:16) · 30fps · -14 LUFS 오디오 마스터링</li>
+                <li>시각 엔진: Veo B-roll + 1000x840 2.2배 확대 라이브 AI 차팅 + SVG 콜아웃</li>
+                <li>안전영역 · 도메인: <code>4thept.com</code> 단일 표기 · 최하단 1줄 초안 검토 안내</li>
+              </ul>
+              <div class="btn-row">
+                <a class="btn blue" href="../결과물/4THEPT마케팅/videos/shorts_cinematic_v2_18s.mp4" download>V2 시네마틱 MP4 다운로드</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="video-wrap">
+            <div class="phone-frame">
+              <video controls preload="metadata" src="../결과물/4THEPT마케팅/videos/shorts_benchmark_hook_18s.mp4"></video>
+            </div>
+            <div class="asset-meta">
+              <h3 class="asset-title">데이터 벤치마킹 실전본 (`ad_benchmark_db.md` 공식 1 · 추천)</h3>
+              <p class="asset-desc">YouTube 765만/666만 뷰 실측 패턴(상단 2줄 레터박스 훅 + 적색 콜아웃 타원 + 무음 제거 +34% 고속 템포 + 무테두리 70px 자막)을 이식한 80/20 쇼츠입니다.</p>
+              <ul class="spec-list">
+                <li>파일명: <code>shorts_benchmark_hook_18s.mp4</code></li>
+                <li>해상도 / 비율: 1080 x 1920 (9:16) · 30fps · 무음 제거 ~7자/초</li>
+                <li>핵심 구조: 0~3초 습관 부정 ➔ 4원칙 임상 팁 ➔ 적색 콜아웃 실구동 ➔ 저장 CTA</li>
+                <li>안전영역: 하단 480px 완전 비움 · y=1356 1줄 [초안] 검수 고지</li>
+              </ul>
+              <div class="btn-row">
+                <a class="btn blue" href="../결과물/4THEPT마케팅/videos/shorts_benchmark_hook_18s.mp4" download>벤치마킹본 MP4 다운로드</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="video-wrap">
+            <div class="phone-frame">
+              <video controls preload="metadata" src="../결과물/4THEPT마케팅/videos/shorts_native_viral_18s.mp4"></video>
+            </div>
+            <div class="asset-meta">
+              <h3 class="asset-title">네이티브 고조회수 테스트본 (2초 컷 · 68px 중앙 자막 · 하단 480px 비움)</h3>
+              <p class="asset-desc">상단 카드 테두리 없이 풀스크린 UI 줌 + 8컷 고속 템포 + 68px 팝업 자막으로 숏폼 체류율에 최적화한 A/B 테스트 본입니다.</p>
+              <ul class="spec-list">
+                <li>파일명: <code>shorts_native_viral_18s.mp4</code></li>
+                <li>해상도 / 비율: 1080 x 1920 (9:16) · 30fps · +28% 고속 8컷</li>
+                <li>안전영역: 하단 480px · 우측 140px 텍스트 완전 비움</li>
+                <li>고지 위치: y=1356 한 줄 [초안] · 치료사 [직접 검수] 고지</li>
+              </ul>
+              <div class="btn-row">
+                <a class="btn blue" href="../결과물/4THEPT마케팅/videos/shorts_native_viral_18s.mp4" download>네이티브본 MP4 다운로드</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="video-wrap">
+            <div class="phone-frame">
+              <video controls preload="metadata" src="../결과물/4THEPT마케팅/videos/shorts_charting_vertical_18s.mp4"></video>
+            </div>
+            <div class="asset-meta">
+              <h3 class="asset-title">여성 내레이션 버전 (병원 PT 메인)</h3>
+              <p class="asset-desc">선명한 여성 성우(SunHiNeural)와 2배 확대 돋보기 · 54px 안전영역 자막이 결합된 병원 물리치료실 메인 영상입니다.</p>
+              <ul class="spec-list">
+                <li>파일명: <code>shorts_charting_vertical_18s.mp4</code></li>
+                <li>해상도 / 비율: 1080 x 1920 (9:16) · 30fps · H.264/AAC</li>
+                <li>핵심 강조: 5초 초안 · 발목/어깨 실사 UI · 매월 120건(THEPT 300건) 무료</li>
+                <li>하단 안전영역: AI 보조 [초안] · 치료사 [직접 검수] 고지 포함</li>
+              </ul>
+              <div class="btn-row">
+                <a class="btn blue" href="../결과물/4THEPT마케팅/videos/shorts_charting_vertical_18s.mp4" download>여성본 MP4 다운로드</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="video-wrap">
+            <div class="phone-frame">
+              <video controls preload="metadata" src="../결과물/4THEPT마케팅/videos/shorts_charting_vertical_male.mp4"></video>
+            </div>
+            <div class="asset-meta">
+              <h3 class="asset-title">남성 내레이션 버전 (A/B 테스트 · 신뢰형)</h3>
+              <p class="asset-desc">차분하고 신뢰감 있는 남성 성우(InJoonNeural) 버전입니다. 동일 주제를 2~3일 간격으로 A/B 테스트할 때 활용하세요.</p>
+              <ul class="spec-list">
+                <li>파일명: <code>shorts_charting_vertical_male.mp4</code></li>
+                <li>해상도 / 비율: 1080 x 1920 (9:16) · 30fps · H.264/AAC</li>
+                <li>오디오 믹스: 음성 +24% 템포 강조 + UI 효과음 · 피아노 BGM</li>
+                <li>하단 안전영역: AI 보조 [초안] · 치료사 [직접 검수] 고지 포함</li>
+              </ul>
+              <div class="btn-row">
+                <a class="btn blue" href="../결과물/4THEPT마케팅/videos/shorts_charting_vertical_male.mp4" download>남성본 MP4 다운로드</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="video-wrap">
+            <div class="phone-frame">
+              <video controls preload="metadata" src="../결과물/4THEPT마케팅/videos/shorts_center_mode_vertical.mp4"></video>
+            </div>
+            <div class="asset-meta">
+              <h3 class="asset-title">트레이너·PT 센터 전용 버전 (비의료 모드)</h3>
+              <p class="asset-desc">세션기록지 5초 정리, 태블릿 전자서명, 이용권 기간 연기(10회당 2회) 및 6자리 팀 공유 안내 영상입니다.</p>
+              <ul class="spec-list">
+                <li>파일명: <code>shorts_center_mode_vertical.mp4</code></li>
+                <li>해상도 / 비율: 1080 x 1920 (9:16) · 30fps · H.264/AAC</li>
+                <li>용어 규격: 센터·고객·전문가·세션·이용권 비의료 표준 준수</li>
+                <li>하단 안전영역: 세션 보조 [초안] · 전문가 [직접 검수] 고지 포함</li>
+              </ul>
+              <div class="btn-row">
+                <a class="btn blue" href="../결과물/4THEPT마케팅/videos/shorts_center_mode_vertical.mp4" download>센터본 MP4 다운로드</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 6s Loop GIF & OG Share Card -->
+    <section id="gif-og" class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">6초 실사 루프 GIF & 링크 썸네일 (OG Image)</h2>
+          <p class="section-sub">네이버 블로그·카페 최상단에 GIF를 배치해 이탈률을 낮추고, 카카오톡 링크 공유 시 OG 썸네일이 노출됩니다.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="asset-title">6초 자동 시연 루프 GIF (블로그 · 카페 상단용)</h3>
+          <p class="asset-desc">발목 1줄 입력 ➔ 상세 5항목 초안 ➔ 어깨 탭 전환 ➔ 복사 완료 흐름을 한 번에 보여줍니다.</p>
+          <div class="thumb-img-box" style="aspect-ratio: 16/10; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px;">
+            <img src="./real_assets/demo_5s_charting_loop.gif" alt="4THEPT 5초 EMR 차팅 실제 구동 GIF" />
+          </div>
+          <div class="btn-row">
+            <a class="btn blue" href="./real_assets/demo_5s_charting_loop.gif" download>GIF 다운로드</a>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="asset-title">카카오톡 · 네이버 공유 전용 썸네일 (1200 x 630)</h3>
+          <p class="asset-desc">실제 서비스 배포 파일(<code>book/public/og-image.png</code>)에도 동일 이미지가 연결되어 있습니다.</p>
+          <div class="thumb-img-box" style="aspect-ratio: 1200/630; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 10px;">
+            <img src="./real_assets/og-image.png" alt="4THEPT OG 공유 카드" />
+          </div>
+          <div class="btn-row">
+            <a class="btn blue" href="./real_assets/og-image.png" download>OG PNG 다운로드</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 18 Card News PNGs -->
+    <section id="cards" class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">1080 x 1350 (4:5) 카드뉴스 완성본 PNG 18장 (2배 확대 실사 탑재)</h2>
+          <p class="section-sub">저장형 치트시트 5장 · 실사 UI 기능 소개 5장 · 단톡방 한 장 요약 포스터 3장 · 트레이너·PT 센터 전용 5장</p>
+        </div>
+        <a class="btn" href="./pt_hospital_viral_kit.html">브라우저에서 테마별 텍스트 편집/다운로드</a>
+      </div>
+
+      <div class="card" style="margin-bottom: 12px;">
+        <h3 class="asset-title">테마 1. 저장형 EMR 치트시트 (5장 · 인스타/카페 도달 최적화)</h3>
+        <div class="grid-5" id="grid-cheatsheet"></div>
+      </div>
+
+      <div class="card" style="margin-bottom: 12px;">
+        <h3 class="asset-title">테마 2. 실사 구동 워크벤치 (5장 · 실제 화면 신뢰 확보)</h3>
+        <div class="grid-5" id="grid-real"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="asset-title">테마 3. 단톡방 · 커뮤니티 1장 포스터 (3장)</h3>
+        <div class="grid-3" id="grid-kakao"></div>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <h3 class="asset-title">테마 4. 트레이너·PT 센터 전용 키트 (5장 · 비의료 표준 용어)</h3>
+        <div class="grid-5" id="grid-center"></div>
+      </div>
+    </section>
+
+    <!-- 5. 6 High-Res Real Screenshots -->
+    <section id="shots" class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">2배 고해상도 실사 스크린샷 원본 6종</h2>
+          <p class="section-sub">블로그 포스팅, 상세페이지, 스레드, 커뮤니티 첨부 이미지로 그대로 사용할 수 있습니다.</p>
+        </div>
+      </div>
+      <div class="grid-3" id="grid-shots"></div>
+    </section>
+
+    <!-- 6. 1-Click Viral Copy Templates -->
+    <section id="copy" class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">채널별 1클릭 복사 카피라이팅 (광고 티 최소화 실무 문구)</h2>
+          <p class="section-sub">원하는 채널 탭을 고르고 우측 상단 복사 버튼으로 바로 붙여넣으세요.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tab-bar" id="copy-tabs"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+          <strong id="copy-title" style="font-size:15px;"></strong>
+          <button type="button" class="btn blue" id="btn-copy-template">문구 전체 복사</button>
+        </div>
+        <pre class="copy-pre" id="copy-body"></pre>
+      </div>
+    </section>
+
+    <!-- 7. YouTube / Instagram Uploader CLI -->
+    <section id="sns-cli" class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">유튜브 · 인스타그램 연동 CLI 실행 센터 (기존 THEPT 계정 연결)</h2>
+          <p class="section-sub"><code>c:\개발\자동화에이전트</code> 인증 정보와 GitHub Raw URL(<code>결과물/4THEPT마케팅/</code>)을 결합해 로컬 터미널에서 즉시 또는 예약 발행합니다.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="grid-2" id="cli-command-grid"></div>
+      </div>
+    </section>
+
+    <div class="compliance-box">
+      <strong>기록 보조 및 홍보 가이드 원칙</strong> · 포더피티(4THEPT) AI 차팅은 치료사의 기록 작성을 돕는 보조 [초안] 생성 도구입니다.
+      모든 홍보물과 실무 출력물에서 최종 진단명, 평가 소견, 중재 처방은 담당 치료사가 [직접 검수] 후 확정하여 사용한다는 점을 명확히 고지합니다.
+    </div>
+  </main>
+
+  <script>
+    const CHEATSHEET_CARDS = [
+      { file: 'card_cheatsheet_01.png', label: '01 표지 · 부위별 SOAP 차트 1분 총정리' },
+      { file: 'card_cheatsheet_02.png', label: '02 예시 1·2 · 경추·어깨 도수 & 회전근개 5단락' },
+      { file: 'card_cheatsheet_03.png', label: '03 예시 3·4 · 요추 통증 & 발목 재활 5단락' },
+      { file: 'card_cheatsheet_04.png', label: '04 실사 UI · 키워드 1줄이면 5초 만에 [초안] 완성' },
+      { file: 'card_cheatsheet_05.png', label: '05 복사 & 혜택 · 월 120건(THEPT 300건) 무료 시작' },
+    ];
+
+    const REAL_CARDS = [
+      { file: 'card_real_01.png', label: '01 문제 제기 · 도수 12명 후 차팅 40분 야근 해결' },
+      { file: 'card_real_02.png', label: '02 STEP 01 · 문장 말고 1줄 키워드 입력 화면' },
+      { file: 'card_real_03.png', label: '03 STEP 02 · 경추·요추·어깨·발목 5단락 5초 정렬' },
+      { file: 'card_real_04.png', label: '04 STEP 03 · 10초 검수 후 [EMR 양식 복사] 완료' },
+      { file: 'card_real_05.png', label: '05 설치 없음 · 구글 1클릭 & 120건 / THEPT 300건' },
+    ];
+
+    const KAKAO_CARDS = [
+      { file: 'card_kakao_01.png', label: '포스터 01 · 단어 5개 -> 5초 EMR 복붙 [초안]' },
+      { file: 'card_kakao_02.png', label: '포스터 02 · 환자 12명 40분 야근 vs 3분 칼퇴' },
+      { file: 'card_kakao_03.png', label: '포스터 03 · 지어내지 않고 정리하는 AI (월 120/300건)' },
+    ];
+
+    const CENTER_CARDS = [
+      { file: 'card_center_01.png', label: '센터 01 · 이용권 기간 연기·양도 분쟁 3가지 기준' },
+      { file: 'card_center_02.png', label: '센터 02 · 기간 연기(10회당 2회/30일)·양도 기준표' },
+      { file: 'card_center_03.png', label: '센터 03 · 수업 직후 키워드 1줄 5초 세션기록지' },
+      { file: 'card_center_04.png', label: '센터 04 · 310구역 4면 바디차트 & 6자리 팀 공유' },
+      { file: 'card_center_05.png', label: '센터 05 · 센터 내부 모드 5초 무료 체험' },
+    ];
+
+    const REAL_SHOTS = [
+      { file: 'shot_1_intro_full_hero.png', label: 'intro 전체 히어로 + 체험 섹션 (2560x1800)' },
+      { file: 'shot_2_workbench_foot.png', label: '발목 · 족부 1줄 입력 ➔ 상세 초안 (1952x1566)' },
+      { file: 'shot_3_workbench_shoulder.png', label: '어깨 부위 탭 전환 시연 화면 (1952x1608)' },
+      { file: 'shot_4_workbench_copied.png', label: 'EMR 양식 복사 버튼 완료 상태 (1952x1600)' },
+      { file: 'shot_5_portal_login.png', label: '메인 포털 로그인 & 체험 배너 (2560x1640)' },
+      { file: 'shot_6_benefit_section.png', label: '매월 120분 기본 · THEPT 300분 혜택 배너 (1952x646)' },
+    ];
+
+    const COPY_TEMPLATES = [
+      {
+        id: 'cafe',
+        tab: '물리치료사 카페 (치트시트형)',
+        title: '네이버 카페 / 커뮤니티 저장 유도형 게시물 (광고 반감 최소화)',
+        body: `[실무 정리] 퇴근 전 차팅 30분 줄이는 물리치료 EMR 5항목 작성 기준 (예시 포함)
+
+선생님들 안녕하세요. 환자 보고 나서 막상 차트 열면 매번 같은 문구 고민하느라 퇴근이 늦어지는 경우가 많아, 임상에서 바로 써먹을 수 있는 5항목 요약 포맷을 정리해 봤습니다.
+
+1. 환자 정보 및 진단평가: 부위·내원 회차·시행 시간
+2. 평가소견: 통증 양상과 ROM/근력 관찰 소견
+3. 중재: 도수·근력강화·스트레칭 및 세부 목적
+4. 중재 전·후 평가: NRS 변화(예: 5 -> 2) 및 가동범위 변화
+5. 종합중재소견: 당일 반응 및 다음 내원 계획
+
+매번 처음부터 타이핑하기 번거로우실 때는, 아래처럼 1줄 키워드만 넣으면 위 5항목 [초안]으로 정리해 주는 무료 도구도 참고해 보세요.
+(로그인 없이 키워드를 직접 고쳐 쓰고 복사까지 테스트해 볼 수 있습니다)
+
+-> 체험 페이지: https://www.4thept.com/intro
+
+* AI가 생성한 초안은 기록 보조용이며, 최종 진단·평가·처방 내용은 반드시 담당 치료사가 직접 검수해 EMR에 반영하셔야 합니다.`
+      },
+      {
+        id: 'kakao',
+        tab: '동료 / 동기 단톡방 (2줄 공유)',
+        title: '치료실 동료 · 학교 동기 카카오톡 2줄 공유용',
+        body: `선생님, 오늘 차팅 밀릴 때 이거 한 번 테스트해 보세요. 로그인 없이 치료 내용 1줄만 고쳐 써 보면 5항목 EMR 초안이 5초 만에 나와서 바로 복붙 됩니다.
+매월 120건 기본 무료고 THEPT 회원은 월 300건까지 무료라 먼저 써보시면 편할 거예요 -> https://www.4thept.com/intro`
+      },
+      {
+        id: 'insta',
+        tab: '인스타그램 / 쇼츠 캡션',
+        title: '인스타그램 카드뉴스 · 릴스 · 유튜브 쇼츠 업로드 설명문',
+        body: `퇴근 전 밀린 차팅, 이제 환자분 배웅하고 5초 만에 끝내세요.
+
+[저장해 두고 쓰는 물리치료 EMR 5항목 구조]
+1) 진단평가 · 회차
+2) 평가소견 (긴장도 / 제한 동작)
+3) 중재 세부 목적
+4) 중재 전후 비교 (NRS 수치 + ROM 각도)
+5) 종합소견 및 자가운동 지도
+
+프로필 링크(4thept.com/intro)에서는 회원가입이나 로그인 없이도
+직접 키워드를 입력해 보고 병원 EMR 양식대로 복사까지 5초 만에 체험할 수 있습니다.
+
+- 별도 카드 등록 없이 기본 매월 120건(120분) 무료
+- THEPT 회원(THEPT ID 등록)은 평생 매월 300건(300분) 무료
+- 모든 AI 출력물은 기록 작성 보조 [초안]이며, 담당 치료사의 [직접 검수] 후 최종 사용합니다.
+
+#물리치료사 #도수치료 #물리치료차팅 #EMR차팅 #치료기록지 #포더피티 #4THEPT #물리치료실 #신규치료사 #임상팁`
+      },
+      {
+        id: 'blog',
+        tab: '네이버 블로그 (검색 SEO)',
+        title: '네이버 검색 유입용 블로그 포스팅 구성안 ("물리치료 차팅", "도수치료 EMR")',
+        body: `[제목 후보 1] 물리치료사 차팅 시간 절반으로 줄이는 법 (5초 EMR 초안 복붙 테스트)
+[제목 후보 2] 도수치료 치료기록지 SOAP 작성 예시 모음 & 무료 차팅 보조 4THEPT 사용기
+
+[본문 배치 순서]
+1. 상단 후킹 이미지: demo_5s_charting_loop.gif 첨부 (페이지 열자마자 실제 구동 확인)
+2. 공감 파트: 하루 10명 이상 치료 후 남는 차팅 15분~30분의 피로도
+3. 실무 예시: card_cheatsheet_02.png, card_cheatsheet_03.png 첨부 (검색 체류시간 확보)
+4. 직접 체험 가이드: shot_2_workbench_foot.png, shot_4_workbench_copied.png 첨부
+   -> "로그인 없이 www.4thept.com/intro 들어가서 1줄만 수정해 보세요"
+5. 무료 혜택 & 주의사항: shot_6_benefit_section.png 첨부 (기본 월 120건 / THEPT 회원 평생 월 300건 무료, [초안]·[직접 검수] 원칙 명시)`
+      },
+      {
+        id: 'openchat',
+        tab: '오픈채팅 Q&A 답변형',
+        title: '차팅 양식 / 경력직 노하우 질문에 자연스럽게 답하는 댓글 템플릿',
+        body: `선생님 저도 예전에 같은 부분 때문에 퇴근이 계속 늦어졌었는데,
+요즘은 (1) 평가소견 - (2) 중재 목적 - (3) 전후 NRS/ROM - (4) 다음 계획 순으로 뼈대를 고정해 두고 쓰니 훨씬 빨라졌습니다.
+
+혹시 매번 문장 다듬는 시간이 아까우시면, 로그인 없이 키워드 한 줄만 넣어서 5항목 [초안] 뽑아주는 웹페이지(4thept.com/intro)에서 발목이나 어깨 예시 한 번만 고쳐 써 보세요. 병원 EMR에 바로 복붙하기 좋게 나와서 초반 감 잡는 데 도움 되실 겁니다.`
+      }
+    ];
+
+    function renderThumbGrid(containerId, items, folder, isSquare) {
+      const root = document.getElementById(containerId);
+      root.innerHTML = items.map(item => `
+        <div class="thumb-card">
+          <div class="thumb-img-box ${isSquare ? 'square' : ''}">
+            <a href="./${folder}/${item.file}" target="_blank" rel="noopener">
+              <img src="./${folder}/${item.file}" alt="${item.label}" loading="lazy" />
+            </a>
+          </div>
+          <div class="thumb-foot">
+            <div>
+              <div class="thumb-name">${item.label}</div>
+              <div class="thumb-note">${item.file}</div>
+            </div>
+            <div class="btn-row" style="margin-top:6px;">
+              <a class="btn" href="./${folder}/${item.file}" target="_blank" rel="noopener">크게 보기</a>
+              <a class="btn blue" href="./${folder}/${item.file}" download>저장</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    renderThumbGrid('grid-cheatsheet', CHEATSHEET_CARDS, '../결과물/4THEPT마케팅/cards', true);
+    renderThumbGrid('grid-real', REAL_CARDS, '../결과물/4THEPT마케팅/cards', true);
+    renderThumbGrid('grid-kakao', KAKAO_CARDS, '../결과물/4THEPT마케팅/cards', true);
+    renderThumbGrid('grid-center', CENTER_CARDS, '../결과물/4THEPT마케팅/cards', true);
+    renderThumbGrid('grid-shots', REAL_SHOTS, 'real_assets', false);
+
+    let activeTemplateId = COPY_TEMPLATES[0].id;
+    const tabsEl = document.getElementById('copy-tabs');
+    const titleEl = document.getElementById('copy-title');
+    const bodyEl = document.getElementById('copy-body');
+    const copyBtn = document.getElementById('btn-copy-template');
+
+    function renderCopyTabs() {
+      tabsEl.innerHTML = COPY_TEMPLATES.map(t => `
+        <button type="button" class="tab-btn ${t.id === activeTemplateId ? 'active' : ''}" data-id="${t.id}">
+          ${t.tab}
+        </button>
+      `).join('');
+      const current = COPY_TEMPLATES.find(t => t.id === activeTemplateId) || COPY_TEMPLATES[0];
+      titleEl.textContent = current.title;
+      bodyEl.textContent = current.body;
+      tabsEl.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTemplateId = btn.dataset.id;
+          renderCopyTabs();
+        });
+      });
+    }
+
+    copyBtn.addEventListener('click', async () => {
+      const text = bodyEl.textContent || '';
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = '복사 완료';
+        copyBtn.classList.remove('blue');
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = '문구 전체 복사';
+          copyBtn.classList.remove('copied');
+          copyBtn.classList.add('blue');
+        }, 1800);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        copyBtn.textContent = '복사 완료';
+        setTimeout(() => { copyBtn.textContent = '문구 전체 복사'; }, 1800);
+      }
+    });
+
+    renderCopyTabs();
+
+    const CLI_COMMANDS = [
+      {
+        title: '1. 유튜브 · 인스타그램 연동 상태 진단',
+        desc: 'OAuth 토큰 및 Meta Graph API 연결 정상 여부를 확인합니다.',
+        cmd: 'py promo_4thept/scripts/sns_publisher.py --check'
+      },
+      {
+        title: '2. 저장형 치트시트 5장 (인스타 캐러셀 즉시 발행)',
+        desc: 'card_cheatsheet_01~05.png를 인스타그램 피드로 올립니다. (테스트: --dry-run)',
+        cmd: 'py promo_4thept/scripts/sns_publisher.py --preset cheatsheet --platform instagram --publish'
+      },
+      {
+        title: '3. 실사 쇼츠 여성본 (유튜브 쇼츠 + 인스타 릴스 동시 발행)',
+        desc: 'THEPT 유튜브 채널(4THEPT 재생목록) 쇼츠 + 인스타 릴스로 동시 업로드합니다.',
+        cmd: 'py promo_4thept/scripts/sns_publisher.py --preset shorts_female --platform all --publish'
+      },
+      {
+        title: '4. 실사 워크벤치 5장 · 남성본 쇼츠 예약 발행 예시',
+        desc: 'KST 기준 원하는 날짜·시각(현재 +20분 이후)으로 예약 업로드합니다.',
+        cmd: 'py promo_4thept/scripts/sns_publisher.py --preset real_screen --schedule "2026-11-15 08:00" --publish'
+      }
+    ];
+
+    const cliGrid = document.getElementById('cli-command-grid');
+    if (cliGrid) {
+      cliGrid.innerHTML = CLI_COMMANDS.map((item, idx) => `
+        <div style="border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--surface-soft);">
+          <div style="font-size:13px; font-weight:800; margin-bottom:4px;">${item.title}</div>
+          <div style="font-size:12px; color:var(--ink-sub); margin-bottom:8px;">${item.desc}</div>
+          <pre style="margin:0 0 8px; padding:8px 10px; background:#fff; border:1px solid var(--border); border-radius:8px; font-size:12px; overflow-x:auto;">${item.cmd}</pre>
+          <button type="button" class="btn blue cli-copy-btn" data-idx="${idx}">명령어 복사</button>
+        </div>
+      `).join('');
+
+      cliGrid.querySelectorAll('.cli-copy-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const item = CLI_COMMANDS[Number(btn.dataset.idx)];
+          try {
+            await navigator.clipboard.writeText(item.cmd);
+            btn.textContent = '복사 완료';
+            btn.classList.remove('blue');
+            btn.classList.add('copied');
+            setTimeout(() => {
+              btn.textContent = '명령어 복사';
+              btn.classList.remove('copied');
+              btn.classList.add('blue');
+            }, 1500);
+          } catch {}
+        });
+      });
+    }
+  </script>
+</body>
+</html>

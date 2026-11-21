@@ -6,10 +6,16 @@ __pycache__/
 client_secret*.json
 *.pickle
 token.json
-# output 디렉토리 내 임시 파일만 제외 (주간 큐레이션 결과물은 Git 추적 허용)
-output/**/.cache/
-output/**/tmp/
-output/**/*.tmp
+# 결과물 디렉토리 내 임시 캐시만 제외 (THEPT뉴스·4THEPT마케팅 최종 산출물은 Git 추적 허용)
+결과물/**/.cache/
+결과물/**/tmp/
+결과물/**/*.tmp
+data/tts_cache/
+
+# 4THEPT 원천 촬영/합성용 중간 소스만 로컬 보관 (완성본은 결과물/4THEPT마케팅/ 에 저장되어 Git 추적)
+promo_4thept/media_library/
+promo_4thept/real_assets/
+promo_4thept/youtube/
 venv/
 .venv/
 .pytest_cache/

@@ -11,8 +11,12 @@ load_dotenv()
 # 기본 디렉토리 경로
 BASE_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = BASE_DIR / "templates"
-OUTPUT_DIR = BASE_DIR / "output"
+OUTPUT_ROOT_DIR = BASE_DIR / "결과물"
+NEWS_OUTPUT_DIR = OUTPUT_ROOT_DIR / "THEPT뉴스"
+PROMO_OUTPUT_DIR = OUTPUT_ROOT_DIR / "4THEPT마케팅"
+OUTPUT_DIR = NEWS_OUTPUT_DIR  # 주간 뉴스 파이프라인 기본 출력 경로
 ASSETS_DIR = BASE_DIR / "assets"
+TTS_CACHE_DIR = BASE_DIR / "data" / "tts_cache"
 
 # 표준 템플릿 경로 (4:5 인스타그램 피드 & 9:16 유튜브 쇼츠)
 TEMPLATE_4X5 = TEMPLATES_DIR / "card_4x5.html"
@@ -104,19 +108,83 @@ NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET", "")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
+# 4THEPT 공식 홍보 URL · 보조 도구 고지 및 유틸리티 (단일 진실 소스)
+THEPT_INTRO_BASE_URL = "https://www.4thept.com/intro"
+THEPT_COMMUNITY_URL = "https://thept.co.kr"
+THEPT_KMONG_URL = "https://kmong.com/gig/813101"
+THEPT_ASSISTANT_DISCLAIMER = (
+    "* AI 생성 결과는 기록 작성 보조 [초안]이며, "
+    "최종 진단·평가·처방은 담당 치료사가 [직접 검수] 후 사용합니다."
+)
+
+
+def build_4thept_intro_url(
+    utm_source: str = "ig",
+    utm_medium: str = "carousel",
+    utm_campaign: str = "weekly_briefing",
+) -> str:
+    """표준 UTM 추적 파라미터가 포함된 4THEPT /intro 체험 링크를 생성합니다."""
+    return (
+        f"{THEPT_INTRO_BASE_URL}"
+        f"?utm_source={utm_source}&utm_medium={utm_medium}&utm_campaign={utm_campaign}"
+    )
+
+
+def build_4thept_promo_footer(
+    utm_source: str = "ig",
+    utm_medium: str = "carousel",
+    utm_campaign: str = "weekly_briefing",
+    include_disclaimer: bool = True,
+) -> str:
+    """캡션·설명란 하단에 삽입하는 4THEPT 공식 안내 푸터를 생성합니다."""
+    intro_url = build_4thept_intro_url(utm_source, utm_medium, utm_campaign)
+    lines = [
+        "📌 물리치료사를 위한 AI 기록 보조 플랫폼 4THEPT",
+        f"• 키워드 1줄 5초 AI 차팅 · 310구역 4면 바디차트 비로그인 체험: {intro_url}",
+        "• 기본 매월 120분 무료 · THEPT ID 등록 시 평생 매월 300분 무료",
+        f"• [크몽 전자책] 병원밖 물리치료사 - 가성비 소규모 센터창업 가이드: {THEPT_KMONG_URL}",
+        f"• THEPT 공식 커뮤니티: {THEPT_COMMUNITY_URL}",
+        "• 광고 및 비즈니스 제휴: teamthept@gmail.com",
+    ]
+    if include_disclaimer:
+        lines.append(THEPT_ASSISTANT_DISCLAIMER)
+    return "\n".join(lines)
+
+
+def build_first_comment(
+    utm_source: str = "ig",
+    utm_medium: str = "carousel",
+    utm_campaign: str = "weekly_briefing",
+) -> str:
+    """유튜브/인스타그램 고정 첫 댓글 표준 텍스트를 생성합니다."""
+    intro_url = build_4thept_intro_url(utm_source, utm_medium, utm_campaign)
+    return (
+        "📌 [THEPT 추천] 물리치료사를 위한 실전 AI 기록 보조 & 창업 가이드\n\n"
+        "1️⃣ 4THEPT — 키워드 1줄 5초 AI 차팅 & 310구역 4면 바디차트\n"
+        "• 로그인 없이 5초 테스트 · EMR 양식 1클릭 복사 (기본 월 120분 / THEPT ID 평생 월 300분 무료)\n"
+        f"👉 바로 체험하기: {intro_url}\n\n"
+        "2️⃣ 크몽 전자책 『병원밖 물리치료사 - 가성비 소규모 센터창업 가이드』\n"
+        "• 병원 밖 독립을 꿈꾸는 물리치료사를 위한 소규모 센터 창업 실전 노하우\n"
+        f"👉 크몽 바로가기: {THEPT_KMONG_URL}\n\n"
+        f"💬 최신 물리치료 임상·정책 자료와 동료 치료사 커뮤니티: {THEPT_COMMUNITY_URL}\n"
+        "📢 광고 및 비즈니스 제휴 문의: teamthept@gmail.com\n"
+        f"{THEPT_ASSISTANT_DISCLAIMER}"
+    )
+
+
 # 5번째 슬라이드: 광고/프로모션 페이지 기본 설정 (언제든 수정 가능)
 DEFAULT_AD_CONFIG = {
     "badge": "THEPT SPONSOR",
-    "title": "병원 밖 독립을 위한 <span class=\"hl-yellow\">핵심 솔루션 2가지</span>",
-    "sub_badge": "물리치료사 필수 솔루션",
+    "title": "물리치료사를 위한 <span class=\"hl-yellow\">실전 솔루션 2가지</span>",
+    "sub_badge": "5초 AI 차팅 & 창업 가이드",
     "categories": [
         {
             "num": "01",
-            "name": "방문재활 AI 음성차팅",
-            "tag": "4thept.com",
+            "name": "4THEPT 5초 AI 차팅",
+            "tag": "4thept.com/intro",
             "bullets": [
-                "🎙️ 말로 하는 스마트 차팅: SOAP 및 라포 기록 자동화",
-                "⏱️ 수기 행정 부담 경감, 환자 1인당 차팅 시간 60% 단축"
+                "키워드 1줄 + 310구역 바디차트로 5단락 EMR 초안 즉시 정리",
+                "비로그인 5초 체험 · 기본 월 120분 / THEPT ID 평생 월 300분 무료"
             ]
         },
         {
@@ -125,26 +193,29 @@ DEFAULT_AD_CONFIG = {
             "subname": "- 병원밖 물리치료사",
             "tag": "크몽 전자책",
             "bullets": [
-                "📖 병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
-                "💡 입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
+                "병원 밖에서 자립하는 1인 센터 창업 실전 노하우 A to Z",
+                "입지 분석, 인테리어, 가성비 장비 세팅 및 마케팅 올인원"
             ]
         }
     ],
-    "cta_text": "👉 두 서비스 모두 하단 고정 댓글 링크에서 지금 확인하세요!",
-    "inquiry_text": "📢 4thept.com & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
-    "narration": "방문재활 AI 음성차팅 4THEPT와 크몽 센터창업 가이드북, 지금 바로 하단 고정댓글에서 확인해보세요!",
-    "link": "https://4thept.com",
-    "kmong_link": "https://kmong.com/gig/813101"
+    "cta_text": "👉 하단 고정 댓글 링크에서 로그인 없이 5초 체험해 보세요!",
+    "inquiry_text": "📢 4thept.com/intro & 크몽(kmong.com/gig/813101) | 문의: teamthept@gmail.com",
+    "narration": "키워드 한 줄 5초 차팅 포더피티와 크몽 센터창업 가이드북, 고정 댓글에서 로그인 없이 체험해 보세요.",
+    "link": THEPT_INTRO_BASE_URL,
+    "kmong_link": THEPT_KMONG_URL
 }
 
 # SNS 자동 예약 업로드 설정
 INSTAGRAM_ACCOUNT_ID = os.getenv("INSTAGRAM_ACCOUNT_ID", "")
 INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN", "")
 
-# YouTube Data API v3 OAuth 설정
+# YouTube Data API v3 OAuth 설정 (목표 채널: THEPT)
 YOUTUBE_CLIENT_SECRET_FILE = os.getenv("YOUTUBE_CLIENT_SECRET_FILE", str(BASE_DIR / "client_secret.json"))
 YOUTUBE_TOKEN_FILE = BASE_DIR / "token.pickle"
-YOUTUBE_DEFAULT_PLAYLIST_ID = os.getenv("YOUTUBE_DEFAULT_PLAYLIST_ID", "PLTEYR_IZibwI")  # 기본 재생목록: '뉴스'
+YOUTUBE_EXPECTED_CHANNEL_ID = os.getenv("YOUTUBE_EXPECTED_CHANNEL_ID", "UCbwC2jK9J-179R2Un3T0xPA")
+YOUTUBE_EXPECTED_CHANNEL_NAME = os.getenv("YOUTUBE_EXPECTED_CHANNEL_NAME", "THEPT")
+YOUTUBE_DEFAULT_PLAYLIST_ID = os.getenv("YOUTUBE_DEFAULT_PLAYLIST_ID", "PLTEYR_IZibwI")  # THEPT 채널 '뉴스' 재생목록
+YOUTUBE_PROMO_PLAYLIST_ID = os.getenv("YOUTUBE_PROMO_PLAYLIST_ID", "PLMJFgpIEDRBA")      # THEPT 채널 '4THEPT' 전용 재생목록
 
 # Google Drive API v3 OAuth 설정
 GDRIVE_CLIENT_SECRET_FILE = os.getenv("GDRIVE_CLIENT_SECRET_FILE", str(BASE_DIR / "client_secret.json"))

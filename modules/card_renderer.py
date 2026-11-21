@@ -157,6 +157,6 @@ if __name__ == "__main__":
     print("[테스트] 4:5 카드뉴스 렌더링 시작...")
     test_news = collect_weekly_physical_therapy_news(min_news_count=3)
     test_pkg = build_content_package(test_news)
-    test_out = Path(__file__).resolve().parent.parent / "output" / "test_cards"
+    test_out = Path(__file__).resolve().parent.parent / "결과물" / "THEPT뉴스" / "test_cards"
     paths = asyncio.run(render_cards_to_images(test_pkg, test_out))
     print(f"[성공] 총 {len(paths)}장의 카드뉴스가 생성되었습니다: {test_out}")
